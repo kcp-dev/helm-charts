@@ -1,0 +1,15 @@
+apiVersion: v1
+entries:
+  kcp:
+  - apiVersion: v2
+    appVersion: "0.6"
+    created: "2022-07-29T17:40:47.158810116Z"
+    description: A prototype of a multi-tenant Kubernetes control plane for workloads
+      on many clusters
+    digest: 044530f5815e57d90ba55c4371fde80d1dcbc4152adf46e6435e96e0ac828ee4
+    name: kcp
+    type: application
+    urls:
+    - https://github.com/kcp-dev/helm-charts/releases/download/kcp-0.1.1/kcp-0.1.1.tgz
+    version: 0.1.1
+generated: "2022-07-29T17:40:47.158821916Z"
