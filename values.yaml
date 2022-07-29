@@ -1,0 +1,40 @@
+externalHostname: a
+etcd:
+  image: quay.io/coreos/etcd
+  tag: v3.5.4
+  cpuLimit: "1"
+  memoryLimit: 2Gi
+  volumeSize: 8Gi
+kcp:
+  image: ghcr.io/kcp-dev/kcp
+  tag: latest
+  v: "4"
+  cpuLimit: "1"
+  memoryLimit: 3Gi
+kcpFrontProxy:
+  v: "4"
+virtualWorkspaces:
+  cpuLimit: 200m
+  memoryLimit: 1Gi
+  cpuRequest: 100m
+  memoryRequest: 256Mi
+audit:
+  enabled: true
+  volumeSize: 1Gi
+  policy:
+    dir: /etc/kcp/audit
+    fileName: audit-policy.yml
+    config: |
+      # Log all requests at the Metadata level.
+      apiVersion: audit.k8s.io/v1
+      kind: Policy
+      rules:
+      - level: Metadata
+  log:
+    maxAge: "10"
+    maxSize: "250"
+    maxBackup: "1"
+    dir: /var/audit
+oidc: {}
+githubUserEditAccess:
+- test

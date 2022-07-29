@@ -1,0 +1,14 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: kcp-dev-edit-access
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: edit
+subjects:
+{{- range .Values.githubUserEditAccess }}
+- apiGroup: rbac.authorization.k8s.io
+  kind: User
+  name: {{ . }}
+{{- end }}
