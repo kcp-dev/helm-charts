@@ -1,29 +1,24 @@
-# KCP Helm Chart
+# KCP Helm Charts
 
-This Helm chart deploys KCP, including the following components:
+Repository for KCP helm charts.
 
-* KCP pod, including virtual workspace container
-* Etcd
-* Front proxy
+## Usage
 
-## Dependencies
+[Helm](https://helm.sh) must be installed to use the charts.  Please refer to
+Helm's [documentation](https://helm.sh/docs) to get started.
 
-* cert-manager
-* Openshift route
+Once Helm has been set up correctly, add the repo as follows:
 
-## Options
+  helm repo add kcp https://kcp-dev.github.io/helm-charts
 
-Currently configurable options:
+If you had already added this repo earlier, run `helm repo update` to retrieve
+the latest versions of the packages.  You can then run `helm search repo
+kcp` to see the charts.
 
-* Etcd image and tag
-* Etcd memory/cpu limit
-* Etcd volume size
-* KCP image and tag
-* KCP memory/cpu limit
-* KCP logging verbosity
-* Virtual workspace memory/cpu limit
-* Virtual workspace logging verbosity
-* Audit logging
-* OIDC
-* Github user access to project
-* External hostname
+To install the kcp chart:
+
+    helm install my-kcp kcp/kcp
+
+To uninstall the chart:
+
+    helm delete my-kcp
