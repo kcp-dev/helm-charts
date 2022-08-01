@@ -23,7 +23,7 @@ kind: Ingress
 metadata:
   name: kcp-front-proxy
   annotations:
-    {{- .Values.kcpFrontProxy.ingress.annotations | nindent 4 }}
+    {{- toYaml .Values.kcpFrontProxy.ingress.annotations | nindent 4 }}
 spec:
   tls:
   - hosts:
