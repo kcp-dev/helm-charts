@@ -1,4 +1,4 @@
-{{ - if .Values.kcpFrontProxy.openShiftRoute.enabled -}}
+{{- if .Values.kcpFrontProxy.openShiftRoute.enabled -}}
 ---
 apiVersion: route.openshift.io/v1
 kind: Route
@@ -16,7 +16,7 @@ spec:
     weight: 100
   wildcardPolicy: None
 {{- end }}
-{{ - if .Values.kcpFrontProxy.ingress.enabled -}}
+{{- if .Values.kcpFrontProxy.ingress.enabled -}}
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
@@ -28,7 +28,7 @@ spec:
   tls:
   - hosts:
       - {{ .Values.externalHostname }}
-    {{- with .Values.kcpFrontProxy.ingress.secret }}secretName: {{ . }}{{- end }}
+    {{- with .Values.kcpFrontProxy.ingress.secret -}}secretName: {{ . }}{{- end }}
   rules:
   - host: {{ .Values.externalHostname }}
     http:
