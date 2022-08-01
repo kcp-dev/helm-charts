@@ -69,6 +69,8 @@ spec:
   - backendRefs:
     - name: kcp-front-proxy
       port: 8443
+  hostnames:
+  - {{ .Values.externalHostname }}
 {{- end }}
 ---
 apiVersion: cert-manager.io/v1
