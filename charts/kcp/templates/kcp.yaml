@@ -387,4 +387,4 @@ metadata:
   name: audit-policy
 data:
   {{ .Values.audit.policy.fileName }}: |
-{{ .Values.audit.policy.config | indent 4 }}
+    {{- .Values.audit.policy.config | nindent 4 }}
