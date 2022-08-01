@@ -236,7 +236,7 @@ spec:
         {{- end }}
         env:
         - name: EXTERNAL_HOSTNAME
-          value: {{ .Values.externalHostname }}
+          value: {{ required "A valid external hostname is required" .Values.externalHostname }}
         livenessProbe:
           failureThreshold: 3
           httpGet:

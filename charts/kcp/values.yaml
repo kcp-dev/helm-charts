@@ -1,4 +1,4 @@
-externalHostname: a
+externalHostname: ""
 etcd:
   enabled: true
   image: quay.io/coreos/etcd
@@ -28,6 +28,8 @@ kcpFrontProxy:
     enabled: true
     annotations: {}
     secret: ""
+  certificate:
+    issuerSpec: {}
 virtualWorkspaces:
   cpuLimit: 200m
   memoryLimit: 1Gi
