@@ -213,8 +213,8 @@ spec:
         - --oidc-client-id={{ .Values.oidc.clientId }}
         - --oidc-groups-claim={{ .Values.oidc.groupClaim }}
         - --oidc-username-claim={{ .Values.oidc.usernameClaim }}
-        - "--oidc-username-prefix=rh-sso:"
-        - "--oidc-groups-prefix=rh-sso:"
+        - "--oidc-username-prefix={{ .Values.oidc.usernamePrefix }}"
+        - "--oidc-groups-prefix={{ .Values.oidc.groupsPrefix }}:"
         {{- end }}
         - --v={{ .Values.kcp.v }}
         {{- if .Values.audit.enabled }}
