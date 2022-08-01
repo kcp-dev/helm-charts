@@ -117,6 +117,24 @@ spec:
   issuerRef:
     name: kcp-server-issuer
 ---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: kcp-etcd-client
+spec:
+  secretName: kcp-etcd-client
+  duration: 8760h0m0s # 365d
+  renewBefore: 360h0m0s # 15d
+  commonName: {{ .Values.kcp.etcd.clientCertificate.commonName }}
+  privateKey:
+    algorithm: RSA
+    encoding: PKCS1
+    size: 2048
+  usages:
+    - client auth
+  issuerRef:
+    name: {{ .Values.kcp.etcd.clientCertificate.issuer }}
+---
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
@@ -191,7 +209,7 @@ spec:
         - /kcp
         args:
         - start
-        - --etcd-servers={{ .Values.kcp.etcdServerAddress }}
+        - --etcd-servers={{ .Values.kcp.etcd.serverAddress }}
         - --etcd-keyfile=/etc/etcd/tls/server/tls.key
         - --etcd-certfile=/etc/etcd/tls/server/tls.crt
         - --etcd-cafile=/etc/etcd/tls/server/ca.crt
@@ -347,7 +365,7 @@ spec:
       volumes:
       - name: etcd-certs
         secret:
-          secretName: etcd-cert
+          secretName: kcp-etcd-client
       - name: kcp-certs
         secret:
           secretName: kcp-cert

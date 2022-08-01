@@ -12,7 +12,11 @@ kcp:
   v: "4"
   cpuLimit: "1"
   memoryLimit: 3Gi
-  etcdServerAddress: https://etcd:2379
+  etcd:
+    serverAddress: https://etcd:2379
+    clientCertificate:
+      issuer: etcd-client-issuer
+      commonName: root
   volumeSize: 1Gi
   volumeClassName: ""
   volumeMode: ""
