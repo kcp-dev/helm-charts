@@ -1,4 +1,4 @@
-{{- if .Values.kcpFrontProxy.openShiftRoute.enabled -}}
+{{- if .Values.kcpFrontProxy.openshiftRoute.enabled -}}
 ---
 apiVersion: route.openshift.io/v1
 kind: Route
