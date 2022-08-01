@@ -191,7 +191,7 @@ spec:
         - /kcp
         args:
         - start
-        - --etcd-servers=https://etcd:2379
+        - --etcd-servers={{ .Values.kcp.etcdServerAddress }}
         - --etcd-keyfile=/etc/etcd/tls/server/tls.key
         - --etcd-certfile=/etc/etcd/tls/server/tls.crt
         - --etcd-cafile=/etc/etcd/tls/server/ca.crt

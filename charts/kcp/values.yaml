@@ -1,5 +1,6 @@
 externalHostname: a
 etcd:
+  enabled: true
   image: quay.io/coreos/etcd
   tag: v3.5.4
   cpuLimit: "1"
@@ -11,6 +12,7 @@ kcp:
   v: "4"
   cpuLimit: "1"
   memoryLimit: 3Gi
+  etcdServerAddress: https://etcd:2379
 kcpFrontProxy:
   v: "4"
 virtualWorkspaces:
