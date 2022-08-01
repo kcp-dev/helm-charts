@@ -15,6 +15,12 @@ kcp:
   etcdServerAddress: https://etcd:2379
 kcpFrontProxy:
   v: "4"
+  openshiftRoute:
+    enabled: false
+  ingress:
+    enabled: true
+    annotations: {}
+    secret: ""
 virtualWorkspaces:
   cpuLimit: 200m
   memoryLimit: 1Gi
