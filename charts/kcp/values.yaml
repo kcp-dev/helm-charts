@@ -13,10 +13,9 @@ kcp:
   cpuLimit: "1"
   memoryLimit: 3Gi
   etcdServerAddress: https://etcd:2379
-  storage:
-    size: 1Gb
-    className: ""
-    volumeMode: ""
+  volumeSize: 1Gi
+  volumeClassName: ""
+  volumeMode: ""
 kcpFrontProxy:
   v: "4"
   openshiftRoute:
@@ -33,6 +32,8 @@ virtualWorkspaces:
 audit:
   enabled: true
   volumeSize: 1Gi
+  volumeClassName: ""
+  volumeMode: ""
   policy:
     dir: /etc/kcp/audit
     fileName: audit-policy.yml

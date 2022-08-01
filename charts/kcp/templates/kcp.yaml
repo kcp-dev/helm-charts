@@ -126,9 +126,9 @@ spec:
   - ReadWriteOnce
   resources:
     requests:
-      storage: {{ .Values.kcp.storage.size }}
-  {{- with .Values.kcp.storage.className -}}storageClassName: {{ . }}{{- end }}
-  {{- with .Values.kcp.storage.volumeMode -}}volumeMode: {{ . }}{{- end }}
+      storage: {{ .Values.kcp.volumeSize }}
+  {{- with .Values.kcp.volumeClassName -}}storageClassName: {{ . }}{{- end }}
+  {{- with .Values.kcp.volumeMode -}}volumeMode: {{ . }}{{- end }}
 {{- if .Values.audit.enabled }}
 ---
 apiVersion: v1
@@ -141,8 +141,8 @@ spec:
   resources:
     requests:
       storage: {{ .Values.audit.volumeSize }}
-  storageClassName: gp2
-  volumeMode: Filesystem
+  {{- with .Values.audit.volumeClassName -}}storageClassName: {{ . }}{{- end }}
+  {{- with .Values.audit.volumeMode -}}volumeMode: {{ . }}{{- end }}
 {{- end }}
 ---
 apiVersion: v1
