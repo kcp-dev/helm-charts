@@ -76,9 +76,10 @@ spec:
   secretName: kcp-cert
   duration: 8760h0m0s # 365d
   renewBefore: 360h0m0s # 15d
+  {{ with .Values.certificates.subject }}
   subject:
-    organizations:
-      - redhat
+    {{- toYaml . | nindent 4 }}
+  {{ end}}
   privateKey:
     {{- toYaml .Values.certificates.privateKeys | nindent 4 }}
   usages:
@@ -97,9 +98,10 @@ spec:
   secretName: kcp-virtual-workspaces-cert
   duration: 8760h0m0s # 365d
   renewBefore: 360h0m0s # 15d
+  {{ with .Values.certificates.subject }}
   subject:
-    organizations:
-      - redhat
+    {{- toYaml . | nindent 4 }}
+  {{ end}}
   privateKey:
     {{- toYaml .Values.certificates.privateKeys | nindent 4 }}
   usages:
@@ -120,7 +122,7 @@ spec:
   renewBefore: 360h0m0s # 15d
   commonName: {{ .Values.kcp.etcd.clientCertificate.commonName }}
   privateKey:
-    algorithm: Ed25519
+    {{- toYaml .Values.certificates.privateKeys | nindent 4 }}
   usages:
     - client auth
   issuerRef:

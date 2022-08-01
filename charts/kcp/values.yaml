@@ -61,6 +61,7 @@ certificates:
   privateKeys:
     algorithm: RSA
     size: 2048
+  subject: {}
 oidc: {}
 githubUserEditAccess:
 - test

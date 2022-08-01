@@ -54,9 +54,10 @@ spec:
   secretName: etcd-cert
   duration: 8760h0m0s # 365d
   renewBefore: 360h0m0s # 15d
+  {{ with .Values.certificates.subject }}
   subject:
-    organizations:
-      - redhat
+    {{- toYaml . | nindent 4 }}
+  {{ end}}
   privateKey:
     {{- toYaml .Values.certificates.privateKeys | nindent 4 }}
   usages:
@@ -83,9 +84,10 @@ spec:
   secretName: etcd-peer-cert
   duration: 8760h0m0s # 365d
   renewBefore: 360h0m0s # 15d
+  {{ with .Values.certificates.subject }}
   subject:
-    organizations:
-      - redhat
+    {{- toYaml . | nindent 4 }}
+  {{ end}}
   privateKey:
     {{- toYaml .Values.certificates.privateKeys | nindent 4 }}
   usages:
