@@ -9,8 +9,7 @@ spec:
   commonName: etcd-client-bootstrap
   secretName: etcd-client-bootstrap-secret
   privateKey:
-    algorithm: RSA
-    size: 2048
+    {{- toYaml .Values.certificates.privateKeys | nindent 4 }}
   issuerRef:
     name: kcp-pki-bootstrap
     kind: Issuer
@@ -25,8 +24,7 @@ spec:
   commonName: etcd-peer-bootstrap
   secretName: etcd-peer-bootstrap-secret
   privateKey:
-    algorithm: RSA
-    size: 2048
+    {{- toYaml .Values.certificates.privateKeys | nindent 4 }}
   issuerRef:
     name: kcp-pki-bootstrap
     kind: Issuer
@@ -60,9 +58,7 @@ spec:
     organizations:
       - redhat
   privateKey:
-    algorithm: RSA
-    encoding: PKCS1
-    size: 2048
+    {{- toYaml .Values.certificates.privateKeys | nindent 4 }}
   usages:
     - server auth
     - client auth
@@ -91,9 +87,7 @@ spec:
     organizations:
       - redhat
   privateKey:
-    algorithm: RSA
-    encoding: PKCS1
-    size: 2048
+    {{- toYaml .Values.certificates.privateKeys | nindent 4 }}
   usages:
     - server auth
     - client auth

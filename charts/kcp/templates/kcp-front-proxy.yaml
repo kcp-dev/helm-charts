@@ -68,9 +68,7 @@ spec:
     organizations:
       - redhat
   privateKey:
-    algorithm: RSA
-    encoding: PKCS1
-    size: 2048
+    {{- toYaml .Values.certificates.privateKeys | nindent 4 }}
   usages:
     - server auth
   dnsNames:
@@ -87,8 +85,7 @@ spec:
   commonName: kcp-client-ca
   secretName: kcp-client-ca
   privateKey:
-    algorithm: RSA
-    size: 2048
+    {{- toYaml .Values.certificates.privateKeys | nindent 4 }}
   issuerRef:
     name: kcp-pki-bootstrap
     kind: Issuer
@@ -114,9 +111,7 @@ spec:
     organizations:
       - redhat
   privateKey:
-    algorithm: RSA
-    encoding: PKCS1
-    size: 2048
+    {{- toYaml .Values.certificates.privateKeys | nindent 4 }}
   usages:
     - client auth
   dnsNames:
@@ -137,9 +132,7 @@ spec:
     organizations:
       - "system:masters"
   privateKey:
-    algorithm: RSA
-    encoding: PKCS1
-    size: 2048
+    {{- toYaml .Values.certificates.privateKeys | nindent 4 }}
   usages:
     - client auth
   issuerRef:
@@ -157,9 +150,7 @@ spec:
     organizations:
       - redhat
   privateKey:
-    algorithm: RSA
-    encoding: PKCS1
-    size: 2048
+    {{- toYaml .Values.certificates.privateKeys | nindent 4 }}
   usages:
     - client auth
   dnsNames:
