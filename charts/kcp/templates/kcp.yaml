@@ -126,9 +126,9 @@ spec:
   - ReadWriteOnce
   resources:
     requests:
-      storage: 1Gi
-  storageClassName: gp2
-  volumeMode: Filesystem
+      storage: {{ .Values.kcp.storage.size }}
+  {{- with .Values.kcp.storage.className -}}storageClassName: {{ . }}{{- end }}
+  {{- with .Values.kcp.storage.volumeMode -}}volumeMode: {{ . }}{{- end }}
 {{- if .Values.audit.enabled }}
 ---
 apiVersion: v1

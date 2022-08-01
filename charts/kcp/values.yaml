@@ -13,6 +13,10 @@ kcp:
   cpuLimit: "1"
   memoryLimit: 3Gi
   etcdServerAddress: https://etcd:2379
+  storage:
+    size: 1Gb
+    className: ""
+    volumeMode: ""
 kcpFrontProxy:
   v: "4"
   openshiftRoute:
