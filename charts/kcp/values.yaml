@@ -28,6 +28,9 @@ kcpFrontProxy:
     enabled: true
     annotations: {}
     secret: ""
+  gateway:
+    enabled: false
+    className: ""
   certificate:
     issuerSpec: {}
 virtualWorkspaces:
