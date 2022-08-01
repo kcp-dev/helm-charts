@@ -120,7 +120,7 @@ spec:
   renewBefore: 360h0m0s # 15d
   commonName: {{ .Values.kcp.etcd.clientCertificate.commonName }}
   privateKey:
-    {{- toYaml .Values.certificates.privateKeys | nindent 4 }}
+    algorithm: Ed25519
   usages:
     - client auth
   issuerRef:

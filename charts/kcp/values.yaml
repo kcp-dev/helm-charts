@@ -25,7 +25,7 @@ kcpFrontProxy:
   openshiftRoute:
     enabled: false
   ingress:
-    enabled: true
+    enabled: false
     annotations: {}
     secret: ""
   gateway:
