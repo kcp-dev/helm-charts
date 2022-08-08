@@ -8,8 +8,7 @@ spec:
   commonName: kcp-ca
   secretName: kcp-ca
   privateKey:
-    algorithm: RSA
-    size: 2048
+    {{- toYaml .Values.certificates.privateKeys | nindent 4 }}
   issuerRef:
     name: kcp-pki-bootstrap
     kind: Issuer
@@ -24,8 +23,7 @@ spec:
   commonName: kcp-requestheader-client-ca
   secretName: kcp-requestheader-client-ca
   privateKey:
-    algorithm: RSA
-    size: 2048
+    {{- toYaml .Values.certificates.privateKeys | nindent 4 }}
   issuerRef:
     name: kcp-pki-bootstrap
     kind: Issuer
@@ -40,8 +38,7 @@ spec:
   commonName: kcp-server-client-ca
   secretName: kcp-server-client-ca
   privateKey:
-    algorithm: RSA
-    size: 2048
+    {{- toYaml .Values.certificates.privateKeys | nindent 4 }}
   issuerRef:
     name: kcp-pki-bootstrap
     kind: Issuer
@@ -79,13 +76,12 @@ spec:
   secretName: kcp-cert
   duration: 8760h0m0s # 365d
   renewBefore: 360h0m0s # 15d
+  {{ with .Values.certificates.subject }}
   subject:
-    organizations:
-      - redhat
+    {{- toYaml . | nindent 4 }}
+  {{ end}}
   privateKey:
-    algorithm: RSA
-    encoding: PKCS1
-    size: 2048
+    {{- toYaml .Values.certificates.privateKeys | nindent 4 }}
   usages:
     - server auth
   dnsNames:
@@ -102,13 +98,12 @@ spec:
   secretName: kcp-virtual-workspaces-cert
   duration: 8760h0m0s # 365d
   renewBefore: 360h0m0s # 15d
+  {{ with .Values.certificates.subject }}
   subject:
-    organizations:
-      - redhat
+    {{- toYaml . | nindent 4 }}
+  {{ end}}
   privateKey:
-    algorithm: RSA
-    encoding: PKCS1
-    size: 2048
+    {{- toYaml .Values.certificates.privateKeys | nindent 4 }}
   usages:
     - server auth
   dnsNames:
@@ -116,6 +111,22 @@ spec:
     - localhost
   issuerRef:
     name: kcp-server-issuer
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: kcp-etcd-client
+spec:
+  secretName: kcp-etcd-client
+  duration: 8760h0m0s # 365d
+  renewBefore: 360h0m0s # 15d
+  commonName: {{ .Values.kcp.etcd.clientCertificate.commonName }}
+  privateKey:
+    {{- toYaml .Values.certificates.privateKeys | nindent 4 }}
+  usages:
+    - client auth
+  issuerRef:
+    name: {{ .Values.kcp.etcd.clientCertificate.issuer }}
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -126,9 +137,9 @@ spec:
   - ReadWriteOnce
   resources:
     requests:
-      storage: 1Gi
-  storageClassName: gp2
-  volumeMode: Filesystem
+      storage: {{ .Values.kcp.volumeSize }}
+  {{- with .Values.kcp.volumeClassName -}}storageClassName: {{ . }}{{- end }}
+  {{- with .Values.kcp.volumeMode -}}volumeMode: {{ . }}{{- end }}
 {{- if .Values.audit.enabled }}
 ---
 apiVersion: v1
@@ -141,8 +152,8 @@ spec:
   resources:
     requests:
       storage: {{ .Values.audit.volumeSize }}
-  storageClassName: gp2
-  volumeMode: Filesystem
+  {{- with .Values.audit.volumeClassName -}}storageClassName: {{ . }}{{- end }}
+  {{- with .Values.audit.volumeMode -}}volumeMode: {{ . }}{{- end }}
 {{- end }}
 ---
 apiVersion: v1
@@ -191,7 +202,7 @@ spec:
         - /kcp
         args:
         - start
-        - --etcd-servers=https://etcd:2379
+        - --etcd-servers={{ .Values.kcp.etcd.serverAddress }}
         - --etcd-keyfile=/etc/etcd/tls/server/tls.key
         - --etcd-certfile=/etc/etcd/tls/server/tls.crt
         - --etcd-cafile=/etc/etcd/tls/server/ca.crt
@@ -213,8 +224,8 @@ spec:
         - --oidc-client-id={{ .Values.oidc.clientId }}
         - --oidc-groups-claim={{ .Values.oidc.groupClaim }}
         - --oidc-username-claim={{ .Values.oidc.usernameClaim }}
-        - "--oidc-username-prefix=rh-sso:"
-        - "--oidc-groups-prefix=rh-sso:"
+        - "--oidc-username-prefix={{ .Values.oidc.usernamePrefix }}"
+        - "--oidc-groups-prefix={{ .Values.oidc.groupsPrefix }}:"
         {{- end }}
         - --v={{ .Values.kcp.v }}
         {{- if .Values.audit.enabled }}
@@ -227,7 +238,7 @@ spec:
         {{- end }}
         env:
         - name: EXTERNAL_HOSTNAME
-          value: {{ .Values.externalHostname }}
+          value: {{ required "A valid external hostname is required" .Values.externalHostname }}
         livenessProbe:
           failureThreshold: 3
           httpGet:
@@ -347,7 +358,7 @@ spec:
       volumes:
       - name: etcd-certs
         secret:
-          secretName: etcd-cert
+          secretName: kcp-etcd-client
       - name: kcp-certs
         secret:
           secretName: kcp-cert
@@ -387,4 +398,4 @@ metadata:
   name: audit-policy
 data:
   {{ .Values.audit.policy.fileName }}: |
-{{ .Values.audit.policy.config | indent 4 }}
+    {{- .Values.audit.policy.config | nindent 4 }}

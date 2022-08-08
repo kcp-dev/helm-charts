@@ -1,3 +1,4 @@
+{{- if .Values.kcpFrontProxy.openshiftRoute.enabled }}
 ---
 apiVersion: route.openshift.io/v1
 kind: Route
@@ -14,20 +15,70 @@ spec:
     name: kcp-front-proxy
     weight: 100
   wildcardPolicy: None
+{{- end }}
+{{- if .Values.kcpFrontProxy.ingress.enabled }}
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: kcp-front-proxy
+  annotations:
+    {{- toYaml .Values.kcpFrontProxy.ingress.annotations | nindent 4 }}
+spec:
+  tls:
+  - hosts:
+      - {{ .Values.externalHostname }}
+    {{- with .Values.kcpFrontProxy.ingress.secret -}}secretName: {{ . }}{{- end }}
+  rules:
+  - host: {{ .Values.externalHostname }}
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: kcp-front-proxy
+            port:
+              number: 8443
+{{- end }}
+{{- if .Values.kcpFrontProxy.gateway.enabled }}
+---
+apiVersion: gateway.networking.k8s.io/v1beta1
+kind: Gateway
+metadata:
+  name: kcp-front-proxy
+spec:
+  gatewayClassName: {{ required "gateway.classname is required" .Values.kcpFrontProxy.gateway.className }}
+  listeners:
+  - name: tls
+    protocol: TLS
+    port: 8443
+    tls:
+      mode: Passthrough
+    hostname: {{ .Values.externalHostname }}
+---
+apiVersion: gateway.networking.k8s.io/v1alpha2
+kind: TLSRoute
+metadata:
+  name: kcp-front-proxy
+spec:
+  parentRefs:
+  - kind: Gateway
+    name: kcp-front-proxy
+  rules:
+  - backendRefs:
+    - name: kcp-front-proxy
+      port: 8443
+  hostnames:
+  - {{ .Values.externalHostname }}
+{{- end }}
 ---
 apiVersion: cert-manager.io/v1
 kind: Issuer
 metadata:
   name: kcp-front-proxy-issuer
 spec:
-  acme:
-    server: https://acme-v02.api.letsencrypt.org/directory
-    privateKeySecretRef:
-      name: kcp-front-proxy-issuer-account-key
-    solvers:
-    - http01:
-        ingress:
-          serviceType: ClusterIP
+  {{- toYaml .Values.kcpFrontProxy.certificate.issuerSpec | nindent 2 }}
 ---
 apiVersion: cert-manager.io/v1
 kind: Certificate
@@ -37,13 +88,12 @@ spec:
   secretName: kcp-front-proxy-cert
   duration: 8760h0m0s # 365d
   renewBefore: 360h0m0s # 15d
+  {{ with .Values.certificates.subject }}
   subject:
-    organizations:
-      - redhat
+    {{- toYaml . | nindent 4 }}
+  {{ end}}
   privateKey:
-    algorithm: RSA
-    encoding: PKCS1
-    size: 2048
+    {{- toYaml .Values.certificates.privateKeys | nindent 4 }}
   usages:
     - server auth
   dnsNames:
@@ -60,8 +110,7 @@ spec:
   commonName: kcp-client-ca
   secretName: kcp-client-ca
   privateKey:
-    algorithm: RSA
-    size: 2048
+    {{- toYaml .Values.certificates.privateKeys | nindent 4 }}
   issuerRef:
     name: kcp-pki-bootstrap
     kind: Issuer
@@ -83,13 +132,12 @@ spec:
   secretName: kcp-front-proxy-kcp-client-cert
   duration: 8760h0m0s # 365d
   renewBefore: 360h0m0s # 15d
+  {{ with .Values.certificates.subject }}
   subject:
-    organizations:
-      - redhat
+    {{- toYaml . | nindent 4 }}
+  {{ end}}
   privateKey:
-    algorithm: RSA
-    encoding: PKCS1
-    size: 2048
+    {{- toYaml .Values.certificates.privateKeys | nindent 4 }}
   usages:
     - client auth
   dnsNames:
@@ -110,9 +158,7 @@ spec:
     organizations:
       - "system:masters"
   privateKey:
-    algorithm: RSA
-    encoding: PKCS1
-    size: 2048
+    {{- toYaml .Values.certificates.privateKeys | nindent 4 }}
   usages:
     - client auth
   issuerRef:
@@ -126,13 +172,12 @@ spec:
   secretName: kcp-front-proxy-virtual-workspaces-client-cert
   duration: 8760h0m0s # 365d
   renewBefore: 360h0m0s # 15d
+  {{ with .Values.certificates.subject }}
   subject:
-    organizations:
-      - redhat
+    {{- toYaml . | nindent 4 }}
+  {{ end}}
   privateKey:
-    algorithm: RSA
-    encoding: PKCS1
-    size: 2048
+    {{- toYaml .Values.certificates.privateKeys | nindent 4 }}
   usages:
     - client auth
   dnsNames:

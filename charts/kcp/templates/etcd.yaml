@@ -1,3 +1,4 @@
+{{- if .Values.etcd.enabled -}}
 ---
 apiVersion: cert-manager.io/v1
 kind: Certificate
@@ -8,8 +9,7 @@ spec:
   commonName: etcd-client-bootstrap
   secretName: etcd-client-bootstrap-secret
   privateKey:
-    algorithm: RSA
-    size: 2048
+    {{- toYaml .Values.certificates.privateKeys | nindent 4 }}
   issuerRef:
     name: kcp-pki-bootstrap
     kind: Issuer
@@ -24,8 +24,7 @@ spec:
   commonName: etcd-peer-bootstrap
   secretName: etcd-peer-bootstrap-secret
   privateKey:
-    algorithm: RSA
-    size: 2048
+    {{- toYaml .Values.certificates.privateKeys | nindent 4 }}
   issuerRef:
     name: kcp-pki-bootstrap
     kind: Issuer
@@ -55,13 +54,12 @@ spec:
   secretName: etcd-cert
   duration: 8760h0m0s # 365d
   renewBefore: 360h0m0s # 15d
+  {{ with .Values.certificates.subject }}
   subject:
-    organizations:
-      - redhat
+    {{- toYaml . | nindent 4 }}
+  {{ end}}
   privateKey:
-    algorithm: RSA
-    encoding: PKCS1
-    size: 2048
+    {{- toYaml .Values.certificates.privateKeys | nindent 4 }}
   usages:
     - server auth
     - client auth
@@ -86,13 +84,12 @@ spec:
   secretName: etcd-peer-cert
   duration: 8760h0m0s # 365d
   renewBefore: 360h0m0s # 15d
+  {{ with .Values.certificates.subject }}
   subject:
-    organizations:
-      - redhat
+    {{- toYaml . | nindent 4 }}
+  {{ end}}
   privateKey:
-    algorithm: RSA
-    encoding: PKCS1
-    size: 2048
+    {{- toYaml .Values.certificates.privateKeys | nindent 4 }}
   usages:
     - server auth
     - client auth
@@ -200,3 +197,4 @@ spec:
         resources:
           requests:
             storage: {{ .Values.etcd.volumeSize }}
+{{- end }}

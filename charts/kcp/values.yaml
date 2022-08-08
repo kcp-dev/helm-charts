@@ -1,5 +1,6 @@
-externalHostname: a
+externalHostname: ""
 etcd:
+  enabled: true
   image: quay.io/coreos/etcd
   tag: v3.5.4
   cpuLimit: "1"
@@ -11,8 +12,27 @@ kcp:
   v: "4"
   cpuLimit: "1"
   memoryLimit: 3Gi
+  etcd:
+    serverAddress: https://etcd:2379
+    clientCertificate:
+      issuer: etcd-client-issuer
+      commonName: root
+  volumeSize: 1Gi
+  volumeClassName: ""
+  volumeMode: ""
 kcpFrontProxy:
   v: "4"
+  openshiftRoute:
+    enabled: false
+  ingress:
+    enabled: false
+    annotations: {}
+    secret: ""
+  gateway:
+    enabled: false
+    className: ""
+  certificate:
+    issuerSpec: {}
 virtualWorkspaces:
   cpuLimit: 200m
   memoryLimit: 1Gi
@@ -21,6 +41,8 @@ virtualWorkspaces:
 audit:
   enabled: true
   volumeSize: 1Gi
+  volumeClassName: ""
+  volumeMode: ""
   policy:
     dir: /etc/kcp/audit
     fileName: audit-policy.yml
@@ -35,6 +57,11 @@ audit:
     maxSize: "250"
     maxBackup: "1"
     dir: /var/audit
+certificates:
+  privateKeys:
+    algorithm: RSA
+    size: 2048
+  subject: {}
 oidc: {}
 githubUserEditAccess:
 - test
