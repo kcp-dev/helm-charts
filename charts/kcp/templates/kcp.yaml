@@ -76,10 +76,10 @@ spec:
   secretName: kcp-cert
   duration: 8760h0m0s # 365d
   renewBefore: 360h0m0s # 15d
-  {{ with .Values.certificates.subject }}
+  {{- with .Values.certificates.subject }}
   subject:
     {{- toYaml . | nindent 4 }}
-  {{ end}}
+  {{- end}}
   privateKey:
     {{- toYaml .Values.certificates.privateKeys | nindent 4 }}
   usages:
@@ -98,10 +98,10 @@ spec:
   secretName: kcp-virtual-workspaces-cert
   duration: 8760h0m0s # 365d
   renewBefore: 360h0m0s # 15d
-  {{ with .Values.certificates.subject }}
+  {{- with .Values.certificates.subject }}
   subject:
     {{- toYaml . | nindent 4 }}
-  {{ end}}
+  {{- end}}
   privateKey:
     {{- toYaml .Values.certificates.privateKeys | nindent 4 }}
   usages:
@@ -138,8 +138,7 @@ spec:
   resources:
     requests:
       storage: {{ .Values.kcp.volumeSize }}
-  {{- with .Values.kcp.volumeClassName -}}storageClassName: {{ . }}{{- end }}
-  {{- with .Values.kcp.volumeMode -}}volumeMode: {{ . }}{{- end }}
+  {{ with .Values.kcp.volumeClassName -}}storageClassName: {{ . }}{{- end }}
 {{- if .Values.audit.enabled }}
 ---
 apiVersion: v1
@@ -152,8 +151,7 @@ spec:
   resources:
     requests:
       storage: {{ .Values.audit.volumeSize }}
-  {{- with .Values.audit.volumeClassName -}}storageClassName: {{ . }}{{- end }}
-  {{- with .Values.audit.volumeMode -}}volumeMode: {{ . }}{{- end }}
+  {{ with .Values.audit.volumeClassName -}}storageClassName: {{ . }}{{- end }}
 {{- end }}
 ---
 apiVersion: v1
@@ -225,7 +223,7 @@ spec:
         - --oidc-groups-claim={{ .Values.oidc.groupClaim }}
         - --oidc-username-claim={{ .Values.oidc.usernameClaim }}
         - "--oidc-username-prefix={{ .Values.oidc.usernamePrefix }}"
-        - "--oidc-groups-prefix={{ .Values.oidc.groupsPrefix }}:"
+        - "--oidc-groups-prefix={{ .Values.oidc.groupsPrefix }}"
         {{- end }}
         - --v={{ .Values.kcp.v }}
         {{- if .Values.audit.enabled }}
