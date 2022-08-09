@@ -112,7 +112,7 @@ spec:
   privateKey:
     {{- toYaml .Values.certificates.privateKeys | nindent 4 }}
   issuerRef:
-    name: kcp-pki-bootstrap
+    name: kcp-pki-ca
     kind: Issuer
     group: cert-manager.io
 ---
