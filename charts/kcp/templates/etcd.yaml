@@ -54,15 +54,14 @@ spec:
   secretName: etcd-cert
   duration: 8760h0m0s # 365d
   renewBefore: 360h0m0s # 15d
-  {{ with .Values.certificates.subject }}
+  {{- with .Values.certificates.subject }}
   subject:
     {{- toYaml . | nindent 4 }}
-  {{ end}}
+  {{- end}}
   privateKey:
     {{- toYaml .Values.certificates.privateKeys | nindent 4 }}
   usages:
     - server auth
-    - client auth
   dnsNames:
     - etcd
     - etcd-0
@@ -84,10 +83,10 @@ spec:
   secretName: etcd-peer-cert
   duration: 8760h0m0s # 365d
   renewBefore: 360h0m0s # 15d
-  {{ with .Values.certificates.subject }}
+  {{- with .Values.certificates.subject }}
   subject:
     {{- toYaml . | nindent 4 }}
-  {{ end}}
+  {{- end}}
   privateKey:
     {{- toYaml .Values.certificates.privateKeys | nindent 4 }}
   usages:
