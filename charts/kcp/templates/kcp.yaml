@@ -212,7 +212,6 @@ spec:
         - --requestheader-group-headers=X-Remote-Group
         - --root-directory=/etc/kcp/config
         - --run-virtual-workspaces=false
-        - --virtual-workspace-address=https://$(EXTERNAL_HOSTNAME)
         - --shard-base-url=https://kcp:6443
         - --shard-external-url=https://$(EXTERNAL_HOSTNAME):443
         - --external-hostname=$(EXTERNAL_HOSTNAME):443
