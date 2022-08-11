@@ -2,5 +2,5 @@ apiVersion: v2
 name: kcp
 description: A prototype of a multi-tenant Kubernetes control plane for workloads on many clusters
 type: application
-version: 0.2.1
-appVersion: "0.6"
+version: 0.2.2
+appVersion: "0.7"

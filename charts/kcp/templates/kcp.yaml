@@ -215,6 +215,7 @@ spec:
         - --shard-base-url=https://kcp:6443
         - --shard-external-url=https://$(EXTERNAL_HOSTNAME):443
         - --external-hostname=$(EXTERNAL_HOSTNAME):443
+        - --shard-virtual-workspace-url=https://$(EXTERNAL_HOSTNAME):443
         - --root-ca-file=/etc/kcp/tls/ca/root-ca.pem
         {{- if .Values.oidc }}
         - --oidc-issuer-url={{ .Values.oidc.issuerUrl }}
