@@ -19,6 +19,7 @@ kcp:
       commonName: root
   volumeSize: 1Gi
   volumeClassName: ""
+  extraFlags: []  # Format is raw flag, e.g. --virtual-server-url=https://abc.xyz:443
 kcpFrontProxy:
   v: "4"
   openshiftRoute:

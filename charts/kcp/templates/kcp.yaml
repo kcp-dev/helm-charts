@@ -234,6 +234,9 @@ spec:
         - --audit-policy-file={{ .Values.audit.policy.dir }}/{{ .Values.audit.policy.fileName }}
         - --audit-log-compress
         {{- end }}
+        {{- range .Values.kcp.extraFlags }}
+        - {{ . }}
+        {{- end }}
         env:
         - name: EXTERNAL_HOSTNAME
           value: {{ required "A valid external hostname is required" .Values.externalHostname }}
