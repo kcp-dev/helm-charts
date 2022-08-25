@@ -271,8 +271,8 @@ spec:
             cpu: '{{ .Values.kcp.cpuLimit }}'
             memory: '{{ .Values.kcp.memoryLimit }}'
           requests:
-            cpu: '1'
-            memory: 1Gi
+            cpu: '{{ .Values.kcp.cpuRequest }}'
+            memory: '{{ .Values.kcp.memoryRequest }}'
         volumeMounts:
         - name: etcd-certs
           mountPath: /etc/etcd/tls/server
