@@ -248,6 +248,9 @@ spec:
         - --client-ca-file=/etc/kcp-front-proxy/client/tls/ca.crt
         - --mapping-file=/etc/kcp-front-proxy/config/path-mapping.yaml
         - --v={{ .Values.kcpFrontProxy.v }}
+        {{- if .Values.kcpFrontProxy.profiling.enabled }}
+        - --profiler-address=localhost:{{- .Values.kcpFrontProxy.profiling.port -}}
+        {{- end }}
         livenessProbe:
           failureThreshold: 3
           httpGet:

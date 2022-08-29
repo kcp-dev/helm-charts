@@ -234,6 +234,9 @@ spec:
         - --audit-policy-file={{ .Values.audit.policy.dir }}/{{ .Values.audit.policy.fileName }}
         - --audit-log-compress
         {{- end }}
+        {{- if .Values.kcp.profiling.enabled }}
+        - --profiler-address=localhost:{{- .Values.kcp.profiling.port -}}
+        {{- end }}
         {{- range .Values.kcp.extraFlags }}
         - {{ . }}
         {{- end }}
@@ -314,6 +317,9 @@ spec:
           --requestheader-group-headers=X-Remote-Group
           --secure-port=6444
           --v={{ .Values.kcp.v }}
+          {{- if .Values.virtualWorkspaces.profiling.enabled }}
+          --profiler-address=localhost:{{- .Values.virtualWorkspaces.profiling.port -}}
+          {{- end }}
         livenessProbe:
           failureThreshold: 3
           httpGet:

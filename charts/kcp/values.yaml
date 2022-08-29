@@ -6,6 +6,8 @@ etcd:
   cpuLimit: "1"
   memoryLimit: 2Gi
   volumeSize: 8Gi
+  profiling:
+    enabled: true
 kcp:
   image: ghcr.io/kcp-dev/kcp
   tag: latest
@@ -20,6 +22,9 @@ kcp:
   volumeSize: 1Gi
   volumeClassName: ""
   extraFlags: []  # Format is raw flag, e.g. --virtual-server-url=https://abc.xyz:443
+  profiling:
+    enabled: true
+    port: 6060
 kcpFrontProxy:
   v: "4"
   openshiftRoute:
@@ -33,11 +38,17 @@ kcpFrontProxy:
     className: ""
   certificate:
     issuerSpec: {}
+  profiling:
+    enabled: true
+    port: 6060
 virtualWorkspaces:
   cpuLimit: 200m
   memoryLimit: 1Gi
   cpuRequest: 100m
   memoryRequest: 256Mi
+  profiling:
+    enabled: true
+    port: 6061
 audit:
   enabled: true
   volumeSize: 1Gi
