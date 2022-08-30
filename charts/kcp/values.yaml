@@ -11,7 +11,9 @@ kcp:
   tag: latest
   v: "4"
   cpuLimit: "1"
-  memoryLimit: 3Gi
+  memoryLimit: 2Gi
+  cpuRequest: 500m
+  memoryRequest: 1Gi
   etcd:
     serverAddress: https://etcd:2379
     clientCertificate:
