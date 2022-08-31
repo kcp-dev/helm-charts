@@ -7,7 +7,7 @@ etcd:
   memoryLimit: 2Gi
   volumeSize: 8Gi
 kcp:
-  image: ghcr.io/kcp-dev/kcp
+  image: registry.ci.openshift.org/kcp/kcp
   tag: latest
   v: "4"
   cpuLimit: "1"
@@ -23,6 +23,8 @@ kcp:
   volumeClassName: ""
   extraFlags: []  # Format is raw flag, e.g. --virtual-server-url=https://abc.xyz:443
 kcpFrontProxy:
+  image: registry.ci.openshift.org/kcp/kcp-front-proxy
+  tag: latest
   v: "4"
   openshiftRoute:
     enabled: false
@@ -36,6 +38,8 @@ kcpFrontProxy:
   certificate:
     issuerSpec: {}
 virtualWorkspaces:
+  image: registry.ci.openshift.org/kcp/virtual-workspaces
+  tag: latest
   cpuLimit: 200m
   memoryLimit: 1Gi
   cpuRequest: 100m
