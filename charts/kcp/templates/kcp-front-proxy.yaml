@@ -235,11 +235,9 @@ spec:
     spec:
       containers:
       - name: kcp-front-proxy
-        image: {{ .Values.kcp.image }}:{{ .Values.kcp.tag }}
+        image: {{ .Values.kcpFrontProxy.image }}:{{ .Values.kcpFrontProxy.tag }}
         ports:
         - containerPort: 8443
-        command:
-        - /kcp-front-proxy
         args:
         - --secure-port=8443
         - --root-kubeconfig=/etc/kcp-front-proxy/kubeconfig/root-shard.kubeconfig

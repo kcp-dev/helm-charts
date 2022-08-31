@@ -196,8 +196,6 @@ spec:
         image: {{ .Values.kcp.image }}:{{ .Values.kcp.tag }}
         ports:
         - containerPort: 6443
-        command:
-        - /kcp
         args:
         - start
         - --etcd-servers={{ .Values.kcp.etcd.serverAddress }}
@@ -293,7 +291,7 @@ spec:
         - name: root-ca-file
           mountPath: /etc/kcp/tls/ca
       - name: virtual-workspaces
-        image: {{ .Values.kcp.image }}:{{ .Values.kcp.tag }}
+        image: {{ .Values.virtualWorkspaces.image }}:{{ .Values.virtualWorkspaces.tag }}
         ports:
         - containerPort: 6444
         command:
@@ -301,7 +299,7 @@ spec:
         - -c
         - >
           cat /etc/kcp/config/admin.kubeconfig | sed -e 's;://\([^/]*\);://localhost:6443;' -e 's;current-context: root;current-context: system:admin;' > /etc/kcp/config/localhost.kubeconfig &&
-          exec /virtual-workspaces
+          exec /usr/bin/virtual-workspaces
           workspaces
           --kubeconfig=/etc/kcp/config/localhost.kubeconfig
           --authentication-kubeconfig=/etc/kcp/config/localhost.kubeconfig
