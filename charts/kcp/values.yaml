@@ -7,7 +7,7 @@ etcd:
   memoryLimit: 2Gi
   volumeSize: 8Gi
   profiling:
-    enabled: true
+    enabled: false
 kcp:
   image: ghcr.io/kcp-dev/kcp
   tag: latest
@@ -23,7 +23,7 @@ kcp:
   volumeClassName: ""
   extraFlags: []  # Format is raw flag, e.g. --virtual-server-url=https://abc.xyz:443
   profiling:
-    enabled: true
+    enabled: false
     port: 6060
 kcpFrontProxy:
   v: "4"
@@ -39,7 +39,7 @@ kcpFrontProxy:
   certificate:
     issuerSpec: {}
   profiling:
-    enabled: true
+    enabled: false
     port: 6060
 virtualWorkspaces:
   cpuLimit: 200m
@@ -47,7 +47,7 @@ virtualWorkspaces:
   cpuRequest: 100m
   memoryRequest: 256Mi
   profiling:
-    enabled: true
+    enabled: false
     port: 6061
 audit:
   enabled: true
