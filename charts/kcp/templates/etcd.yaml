@@ -180,6 +180,9 @@ spec:
                 --cert-file=/etc/etcd/tls/server/tls.crt \
                 --key-file=/etc/etcd/tls/server/tls.key \
                 --trusted-ca-file=/etc/etcd/tls/server/ca.crt \
+                {{- if .Values.etcd.profiling.enabled }}
+                --enable-pprof=true \
+                {{- end }}
                 --snapshot-count=5000
       volumes:
       - name: peer-certs

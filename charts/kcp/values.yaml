@@ -6,6 +6,8 @@ etcd:
   cpuLimit: "1"
   memoryLimit: 2Gi
   volumeSize: 8Gi
+  profiling:
+    enabled: false
 kcp:
   image: registry.ci.openshift.org/kcp/kcp
   tag: latest
@@ -22,6 +24,9 @@ kcp:
   volumeSize: 1Gi
   volumeClassName: ""
   extraFlags: []  # Format is raw flag, e.g. --virtual-server-url=https://abc.xyz:443
+  profiling:
+    enabled: false
+    port: 6060
 kcpFrontProxy:
   image: registry.ci.openshift.org/kcp/kcp-front-proxy
   tag: latest
@@ -37,6 +42,9 @@ kcpFrontProxy:
     className: ""
   certificate:
     issuerSpec: {}
+  profiling:
+    enabled: false
+    port: 6060
 virtualWorkspaces:
   image: registry.ci.openshift.org/kcp/virtual-workspaces
   tag: latest
@@ -44,6 +52,9 @@ virtualWorkspaces:
   memoryLimit: 1Gi
   cpuRequest: 100m
   memoryRequest: 256Mi
+  profiling:
+    enabled: false
+    port: 6061
 audit:
   enabled: true
   volumeSize: 1Gi
