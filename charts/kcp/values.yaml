@@ -3,8 +3,7 @@ etcd:
   enabled: true
   image: quay.io/coreos/etcd
   tag: v3.5.4
-  cpuLimit: "1"
-  memoryLimit: 2Gi
+  memoryLimit: 4Gi
   volumeSize: 8Gi
   profiling:
     enabled: false
@@ -12,10 +11,9 @@ kcp:
   image: registry.ci.openshift.org/kcp/kcp
   tag: latest
   v: "4"
-  cpuLimit: "1"
-  memoryLimit: 2Gi
+  memoryLimit: 20Gi
   cpuRequest: 500m
-  memoryRequest: 1Gi
+  memoryRequest: 4Gi
   etcd:
     serverAddress: https://etcd:2379
     clientCertificate:
@@ -48,10 +46,9 @@ kcpFrontProxy:
 virtualWorkspaces:
   image: registry.ci.openshift.org/kcp/virtual-workspaces
   tag: latest
-  cpuLimit: 200m
-  memoryLimit: 1Gi
+  memoryLimit: 10Gi
   cpuRequest: 100m
-  memoryRequest: 256Mi
+  memoryRequest: 2Gi
   profiling:
     enabled: false
     port: 6061
