@@ -32,6 +32,21 @@ spec:
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
+  name: kcp-service-accounts-ca
+spec:
+  isCA: true
+  commonName: kcp-service-accounts-ca
+  secretName: kcp-service-accounts-ca
+  privateKey:
+    {{- toYaml .Values.certificates.privateKeys | nindent 4 }}
+  issuerRef:
+    name: kcp-pki-ca
+    kind: Issuer
+    group: cert-manager.io
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
   name: kcp-server-client-ca
 spec:
   isCA: true
@@ -205,11 +220,14 @@ spec:
         - --client-ca-file=/etc/kcp/tls/server-client/ca.crt
         - --tls-private-key-file=/etc/kcp/tls/server/tls.key
         - --tls-cert-file=/etc/kcp/tls/server/tls.crt
+        - --service-account-key-file=/etc/kcp/tls/service-accounts/ca.crt
+        - --service-account-private-key-file=/etc/kcp/tls/service-accounts/tls.key
         - --requestheader-client-ca-file=/etc/kcp/tls/requestheader-client/ca.crt
         - --requestheader-username-headers=X-Remote-User
         - --requestheader-group-headers=X-Remote-Group
-        - --root-directory=/etc/kcp/config
+        - --root-directory=/etc/kcp/config/kcp-0
         - --run-virtual-workspaces=false
+        - --shard-name=shard-1
         - --shard-base-url=https://kcp:6443
         - --shard-external-url=https://$(EXTERNAL_HOSTNAME):443
         - --external-hostname=$(EXTERNAL_HOSTNAME):443
@@ -222,6 +240,9 @@ spec:
         - --oidc-username-claim={{ .Values.oidc.usernameClaim }}
         - "--oidc-username-prefix={{ .Values.oidc.usernamePrefix }}"
         - "--oidc-groups-prefix={{ .Values.oidc.groupsPrefix }}"
+        {{- end }}
+        {{- if .Values.kcp.tokenAuth.enabled }}
+        - --token-auth-file=/etc/kcp/token-auth/{{ .Values.kcp.tokenAuth.fileName }}
         {{- end }}
         - --v={{ .Values.kcp.v }}
         {{- if .Values.audit.enabled }}
@@ -281,10 +302,16 @@ spec:
           mountPath: /etc/kcp/tls/server
         - name: kcp-server-client-ca
           mountPath: /etc/kcp/tls/server-client
-        - name: kcp-requestheader-client-ca 
+        - name: kcp-service-accounts-ca
+          mountPath: /etc/kcp/tls/service-accounts
+        - name: kcp-requestheader-client-ca
           mountPath: /etc/kcp/tls/requestheader-client
         - name: kubeconfig
           mountPath: /etc/kcp/config
+        {{- if .Values.kcp.tokenAuth.enabled }}
+        - name: kcp-token-auth-file
+          mountPath: /etc/kcp/token-auth
+        {{- end}}
         {{- if .Values.audit.enabled }}
         - name: audit-log
           mountPath: {{ .Values.audit.log.dir }}
@@ -301,8 +328,8 @@ spec:
         - sh
         - -c
         - >
-          cat /etc/kcp/config/admin.kubeconfig | sed -e 's;://\([^/]*\);://localhost:6443;' -e 's;current-context: root;current-context: system:admin;' > /etc/kcp/config/localhost.kubeconfig &&
-          exec /usr/bin/virtual-workspaces
+          cat /etc/kcp/config/kcp-0/admin.kubeconfig | sed -e 's;://\([^/]*\);://localhost:6443;' -e 's;current-context: root;current-context: system:admin;' > /etc/kcp/config/localhost.kubeconfig &&
+          exec /virtual-workspaces
           workspaces
           --kubeconfig=/etc/kcp/config/localhost.kubeconfig
           --authentication-kubeconfig=/etc/kcp/config/localhost.kubeconfig
@@ -314,7 +341,7 @@ spec:
           --requestheader-username-headers=X-Remote-User
           --requestheader-group-headers=X-Remote-Group
           --secure-port=6444
-          --v={{ .Values.kcp.v }}
+          --v={{ .Values.virtualWorkspaces.v }}
           {{- if .Values.virtualWorkspaces.profiling.enabled }}
           --profiler-address=localhost:{{- .Values.virtualWorkspaces.profiling.port -}}
           {{- end }}
@@ -356,7 +383,7 @@ spec:
           mountPath: /etc/kcp/tls/server
         - name: kcp-server-client-ca
           mountPath: /etc/kcp/tls/server-client
-        - name: kcp-requestheader-client-ca 
+        - name: kcp-requestheader-client-ca
           mountPath: /etc/kcp/tls/requestheader-client
         - name: kubeconfig
           mountPath: /etc/kcp/config
@@ -376,6 +403,9 @@ spec:
           items:
           - key: ca.crt
             path: ca.crt
+      - name: kcp-service-accounts-ca
+        secret:
+          secretName: kcp-service-accounts-ca
       - name: kcp-server-client-ca
         secret:
           secretName: kcp-server-client-ca
@@ -393,6 +423,11 @@ spec:
         persistentVolumeClaim:
           claimName: kcp-audit-logs
       {{- end }}
+      {{- if .Values.kcp.tokenAuth.enabled }}
+      - name: kcp-token-auth-file
+        secret:
+          secretName: kcp-token-auth-file
+      {{- end }}
       - name: root-ca-file
         configMap:
           name: kcp-root-ca
@@ -404,3 +439,14 @@ metadata:
 data:
   {{ .Values.audit.policy.fileName }}: |
     {{- .Values.audit.policy.config | nindent 4 }}
+
+{{- if .Values.kcp.tokenAuth.enabled }}
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: kcp-token-auth-file
+stringData:
+  {{ .Values.kcp.tokenAuth.fileName }}: |
+    {{- .Values.kcp.tokenAuth.config | nindent 4 }}
+{{- end}}

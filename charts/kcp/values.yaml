@@ -4,16 +4,20 @@ etcd:
   image: quay.io/coreos/etcd
   tag: v3.5.4
   memoryLimit: 4Gi
+  memoryRequest: 1Gi
+  cpuLimit: 2
+  cpuRequest: 100m
   volumeSize: 8Gi
   profiling:
     enabled: false
 kcp:
   image: registry.ci.openshift.org/kcp/kcp
   tag: latest
-  v: "4"
+  v: "2"
   memoryLimit: 20Gi
-  cpuRequest: 500m
   memoryRequest: 4Gi
+  cpuLimit: 8
+  cpuRequest: 500m
   etcd:
     serverAddress: https://etcd:2379
     clientCertificate:
@@ -25,10 +29,19 @@ kcp:
   profiling:
     enabled: false
     port: 6060
+  tokenAuth:
+    enabled: false
+    fileName: auth-token.csv
+    config: |
+        user-1-token,user-1,1111-1111-1111-1111,"team-1"
+        #user-2-token,user-2,2222-2222-2222-2222,"team-2"
+        user-3-token,user-3,3333-3333-3333-3333,"team-3"
+        user-4-token,user-4,4444-4444-4444-4444,"team-4"
+        admin-token,admin,5555-5555-5555-5555,"system:masters"
 kcpFrontProxy:
   image: registry.ci.openshift.org/kcp/kcp-front-proxy
   tag: latest
-  v: "4"
+  v: "2"
   openshiftRoute:
     enabled: false
   ingress:
@@ -39,21 +52,23 @@ kcpFrontProxy:
     enabled: false
     className: ""
   certificate:
-    issuerSpec: {}
+    issuerSpec: {selfSigned: {}}
   profiling:
     enabled: false
     port: 6060
 virtualWorkspaces:
   image: registry.ci.openshift.org/kcp/virtual-workspaces
   tag: latest
+  v: "2"
   memoryLimit: 10Gi
-  cpuRequest: 100m
   memoryRequest: 2Gi
+  cpuLimit: 8
+  cpuRequest: 500m
   profiling:
     enabled: false
     port: 6061
 audit:
-  enabled: true
+  enabled: false
   volumeSize: 1Gi
   volumeClassName: ""
   policy:
