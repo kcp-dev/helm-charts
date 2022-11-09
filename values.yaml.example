@@ -1,0 +1,18 @@
+externalHostname: local.dev.example.com # The external hostname pointing to kind cluster (via proxy or to 127.0.0.1)
+kcp:
+  image: ghcr.io/kcp-dev/kcp
+  tag: latest
+  tokenAuth:
+    enabled: false
+kcpFrontProxy:
+  image: ghcr.io/kcp-dev/kcp
+  tag: latest
+  v: "4"
+  ingress:
+    enabled: true
+    annotations:
+      kubernetes.io/ingress.class: nginx
+virtualWorkspaces:
+  image: ghcr.io/kcp-dev/kcp
+  tag: latest
+  v: "4"
