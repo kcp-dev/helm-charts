@@ -210,8 +210,8 @@ spec:
       - name: kcp
         image: {{ .Values.kcp.image }}:{{ .Values.kcp.tag }}
         ports:
-        - containerPort: 6443
         - containerPort: 6444
+        - containerPort: 6443
         args:
         - start
         - --etcd-servers={{ .Values.kcp.etcd.serverAddress }}
@@ -228,10 +228,12 @@ spec:
         - --requestheader-group-headers=X-Remote-Group
         - --root-directory=/etc/kcp/config/kcp-0
 #        - --run-virtual-workspaces=true
-        - --shard-name=shard-1
-        - --shard-base-url=https://kcp:6443
-        - --shard-external-url=https://$(EXTERNAL_HOSTNAME):443
-        - --external-hostname=$(EXTERNAL_HOSTNAME):443
+        - --secure-port=6443
+#        - --shard-name=shard-1
+#        - --shard-base-url=https://kcp:6443
+#        - --shard-external-url=https://$(POD_IP):6443
+#        - --external-hostname=$(EXTERNAL_HOSTNAME):443
+        - --virtual-workspaces-workspaces.authorization-cache.resync-period=1s
 #        - --shard-virtual-workspace-url=https://$(EXTERNAL_HOSTNAME):443
         - --root-ca-file=/etc/kcp/tls/ca/root-ca.pem
         {{- if .Values.oidc }}
@@ -263,6 +265,10 @@ spec:
         env:
         - name: EXTERNAL_HOSTNAME
           value: {{ required "A valid external hostname is required" .Values.externalHostname }}
+        - name: POD_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
         livenessProbe:
           failureThreshold: 3
           httpGet:
