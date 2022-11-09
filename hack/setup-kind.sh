@@ -10,7 +10,7 @@ else
     echo "KIND already installed"
 fi
 
-CLUSTER_NAME=faros
+CLUSTER_NAME=kcp
 
 if ! kind get clusters | grep -w -q "${CLUSTER_NAME}"; then
 kind create cluster --name kcp \
