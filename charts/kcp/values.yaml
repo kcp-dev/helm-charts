@@ -34,7 +34,7 @@ kcp:
     fileName: auth-token.csv
     config: |
         user-1-token,user-1,1111-1111-1111-1111,"team-1"
-        admin-token,admin,5555-5555-5555-5555,"system:masters"
+        admin-token,admin,5555-5555-5555-5555,"system:kcp:admin,system:kcp:clusterworkspace:admin"
 kcpFrontProxy:
   image: registry.ci.openshift.org/kcp/kcp-front-proxy
   tag: latest

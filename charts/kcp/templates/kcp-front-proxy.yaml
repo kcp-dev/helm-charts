@@ -204,12 +204,7 @@ metadata:
   name: kcp-front-proxy-config
 data:
   path-mapping.yaml: |
-    - path: /services/
-      backend: https://kcp:6444
-      backend_server_ca: /etc/kcp/tls/ca.crt
-      proxy_client_cert: /etc/kcp-front-proxy/requestheader-client/tls/kcp/tls.crt
-      proxy_client_key: /etc/kcp-front-proxy/requestheader-client/tls/kcp/tls.key
-    - path: /clusters/
+    - path: /
       backend: https://kcp:6443
       backend_server_ca: /etc/kcp/tls/ca.crt
       proxy_client_cert: /etc/kcp-front-proxy/requestheader-client/tls/kcp/tls.crt

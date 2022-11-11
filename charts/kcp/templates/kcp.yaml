@@ -226,15 +226,15 @@ spec:
         - --requestheader-client-ca-file=/etc/kcp/tls/requestheader-client/ca.crt
         - --requestheader-username-headers=X-Remote-User
         - --requestheader-group-headers=X-Remote-Group
-        - --root-directory=/etc/kcp/config/kcp-0
+#        - --root-directory=/etc/kcp/config/kcp-0
 #        - --run-virtual-workspaces=true
         - --secure-port=6443
 #        - --shard-name=shard-1
 #        - --shard-base-url=https://kcp:6443
-#        - --shard-external-url=https://$(POD_IP):6443
-#        - --external-hostname=$(EXTERNAL_HOSTNAME):443
+        - --shard-external-url=https://$(EXTERNAL_HOSTNAME)
+        - --external-hostname=$(EXTERNAL_HOSTNAME):443
         - --virtual-workspaces-workspaces.authorization-cache.resync-period=1s
-#        - --shard-virtual-workspace-url=https://$(EXTERNAL_HOSTNAME):443
+        - --shard-virtual-workspace-url=https://$(EXTERNAL_HOSTNAME):443
         - --root-ca-file=/etc/kcp/tls/ca/root-ca.pem
         {{- if .Values.oidc }}
         - --oidc-issuer-url={{ .Values.oidc.issuerUrl }}
@@ -243,6 +243,9 @@ spec:
         - --oidc-username-claim={{ .Values.oidc.usernameClaim }}
         - "--oidc-username-prefix={{ .Values.oidc.usernamePrefix }}"
         - "--oidc-groups-prefix={{ .Values.oidc.groupsPrefix }}"
+        {{- if .Values.oidc.caSecretName }}
+        - --oidc-ca-file=/etc/kcp/tls/oidc/ca.crt
+        {{- end }}
         {{- end }}
         {{- if .Values.kcp.tokenAuth.enabled }}
         - --token-auth-file=/etc/kcp/token-auth/{{ .Values.kcp.tokenAuth.fileName }}
@@ -327,6 +330,10 @@ spec:
         {{- end }}
         - name: root-ca-file
           mountPath: /etc/kcp/tls/ca
+        {{- if .Values.oidc.caSecretName }}
+        - name: oidc-ca
+          mountPath: /etc/kcp/tls/oidc
+        {{- end }}
 #      - name: virtual-workspaces
 #        image: {{ .Values.virtualWorkspaces.image }}:{{ .Values.virtualWorkspaces.tag }}
 #        ports:
@@ -438,6 +445,11 @@ spec:
       - name: root-ca-file
         configMap:
           name: kcp-root-ca
+      {{- if .Values.oidc.caSecretName }}
+      - name: oidc-ca
+        secret:
+          secretName: {{.Values.oidc.caSecretName }}
+      {{- end }}
 ---
 apiVersion: v1
 kind: ConfigMap
