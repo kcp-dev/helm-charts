@@ -46,9 +46,15 @@ kcpFrontProxy:
     annotations:
       kubernetes.io/ingress.class: "nginx"
       nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
-      nginx.ingress.kubernetes.io/ssl-redirect: "true"
-      nginx.ingress.kubernetes.io/ssl-passthrough: "true"
     secret: ""
+    paths:
+    - path: /
+      pathType: Prefix
+      backend:
+        service:
+          name: kcp-front-proxy
+          port:
+            number: 8443
   gateway:
     enabled: false
     className: ""

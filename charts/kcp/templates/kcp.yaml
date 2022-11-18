@@ -32,21 +32,6 @@ spec:
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
-  name: kcp-service-accounts-ca
-spec:
-  isCA: true
-  commonName: kcp-service-accounts-ca
-  secretName: kcp-service-accounts-ca
-  privateKey:
-    {{- toYaml .Values.certificates.privateKeys | nindent 4 }}
-  issuerRef:
-    name: kcp-pki-ca
-    kind: Issuer
-    group: cert-manager.io
----
-apiVersion: cert-manager.io/v1
-kind: Certificate
-metadata:
   name: kcp-server-client-ca
 spec:
   isCA: true
@@ -206,6 +191,10 @@ spec:
       labels:
         app: kcp
     spec:
+      {{- if .Values.kcp.hostAliases.enabled }}
+      hostAliases:
+        {{- toYaml .Values.kcp.hostAliases.values | nindent 6 }}
+      {{- end }}
       containers:
       - name: kcp
         image: {{ .Values.kcp.image }}:{{ .Values.kcp.tag }}
@@ -221,16 +210,10 @@ spec:
         - --client-ca-file=/etc/kcp/tls/server-client/ca.crt
         - --tls-private-key-file=/etc/kcp/tls/server/tls.key
         - --tls-cert-file=/etc/kcp/tls/server/tls.crt
-        - --service-account-key-file=/etc/kcp/tls/service-accounts/ca.crt
-        - --service-account-private-key-file=/etc/kcp/tls/service-accounts/tls.key
         - --requestheader-client-ca-file=/etc/kcp/tls/requestheader-client/ca.crt
         - --requestheader-username-headers=X-Remote-User
         - --requestheader-group-headers=X-Remote-Group
-#        - --root-directory=/etc/kcp/config/kcp-0
-#        - --run-virtual-workspaces=true
         - --secure-port=6443
-#        - --shard-name=shard-1
-#        - --shard-base-url=https://kcp:6443
         - --shard-external-url=https://$(EXTERNAL_HOSTNAME)
         - --external-hostname=$(EXTERNAL_HOSTNAME):443
         - --virtual-workspaces-workspaces.authorization-cache.resync-period=1s
@@ -312,8 +295,6 @@ spec:
           mountPath: /etc/kcp/tls/server
         - name: kcp-server-client-ca
           mountPath: /etc/kcp/tls/server-client
-        - name: kcp-service-accounts-ca
-          mountPath: /etc/kcp/tls/service-accounts
         - name: kcp-requestheader-client-ca
           mountPath: /etc/kcp/tls/requestheader-client
         - name: kubeconfig
@@ -334,73 +315,6 @@ spec:
         - name: oidc-ca
           mountPath: /etc/kcp/tls/oidc
         {{- end }}
-#      - name: virtual-workspaces
-#        image: {{ .Values.virtualWorkspaces.image }}:{{ .Values.virtualWorkspaces.tag }}
-#        ports:
-#        - containerPort: 6444
-#        command:
-#        - sh
-#        - -c
-#       - >
-#          cat /etc/kcp/config/kcp-0/admin.kubeconfig | sed -e 's;://\([^/]*\);://localhost:6443;' -e 's;current-context: root;current-context: system:admin;' > /etc/kcp/config/localhost.kubeconfig &&
-#          exec /virtual-workspaces
-#          workspaces
-#          --kubeconfig=/etc/kcp/config/localhost.kubeconfig
-#          --authentication-kubeconfig=/etc/kcp/config/localhost.kubeconfig
-#          --authentication-skip-lookup
-#          --client-ca-file=/etc/kcp/tls/server-client/ca.crt
-#          --tls-private-key-file=/etc/kcp/tls/server/tls.key
-#          --tls-cert-file=/etc/kcp/tls/server/tls.crt
-#          --requestheader-client-ca-file=/etc/kcp/tls/requestheader-client/ca.crt
-#          --requestheader-username-headers=X-Remote-User
-#          --requestheader-group-headers=X-Remote-Group
-#          --secure-port=6444
-#          --v={{ .Values.virtualWorkspaces.v }}
-#          {{- if .Values.virtualWorkspaces.profiling.enabled }}
-#          --profiler-address=localhost:{{- .Values.virtualWorkspaces.profiling.port -}}
-#          {{- end }}
-#        livenessProbe:
-#          failureThreshold: 3
-#          httpGet:
-#            path: livez
-#            port: 6444
-#            scheme: HTTPS
-#          initialDelaySeconds: 45
-#          periodSeconds: 10
-#          successThreshold: 1
-#          timeoutSeconds: 10
-#        startupProbe:
-#          httpGet:
-#            path: readyz
-#            port: 6444
-#            scheme: HTTPS
-#          initialDelaySeconds: 10
-#          timeoutSeconds: 1
-#          periodSeconds: 10
-#          successThreshold: 1
-#          failureThreshold: 18
-#        readinessProbe:
-#          failureThreshold: 3
-#          httpGet:
-#            path: readyz
-#            port: 6444
-#            scheme: HTTPS
-#        resources:
-#          limits:
-#            cpu: '{{ .Values.virtualWorkspaces.cpuLimit }}'
-#            memory: '{{ .Values.virtualWorkspaces.memoryLimit }}'
-#          requests:
-#            cpu: '{{ .Values.virtualWorkspaces.cpuRequest }}'
-#            memory: '{{ .Values.virtualWorkspaces.memoryRequest }}'
-#        volumeMounts:
-#        - name: virtual-workspaces-certs
-#          mountPath: /etc/kcp/tls/server
-#        - name: kcp-server-client-ca
-#          mountPath: /etc/kcp/tls/server-client
-#        - name: kcp-requestheader-client-ca
-#          mountPath: /etc/kcp/tls/requestheader-client
-#        - name: kubeconfig
-#          mountPath: /etc/kcp/config
       volumes:
       - name: etcd-certs
         secret:
@@ -417,9 +331,6 @@ spec:
           items:
           - key: ca.crt
             path: ca.crt
-      - name: kcp-service-accounts-ca
-        secret:
-          secretName: kcp-service-accounts-ca
       - name: kcp-server-client-ca
         secret:
           secretName: kcp-server-client-ca

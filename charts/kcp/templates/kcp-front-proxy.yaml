@@ -27,19 +27,13 @@ metadata:
 spec:
   tls:
   - hosts:
-      - {{ .Values.externalHostname }}
+    - {{ .Values.externalHostname }}
     {{- with .Values.kcpFrontProxy.ingress.secret -}}secretName: {{ . }}{{- end }}
   rules:
   - host: {{ .Values.externalHostname }}
     http:
       paths:
-      - path: /
-        pathType: Prefix
-        backend:
-          service:
-            name: kcp-front-proxy
-            port:
-              number: 8443
+      {{- toYaml .Values.kcpFrontProxy.ingress.paths | nindent 6 }}
 {{- end }}
 {{- if .Values.kcpFrontProxy.gateway.enabled }}
 ---
