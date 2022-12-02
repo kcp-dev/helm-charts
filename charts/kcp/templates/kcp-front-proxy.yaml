@@ -232,6 +232,7 @@ spec:
         args:
         - --secure-port=8443
         - --root-kubeconfig=/etc/kcp-front-proxy/kubeconfig/root-shard.kubeconfig
+        - --shards-kubeconfig=/etc/kcp-front-proxy/kubeconfig/root-shard.kubeconfig
         - --tls-private-key-file=/etc/kcp-front-proxy/tls/tls.key
         - --tls-cert-file=/etc/kcp-front-proxy/tls/tls.crt
         - --client-ca-file=/etc/kcp-front-proxy/client/tls/ca.crt
