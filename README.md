@@ -2,6 +2,11 @@
 
 Repository for KCP helm charts.
 
+## Pre-requisites
+
+- Cert-manager installed and running
+- Ingress installed (e.g. nginx-ingress or OpenShift router)
+
 ## Usage
 
 [Helm](https://helm.sh) must be installed to use the charts.  Please refer to
@@ -22,3 +27,8 @@ To install the kcp chart:
 To uninstall the chart:
 
     helm delete my-kcp
+
+To install using local chart:
+
+    helm upgrade -i my-kcp ./charts/kcp/ --values values.yaml
+
