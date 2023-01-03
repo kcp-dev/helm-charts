@@ -213,7 +213,7 @@ spec:
         - --requestheader-client-ca-file=/etc/kcp/tls/requestheader-client/ca.crt
         - --requestheader-username-headers=X-Remote-User
         - --requestheader-group-headers=X-Remote-Group
-        - --secure-port=6443
+        - --secure-port=6444
         - --shard-external-url=https://$(EXTERNAL_HOSTNAME)
         - --external-hostname=$(EXTERNAL_HOSTNAME):443
         - --virtual-workspaces-workspaces.authorization-cache.resync-period=1s
@@ -259,7 +259,7 @@ spec:
           failureThreshold: 3
           httpGet:
             path: livez
-            port: 6443
+            port: 6444
             scheme: HTTPS
           initialDelaySeconds: 45
           periodSeconds: 10
@@ -268,7 +268,7 @@ spec:
         startupProbe:
           httpGet:
             path: readyz
-            port: 6443
+            port: 6444
             scheme: HTTPS
           initialDelaySeconds: 10
           timeoutSeconds: 1
@@ -279,7 +279,7 @@ spec:
           failureThreshold: 3
           httpGet:
             path: readyz
-            port: 6443
+            port: 6444
             scheme: HTTPS
         resources:
           limits:

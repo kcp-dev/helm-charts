@@ -198,11 +198,17 @@ metadata:
   name: kcp-front-proxy-config
 data:
   path-mapping.yaml: |
-    - path: /
-      backend: https://kcp:6443
+    - path: /services/
+      backend: https://kcp:6444
       backend_server_ca: /etc/kcp/tls/ca.crt
       proxy_client_cert: /etc/kcp-front-proxy/requestheader-client/tls/kcp/tls.crt
       proxy_client_key: /etc/kcp-front-proxy/requestheader-client/tls/kcp/tls.key
+    - path: /clusters/
+      backend: https://kcp:6444
+      backend_server_ca: /etc/kcp/tls/ca.crt
+      proxy_client_cert: /etc/kcp-front-proxy/requestheader-client/tls/kcp/tls.crt
+      proxy_client_key: /etc/kcp-front-proxy/requestheader-client/tls/kcp/tls.key
+---
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -231,8 +237,8 @@ spec:
         - /kcp-front-proxy
         args:
         - --secure-port=8443
-        - --root-kubeconfig=/etc/kcp-front-proxy/kubeconfig/root-shard.kubeconfig
-        - --shards-kubeconfig=/etc/kcp-front-proxy/kubeconfig/root-shard.kubeconfig
+        - --root-kubeconfig=/etc/kcp-front-proxy/kubeconfig-root/root.kubeconfig
+        - --shards-kubeconfig=/etc/kcp-front-proxy/kubeconfig-shards/shards.kubeconfig
         - --tls-private-key-file=/etc/kcp-front-proxy/tls/tls.key
         - --tls-cert-file=/etc/kcp-front-proxy/tls/tls.crt
         - --client-ca-file=/etc/kcp-front-proxy/client/tls/ca.crt
@@ -271,8 +277,10 @@ spec:
           mountPath: /etc/kcp-front-proxy/config
         - name: client-cert-for-kubeconfig
           mountPath: /etc/kcp-front-proxy/client-cert-for-kubeconfig
-        - name: proxy-kcp-kubeconfig
-          mountPath: /etc/kcp-front-proxy/kubeconfig
+        - name: root-kcp-kubeconfig
+          mountPath: /etc/kcp-front-proxy/kubeconfig-root/
+        - name: shards-kcp-kubeconfig
+          mountPath: /etc/kcp-front-proxy/kubeconfig-shards/
         - name: kcp-client-ca
           mountPath: /etc/kcp-front-proxy/client/tls
         - name: kcp-ca
@@ -329,12 +337,18 @@ spec:
               path: tls.crt
             - key: tls.key
               path: tls.key
-      - name: proxy-kcp-kubeconfig
+      - name: root-kcp-kubeconfig
         secret:
-          secretName: proxy-kcp-kubeconfig
+          secretName: root-kcp-kubeconfig
           items:
             - key: kubeconfig
-              path: root-shard.kubeconfig
+              path: root.kubeconfig
+      - name: shards-kcp-kubeconfig
+        secret:
+          secretName: shards-kcp-kubeconfig
+          items:
+            - key: kubeconfig
+              path: shards.kubeconfig
       - name: kcp-front-proxy-config
         configMap:
           name: kcp-front-proxy-config

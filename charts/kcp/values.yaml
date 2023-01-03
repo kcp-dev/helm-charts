@@ -11,7 +11,7 @@ etcd:
   profiling:
     enabled: false
 kcp:
-  image: registry.ci.openshift.org/kcp/kcp
+  image: ghcr.io/faroshq/kcp:latest
   tag: latest
   v: "2"
   memoryLimit: 20Gi
@@ -36,7 +36,7 @@ kcp:
         user-1-token,user-1,1111-1111-1111-1111,"team-1"
         admin-token,admin,5555-5555-5555-5555,"system:kcp:admin,system:kcp:clusterworkspace:admin"
 kcpFrontProxy:
-  image: registry.ci.openshift.org/kcp/kcp-front-proxy
+  image: ghcr.io/faroshq/kcp:latest
   tag: latest
   v: "2"
   openshiftRoute:
@@ -64,7 +64,7 @@ kcpFrontProxy:
     enabled: false
     port: 6060
 virtualWorkspaces:
-  image: registry.ci.openshift.org/kcp/virtual-workspaces
+  image: ghcr.io/faroshq/kcp:latest
   tag: latest
   v: "2"
   memoryLimit: 10Gi
