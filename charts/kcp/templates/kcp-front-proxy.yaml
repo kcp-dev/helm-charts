@@ -204,11 +204,6 @@ metadata:
   name: kcp-front-proxy-config
 data:
   path-mapping.yaml: |
-    - path: /services/
-      backend: https://kcp:6444
-      backend_server_ca: /etc/virtual-workspaces/tls/ca.crt
-      proxy_client_cert: /etc/kcp-front-proxy/requestheader-client/tls/virtual-workspaces/tls.crt
-      proxy_client_key: /etc/kcp-front-proxy/requestheader-client/tls/virtual-workspaces/tls.key
     - path: /
       backend: https://kcp:6443
       backend_server_ca: /etc/kcp/tls/ca.crt
@@ -238,16 +233,29 @@ spec:
         image: {{ .Values.kcpFrontProxy.image }}:{{ .Values.kcpFrontProxy.tag }}
         ports:
         - containerPort: 8443
+        command: ["/kcp-front-proxy"]
         args:
         - --secure-port=8443
         - --root-kubeconfig=/etc/kcp-front-proxy/kubeconfig/root-shard.kubeconfig
+        {{- if .Values.kcpFrontProxy.shardsKubeConfigFlag }}
+        - --shards-kubeconfig=/etc/kcp-front-proxy/kubeconfig/root-shard.kubeconfig
+        {{- end }}
         - --tls-private-key-file=/etc/kcp-front-proxy/tls/tls.key
         - --tls-cert-file=/etc/kcp-front-proxy/tls/tls.crt
         - --client-ca-file=/etc/kcp-front-proxy/client/tls/ca.crt
         - --mapping-file=/etc/kcp-front-proxy/config/path-mapping.yaml
         - --v={{ .Values.kcpFrontProxy.v }}
+        - --logging-format=json
         {{- if .Values.kcpFrontProxy.profiling.enabled }}
         - --profiler-address=localhost:{{- .Values.kcpFrontProxy.profiling.port -}}
+        {{- end }}
+        {{- if .Values.oidc }}
+        - --oidc-issuer-url={{ .Values.oidc.issuerUrl }}
+        - --oidc-client-id={{ .Values.oidc.clientId }}
+        - --oidc-groups-claim={{ .Values.oidc.groupClaim }}
+        - --oidc-username-claim={{ .Values.oidc.usernameClaim }}
+        - --oidc-username-prefix={{ .Values.oidc.usernamePrefix }}
+        - --oidc-groups-prefix={{ .Values.oidc.groupsPrefix }}
         {{- end }}
         livenessProbe:
           failureThreshold: 3
@@ -267,8 +275,7 @@ spec:
             scheme: HTTPS
         resources:
           limits:
-            cpu: 200m
-            memory: 256Mi
+            memory: 1Gi
           requests:
             cpu: 100m
             memory: 128Mi
