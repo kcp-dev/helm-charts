@@ -3,34 +3,38 @@ etcd:
   enabled: true
   image: quay.io/coreos/etcd
   tag: v3.5.4
-  memoryLimit: 4Gi
+  cpuRequest: 500m
+  memoryLimit: 20Gi
+  memoryRequest: 2Gi
   volumeSize: 8Gi
   profiling:
     enabled: false
 kcp:
-  image: registry.ci.openshift.org/kcp/kcp
+  image: ghcr.io/kcp-dev/kcp
   tag: latest
-  v: "4"
+  v: "3"
+  logicalClusterAdminFlag: true
   memoryLimit: 20Gi
-  cpuRequest: 500m
-  memoryRequest: 4Gi
+  memoryRequest: 5Gi
+  cpuRequest: 100m
+  volumeClassName: gp2-csi
   etcd:
     serverAddress: https://etcd:2379
     clientCertificate:
       issuer: etcd-client-issuer
       commonName: root
   volumeSize: 1Gi
-  volumeClassName: ""
-  extraFlags: []  # Format is raw flag, e.g. --virtual-server-url=https://abc.xyz:443
+  extraFlags: []
   profiling:
     enabled: false
     port: 6060
 kcpFrontProxy:
-  image: registry.ci.openshift.org/kcp/kcp-front-proxy
+  image: ghcr.io/kcp-dev/kcp
   tag: latest
   v: "4"
+  shardsKubeConfigFlag: true
   openshiftRoute:
-    enabled: false
+    enabled: true
   ingress:
     enabled: false
     annotations: {}
@@ -39,23 +43,23 @@ kcpFrontProxy:
     enabled: false
     className: ""
   certificate:
-    issuerSpec: {}
+    issuerSpec:
+      acme:
+        server: https://acme-v02.api.letsencrypt.org/directory
+        privateKeySecretRef:
+          name: kcp-front-proxy-issuer-account-key
+        solvers:
+        - http01:
+            ingress:
+              serviceType: ClusterIP
   profiling:
     enabled: false
     port: 6060
-virtualWorkspaces:
-  image: registry.ci.openshift.org/kcp/virtual-workspaces
-  tag: latest
-  memoryLimit: 10Gi
-  cpuRequest: 100m
-  memoryRequest: 2Gi
-  profiling:
-    enabled: false
-    port: 6061
+oidc: {}
 audit:
-  enabled: true
+  enabled: false
   volumeSize: 1Gi
-  volumeClassName: ""
+  volumeClassName: "gp2-csi"
   policy:
     dir: /etc/kcp/audit
     fileName: audit-policy.yml
@@ -75,6 +79,5 @@ certificates:
     algorithm: RSA
     size: 2048
   subject: {}
-oidc: {}
 githubUserEditAccess:
 - test

@@ -128,6 +128,25 @@ spec:
   issuerRef:
     name: {{ .Values.kcp.etcd.clientCertificate.issuer }}
 ---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: logical-cluster-admin-client-cert-for-kubeconfig
+spec:
+  secretName: logical-cluster-admin-client-cert-for-kubeconfig
+  duration: 8760h0m0s # 365d
+  renewBefore: 360h0m0s # 15d
+  commonName: logical-cluster-admin
+  subject:
+    organizations:
+      - "system:kcp:logical-cluster-admin"
+  privateKey:
+    {{- toYaml .Values.certificates.privateKeys | nindent 4 }}
+  usages:
+    - client auth
+  issuerRef:
+    name: kcp-server-client-issuer
+---
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
@@ -196,8 +215,12 @@ spec:
         image: {{ .Values.kcp.image }}:{{ .Values.kcp.tag }}
         ports:
         - containerPort: 6443
+        {{- if .Values.kcp.profiling.enabled }}
+        - containerPort: {{ .Values.kcp.profiling.port }}
+          name: profiler
+        {{- end}}
+        command: ["/kcp", "start"]
         args:
-        - start
         - --etcd-servers={{ .Values.kcp.etcd.serverAddress }}
         - --etcd-keyfile=/etc/etcd/tls/server/tls.key
         - --etcd-certfile=/etc/etcd/tls/server/tls.crt
@@ -205,25 +228,27 @@ spec:
         - --client-ca-file=/etc/kcp/tls/server-client/ca.crt
         - --tls-private-key-file=/etc/kcp/tls/server/tls.key
         - --tls-cert-file=/etc/kcp/tls/server/tls.crt
+        {{- if .Values.kcp.logicalClusterAdminFlag }}
+        - --logical-cluster-admin-kubeconfig=/etc/kcp/logical-cluster-admin/kubeconfig/logical-cluster-admin.kubeconfig
+        {{- end }}
         - --requestheader-client-ca-file=/etc/kcp/tls/requestheader-client/ca.crt
         - --requestheader-username-headers=X-Remote-User
         - --requestheader-group-headers=X-Remote-Group
         - --root-directory=/etc/kcp/config
-        - --run-virtual-workspaces=false
         - --shard-base-url=https://kcp:6443
         - --shard-external-url=https://$(EXTERNAL_HOSTNAME):443
         - --external-hostname=$(EXTERNAL_HOSTNAME):443
-        - --shard-virtual-workspace-url=https://$(EXTERNAL_HOSTNAME):443
         - --root-ca-file=/etc/kcp/tls/ca/root-ca.pem
         {{- if .Values.oidc }}
         - --oidc-issuer-url={{ .Values.oidc.issuerUrl }}
         - --oidc-client-id={{ .Values.oidc.clientId }}
         - --oidc-groups-claim={{ .Values.oidc.groupClaim }}
         - --oidc-username-claim={{ .Values.oidc.usernameClaim }}
-        - "--oidc-username-prefix={{ .Values.oidc.usernamePrefix }}"
-        - "--oidc-groups-prefix={{ .Values.oidc.groupsPrefix }}"
+        -  --oidc-username-prefix={{ .Values.oidc.usernamePrefix }}
+        -  --oidc-groups-prefix={{ .Values.oidc.groupsPrefix }}
         {{- end }}
         - --v={{ .Values.kcp.v }}
+        - --logging-format=json
         {{- if .Values.audit.enabled }}
         - --audit-log-maxage={{ .Values.audit.log.maxAge }}
         - --audit-log-maxbackup={{ .Values.audit.log.maxBackup }}
@@ -231,18 +256,23 @@ spec:
         - --audit-log-path={{ .Values.audit.log.dir }}/kcp.log
         - --audit-policy-file={{ .Values.audit.policy.dir }}/{{ .Values.audit.policy.fileName }}
         - --audit-log-compress
+        - --audit-log-format=json
         {{- end }}
         {{- if .Values.kcp.profiling.enabled }}
-        - --profiler-address=localhost:{{- .Values.kcp.profiling.port -}}
+        - --profiler-address=0.0.0.0:{{- .Values.kcp.profiling.port -}}
         {{- end }}
         {{- range .Values.kcp.extraFlags }}
-        - {{ . }}
+        {{ . }}
         {{- end }}
         env:
         - name: EXTERNAL_HOSTNAME
           value: {{ required "A valid external hostname is required" .Values.externalHostname }}
+        - name: GOMEMLIMIT
+          valueFrom:
+            resourceFieldRef:
+              resource: requests.memory
         livenessProbe:
-          failureThreshold: 3
+          failureThreshold: 6
           httpGet:
             path: livez
             port: 6443
@@ -260,20 +290,28 @@ spec:
           timeoutSeconds: 1
           periodSeconds: 10
           successThreshold: 1
-          failureThreshold: 18
+          failureThreshold: 36
         readinessProbe:
-          failureThreshold: 3
+          failureThreshold: 6
           httpGet:
             path: readyz
             port: 6443
             scheme: HTTPS
         resources:
           limits:
+            {{- if .Values.kcp.cpuLimit }}
             cpu: '{{ .Values.kcp.cpuLimit }}'
+            {{- end }}
+            {{- if .Values.kcp.memoryLimit }}
             memory: '{{ .Values.kcp.memoryLimit }}'
+            {{- end }}
           requests:
+            {{- if .Values.kcp.cpuRequest }}
             cpu: '{{ .Values.kcp.cpuRequest }}'
+            {{- end }}
+            {{- if .Values.kcp.memoryRequest }}
             memory: '{{ .Values.kcp.memoryRequest }}'
+            {{- end }}
         volumeMounts:
         - name: etcd-certs
           mountPath: /etc/etcd/tls/server
@@ -281,10 +319,14 @@ spec:
           mountPath: /etc/kcp/tls/server
         - name: kcp-server-client-ca
           mountPath: /etc/kcp/tls/server-client
-        - name: kcp-requestheader-client-ca 
+        - name: kcp-requestheader-client-ca
           mountPath: /etc/kcp/tls/requestheader-client
         - name: kubeconfig
           mountPath: /etc/kcp/config
+        - name: logical-cluster-admin-client-cert-for-kubeconfig
+          mountPath: /etc/kcp/logical-cluster-admin/client-cert-for-kubeconfig
+        - name: logical-cluster-admin-kubeconfig
+          mountPath: /etc/kcp/logical-cluster-admin/kubeconfig
         {{- if .Values.audit.enabled }}
         - name: audit-log
           mountPath: {{ .Values.audit.log.dir }}
@@ -293,73 +335,6 @@ spec:
         {{- end }}
         - name: root-ca-file
           mountPath: /etc/kcp/tls/ca
-      - name: virtual-workspaces
-        image: {{ .Values.virtualWorkspaces.image }}:{{ .Values.virtualWorkspaces.tag }}
-        ports:
-        - containerPort: 6444
-        command:
-        - sh
-        - -c
-        - >
-          cat /etc/kcp/config/admin.kubeconfig | sed -e 's;://\([^/]*\);://localhost:6443;' -e 's;current-context: root;current-context: system:admin;' > /etc/kcp/config/localhost.kubeconfig &&
-          exec /usr/bin/virtual-workspaces
-          workspaces
-          --kubeconfig=/etc/kcp/config/localhost.kubeconfig
-          --authentication-kubeconfig=/etc/kcp/config/localhost.kubeconfig
-          --authentication-skip-lookup
-          --client-ca-file=/etc/kcp/tls/server-client/ca.crt
-          --tls-private-key-file=/etc/kcp/tls/server/tls.key
-          --tls-cert-file=/etc/kcp/tls/server/tls.crt
-          --requestheader-client-ca-file=/etc/kcp/tls/requestheader-client/ca.crt
-          --requestheader-username-headers=X-Remote-User
-          --requestheader-group-headers=X-Remote-Group
-          --secure-port=6444
-          --v={{ .Values.kcp.v }}
-          {{- if .Values.virtualWorkspaces.profiling.enabled }}
-          --profiler-address=localhost:{{- .Values.virtualWorkspaces.profiling.port -}}
-          {{- end }}
-        livenessProbe:
-          failureThreshold: 3
-          httpGet:
-            path: livez
-            port: 6444
-            scheme: HTTPS
-          initialDelaySeconds: 45
-          periodSeconds: 10
-          successThreshold: 1
-          timeoutSeconds: 10
-        startupProbe:
-          httpGet:
-            path: readyz
-            port: 6444
-            scheme: HTTPS
-          initialDelaySeconds: 10
-          timeoutSeconds: 1
-          periodSeconds: 10
-          successThreshold: 1
-          failureThreshold: 18
-        readinessProbe:
-          failureThreshold: 3
-          httpGet:
-            path: readyz
-            port: 6444
-            scheme: HTTPS
-        resources:
-          limits:
-            cpu: '{{ .Values.virtualWorkspaces.cpuLimit }}'
-            memory: '{{ .Values.virtualWorkspaces.memoryLimit }}'
-          requests:
-            cpu: '{{ .Values.virtualWorkspaces.cpuRequest }}'
-            memory: '{{ .Values.virtualWorkspaces.memoryRequest }}'
-        volumeMounts:
-        - name: virtual-workspaces-certs
-          mountPath: /etc/kcp/tls/server
-        - name: kcp-server-client-ca
-          mountPath: /etc/kcp/tls/server-client
-        - name: kcp-requestheader-client-ca 
-          mountPath: /etc/kcp/tls/requestheader-client
-        - name: kubeconfig
-          mountPath: /etc/kcp/config
       volumes:
       - name: etcd-certs
         secret:
@@ -382,6 +357,20 @@ spec:
           items:
           - key: ca.crt
             path: ca.crt
+      - name: logical-cluster-admin-client-cert-for-kubeconfig
+        secret:
+          secretName: logical-cluster-admin-client-cert-for-kubeconfig
+          items:
+            - key: tls.crt
+              path: tls.crt
+            - key: tls.key
+              path: tls.key
+      - name: logical-cluster-admin-kubeconfig
+        secret:
+          secretName: logical-cluster-admin-kubeconfig
+          items:
+            - key: kubeconfig
+              path: logical-cluster-admin.kubeconfig
       - name: kubeconfig
         persistentVolumeClaim:
           claimName: kcp
