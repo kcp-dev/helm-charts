@@ -34,7 +34,7 @@ kcpFrontProxy:
   v: "4"
   shardsKubeConfigFlag: true
   openshiftRoute:
-    enabled: true
+    enabled: false
   ingress:
     enabled: false
     annotations: {}
