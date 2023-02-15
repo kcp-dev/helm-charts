@@ -1,4 +1,4 @@
-# KCP Helm Charts
+ KCP Helm Charts
 
 Repository for KCP helm charts.
 
@@ -45,6 +45,19 @@ is used to expose the front-proxy endpoint), a minimal example:
     kcpFrontProxy:
       ingress:
         enabled: true
+        annotations:
+          kubernetes.io/ingress.class: "nginx"
+          nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
+      certificates:
+        issuerSpec:
+          acme:
+            server: https://acme-v02.api.letsencrypt.org/directory
+            privateKeySecretRef:
+              name: kcp-front-proxy-issuer-account-key
+            solvers:
+            - http01:
+                ingress:
+                  serviceType: ClusterIP
 
 ## Accessing the deployed KCP
 
@@ -62,16 +75,12 @@ user `system:authenticated` access to a workspace.
 
 First we get the CA cert for the front proxy, saving it to a file `ca.crt`
 
-```
-kubectl get secret kcp-front-proxy-cert -o=jsonpath='{.data.tls\.crt}' | base64 -d > ca.crt
-```
+    kubectl get secret kcp-front-proxy-cert -o=jsonpath='{.data.tls\.crt}' | base64 -d > ca.crt
 
 Now we create a new kubeconfig which references the `ca.crt`
 
-```
-kubectl --kubeconfig=admin.kubeconfig config set-cluster base --server https://<externalHostname>:443 --certificate-authority=ca.crt
-kubectl --kubeconfig=admin.kubeconfig config set-cluster root --server https://<externalHostname>:443/clusters/root --certificate-authority=ca.crt
-```
+    kubectl --kubeconfig=admin.kubeconfig config set-cluster base --server https://<externalHostname>:443 --certificate-authority=ca.crt
+    kubectl --kubeconfig=admin.kubeconfig config set-cluster root --server https://<externalHostname>:443/clusters/root --certificate-authority=ca.crt
 
 ### Create client-cert credentials
 
@@ -79,47 +88,79 @@ Now we must add credentials to the kubeconfig, so requests to the front-proxy ma
 
 One way to do this is to create a client certificate with a cert-manager `Certificate`:
 
-```
-$ cat admin-client-cert.yaml
-apiVersion: cert-manager.io/v1
-kind: Certificate
-metadata:
-  name: cluster-admin-client-cert
-spec:
-  commonName: cluster-admin
-  issuerRef:
-    name: kcp-client-issuer
-  privateKey:
-    algorithm: RSA
-    size: 2048
-  secretName: cluster-admin-client-cert
-  subject:
-    organizations:
-    - system:kcp:admin
-  usages:
-  - client auth
+    $ cat admin-client-cert.yaml
+    apiVersion: cert-manager.io/v1
+    kind: Certificate
+    metadata:
+      name: cluster-admin-client-cert
+    spec:
+      commonName: cluster-admin
+      issuerRef:
+        name: kcp-client-issuer
+      privateKey:
+        algorithm: RSA
+        size: 2048
+      secretName: cluster-admin-client-cert
+      subject:
+        organizations:
+        - system:kcp:admin
+      usages:
+      - client auth
 
-$ kubectl apply -f admin-client-cert.yaml
-```
+    $ kubectl apply -f admin-client-cert.yaml
 
 This will result in a `cluster-admin-client-cert` secret which we can again save to local files:
 
-
-```
-$ kubectl get secret cluster-admin-client-cert -o=jsonpath='{.data.tls\.crt}' | base64 -d > client.crt
-$ kubectl get secret cluster-admin-client-cert -o=jsonpath='{.data.tls\.key}' | base64 -d > client.key
-$ chmod 600 client.crt client.key
-```
+    $ kubectl get secret cluster-admin-client-cert -o=jsonpath='{.data.tls\.crt}' | base64 -d > client.crt
+    $ kubectl get secret cluster-admin-client-cert -o=jsonpath='{.data.tls\.key}' | base64 -d > client.key
+    $ chmod 600 client.crt client.key
 
 We can now add these credentials to the `admin.kubeconfig` and access KCP:
 
-```
-$ kubectl --kubeconfig=admin.kubeconfig config set-credentials kcp-admin --client-certificate=client.crt --client-key=client.key
-$ kubectl --kubeconfig=admin.kubeconfig config set-context base --cluster=base --user=kcp-admin
-$ kubectl --kubeconfig=admin.kubeconfig config set-context root --cluster=root --user=kcp-admin
-$ kubectl --kubeconfig=admin.kubeconfig config use-context root
-$ kubectl --kubeconfig=admin.kubeconfig workspace
-$ export KUBECONFIG=$PWD/admin.kubeconfig
-$ kubectl workspace
-Current workspace is "1gnrr0twy6c3o".
-```
+    $ kubectl --kubeconfig=admin.kubeconfig config set-credentials kcp-admin --client-certificate=client.crt --client-key=client.key
+    $ kubectl --kubeconfig=admin.kubeconfig config set-context base --cluster=base --user=kcp-admin
+    $ kubectl --kubeconfig=admin.kubeconfig config set-context root --cluster=root --user=kcp-admin
+    $ kubectl --kubeconfig=admin.kubeconfig config use-context root
+    $ kubectl --kubeconfig=admin.kubeconfig workspace
+    $ export KUBECONFIG=$PWD/admin.kubeconfig
+    $ kubectl workspace
+    Current workspace is "1gnrr0twy6c3o".
+
+## Install to KIND cluster (for development)
+
+There is a helper script to install KCP to a KIND cluster. It will install cert-manager, nginx-ingress and KCP.
+Kind cluster binds to host ports 80 and 443 for ingress. Ingress is emulated using host entries in `/etc/hosts`.
+This particular configuration is useful for development and testing, but will not work with LetsEncrypt.
+
+    ./hack/kind-setup.sh
+
+
+Pre-requisites:
+* Kind cluster running (e.g. `kind create cluster`)
+* Cert-manager installer and running
+* Ingress installed
+* `/etc/hosts entry` for `kcp.dev.local` pointing to `127.0.0.1`
+
+Run helm install:
+
+      helm upgrade -i my-kcp ./charts/kcp/ \
+      --values values.yaml \
+      --namespace kcp \
+      --create-namespace
+
+Where `values.yaml` is:
+
+      externalHostname: "kcp.dev.local"
+      kcp:
+        volumeClassName: "standard"
+      kcpFrontProxy:
+        ingress:
+          enabled: true
+          annotations:
+            kubernetes.io/ingress.class: "nginx"
+            nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
+
+# Known issues
+
+* https://github.com/kcp-dev/kcp/issues/2295 - Deployments fail to start.
+Workaround: Delete the empty token file in `kcp` volume and restart kcp pod.
