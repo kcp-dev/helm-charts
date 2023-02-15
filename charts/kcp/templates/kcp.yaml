@@ -269,6 +269,9 @@ spec:
         -  --oidc-username-prefix={{ .Values.oidc.usernamePrefix }}
         -  --oidc-groups-prefix={{ .Values.oidc.groupsPrefix }}
         {{- end }}
+        {{- if .Values.kcp.tokenAuth.enabled }}
+        - --token-auth-file=/etc/kcp/token-auth/{{ .Values.kcp.tokenAuth.fileName }}
+        {{- end }}
         - --v={{ .Values.kcp.v }}
         - --logging-format=json
         {{- if .Values.audit.enabled }}
@@ -347,6 +350,10 @@ spec:
           mountPath: /etc/kcp/tls/requestheader-client
         - name: kubeconfig
           mountPath: /etc/kcp/config
+        {{- if .Values.kcp.tokenAuth.enabled }}
+        - name: kcp-token-auth-file
+          mountPath: /etc/kcp/token-auth
+        {{- end}}
         - name: logical-cluster-admin-client-cert-for-kubeconfig
           mountPath: /etc/kcp/logical-cluster-admin/client-cert-for-kubeconfig
         - name: logical-cluster-admin-kubeconfig
@@ -427,6 +434,11 @@ spec:
         persistentVolumeClaim:
           claimName: kcp-audit-logs
       {{- end }}
+      {{- if .Values.kcp.tokenAuth.enabled }}
+      - name: kcp-token-auth-file
+        secret:
+          secretName: kcp-token-auth-file
+      {{- end }}
       - name: root-ca-file
         configMap:
           name: kcp-root-ca
@@ -438,3 +450,14 @@ metadata:
 data:
   {{ .Values.audit.policy.fileName }}: |
     {{- .Values.audit.policy.config | nindent 4 }}
+
+{{- if .Values.kcp.tokenAuth.enabled }}
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: kcp-token-auth-file
+stringData:
+  {{ .Values.kcp.tokenAuth.fileName }}: |
+    {{- .Values.kcp.tokenAuth.config | nindent 4 }}
+{{- end}}

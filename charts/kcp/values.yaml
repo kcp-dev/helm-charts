@@ -29,6 +29,12 @@ kcp:
   profiling:
     enabled: false
     port: 6060
+  tokenAuth:
+    enabled: false
+    fileName: auth-token.csv
+    config: |
+        user-1-token,user-1,1111-1111-1111-1111,"team-1"
+        admin-token,admin,5555-5555-5555-5555,"system:masters"
 kcpFrontProxy:
   image: ghcr.io/kcp-dev/kcp
   tag: latest
@@ -44,7 +50,7 @@ kcpFrontProxy:
     enabled: false
     className: ""
   certificate:
-    issuerSpec:
+  issuerSpec:
       acme:
         server: https://acme-v02.api.letsencrypt.org/directory
         privateKeySecretRef:
