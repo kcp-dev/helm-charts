@@ -1,4 +1,4 @@
-externalHostname: ""
+externalHostname: "kcp.example.com"
 etcd:
   enabled: true
   image: quay.io/coreos/etcd
@@ -16,6 +16,7 @@ etcd:
 kcp:
   image: ghcr.io/kcp-dev/kcp
   tag: latest
+  pullPolicy: Always
   v: "3"
   logicalClusterAdminFlag: true
   externalLogicalClusterAdminFlag: true
@@ -42,23 +43,31 @@ kcp:
     fileName: auth-token.csv
     config: |
         user-1-token,user-1,1111-1111-1111-1111,"team-1"
-        admin-token,admin,5555-5555-5555-5555,"system:masters"
+        admin-token,admin,5555-5555-5555-5555,"system:kcp:admin"
+        system-token,system,6666-6666-6666-6666,"system:masters"
+  hostAliases:
+    enabled: false
+  homeWorkspaces:
+    enabled: false
 kcpFrontProxy:
   image: ghcr.io/kcp-dev/kcp
   tag: latest
+  pullPolicy: Always
   v: "4"
   shardsKubeConfigFlag: true
   openshiftRoute:
     enabled: false
   ingress:
     enabled: false
-    annotations: {}
+    annotations:
+      kubernetes.io/ingress.class: "nginx"
+      acme.cert-manager.io/http01-edit-in-place: "true"
     secret: ""
   gateway:
     enabled: false
     className: ""
   certificate:
-    issuerSpec: {selfSigned: {}}
+    issuer: kcp-selfsigned-issuer
   profiling:
     enabled: false
     port: 6060
@@ -69,7 +78,10 @@ kcpFrontProxy:
     limits:
       # cpu: 1
       memory: 1Gi
-oidc: {}
+  hostAliases:
+    enabled: false
+oidc:
+  enabled: false
 audit:
   enabled: false
   volumeSize: 1Gi
@@ -93,5 +105,16 @@ certificates:
     algorithm: RSA
     size: 2048
   subject: {}
+  dnsNames:
+  - kcp
+  - localhost
 githubUserEditAccess:
 - test
+letsEncrypt:
+  enabled: false
+  staging:
+    enabled: false
+    email: ""
+  production:
+    enabled: false
+    email: ""
