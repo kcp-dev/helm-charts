@@ -25,9 +25,10 @@ export KUBECONFIG=./${CLUSTER_NAME}.kubeconfig
 echo "Installing ingress"
 
 kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/kind/deploy.yaml
-kubectl label nodes faros-control-plane node-role.kubernetes.io/control-plane-
+kubectl label nodes kcp-control-plane node-role.kubernetes.io/control-plane-
 
 echo "Waiting for the ingress controller to become ready..."
+sleep 5
 kubectl --context "${KUBECTL_CONTEXT}" -n ingress-nginx wait --for=condition=Ready pod -l app.kubernetes.io/component=controller --timeout=5m
 
 
