@@ -1,4 +1,4 @@
- KCP Helm Charts
+# KCP Helm Charts
 
 Repository for KCP helm charts.
 

@@ -25,12 +25,15 @@ export KUBECONFIG=./${CLUSTER_NAME}.kubeconfig
 echo "Installing ingress"
 
 kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/kind/deploy.yaml
-kubectl label nodes kcp-control-plane node-role.kubernetes.io/control-plane-
+kubectl label nodes ${CLUSTER_NAME}-control-plane node-role.kubernetes.io/control-plane-
 
 echo "Waiting for the ingress controller to become ready..."
-sleep 5
+# https://github.com/kubernetes/kubernetes/issues/83242
+until kubectl --context "${KUBECTL_CONTEXT}" -n ingress-nginx get pod -l app.kubernetes.io/component=controller -o go-template='{{.items | len}}' | grep -qxF 1; do
+    echo "Waiting for pod"
+    sleep 1
+done
 kubectl --context "${KUBECTL_CONTEXT}" -n ingress-nginx wait --for=condition=Ready pod -l app.kubernetes.io/component=controller --timeout=5m
-
 
 echo "Installing cert-manager"
 
