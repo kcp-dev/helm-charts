@@ -147,6 +147,25 @@ spec:
   issuerRef:
     name: kcp-server-client-issuer
 ---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: external-logical-cluster-admin-client-cert-for-kubeconfig
+spec:
+  secretName: external-logical-cluster-admin-client-cert-for-kubeconfig
+  duration: 8760h0m0s # 365d
+  renewBefore: 360h0m0s # 15d
+  commonName: external-logical-cluster-admin
+  subject:
+    organizations:
+      - "system:kcp:external-logical-cluster-admin"
+  privateKey:
+    {{- toYaml .Values.certificates.privateKeys | nindent 4 }}
+  usages:
+    - client auth
+  issuerRef:
+    name: kcp-server-client-issuer
+---
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
@@ -231,6 +250,9 @@ spec:
         {{- if .Values.kcp.logicalClusterAdminFlag }}
         - --logical-cluster-admin-kubeconfig=/etc/kcp/logical-cluster-admin/kubeconfig/logical-cluster-admin.kubeconfig
         {{- end }}
+        {{- if .Values.kcp.externalLogicalClusterAdminFlag }}
+        - --external-logical-cluster-admin-kubeconfig=/etc/kcp/external-logical-cluster-admin/kubeconfig/external-logical-cluster-admin.kubeconfig
+        {{- end }}
         - --requestheader-client-ca-file=/etc/kcp/tls/requestheader-client/ca.crt
         - --requestheader-username-headers=X-Remote-User
         - --requestheader-group-headers=X-Remote-Group
@@ -313,6 +335,8 @@ spec:
             memory: '{{ .Values.kcp.memoryRequest }}'
             {{- end }}
         volumeMounts:
+        - name: kcp-front-proxy-cert
+          mountPath: /etc/kcp-front-proxy/tls
         - name: etcd-certs
           mountPath: /etc/etcd/tls/server
         - name: kcp-certs
@@ -327,6 +351,10 @@ spec:
           mountPath: /etc/kcp/logical-cluster-admin/client-cert-for-kubeconfig
         - name: logical-cluster-admin-kubeconfig
           mountPath: /etc/kcp/logical-cluster-admin/kubeconfig
+        - name: external-logical-cluster-admin-client-cert-for-kubeconfig
+          mountPath: /etc/kcp/external-logical-cluster-admin/client-cert-for-kubeconfig
+        - name: external-logical-cluster-admin-kubeconfig
+          mountPath: /etc/kcp/external-logical-cluster-admin/kubeconfig
         {{- if .Values.audit.enabled }}
         - name: audit-log
           mountPath: {{ .Values.audit.log.dir }}
@@ -336,6 +364,9 @@ spec:
         - name: root-ca-file
           mountPath: /etc/kcp/tls/ca
       volumes:
+      - name: kcp-front-proxy-cert
+        secret:
+          secretName: kcp-front-proxy-cert
       - name: etcd-certs
         secret:
           secretName: kcp-etcd-client
@@ -371,6 +402,20 @@ spec:
           items:
             - key: kubeconfig
               path: logical-cluster-admin.kubeconfig
+      - name: external-logical-cluster-admin-client-cert-for-kubeconfig
+        secret:
+          secretName: external-logical-cluster-admin-client-cert-for-kubeconfig
+          items:
+            - key: tls.crt
+              path: tls.crt
+            - key: tls.key
+              path: tls.key
+      - name: external-logical-cluster-admin-kubeconfig
+        secret:
+          secretName: external-logical-cluster-admin-kubeconfig
+          items:
+            - key: kubeconfig
+              path: external-logical-cluster-admin.kubeconfig
       - name: kubeconfig
         persistentVolumeClaim:
           claimName: kcp

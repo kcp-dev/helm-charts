@@ -14,6 +14,7 @@ kcp:
   tag: latest
   v: "3"
   logicalClusterAdminFlag: true
+  externalLogicalClusterAdminFlag: true
   memoryLimit: 20Gi
   memoryRequest: 5Gi
   cpuRequest: 100m
