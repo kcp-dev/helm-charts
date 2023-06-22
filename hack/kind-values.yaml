@@ -1,0 +1,16 @@
+externalHostname: "kcp.dev.local"
+kcp:
+  volumeClassName: "standard"
+  tokenAuth:
+    enabled: true
+kcpFrontProxy:
+  openshiftRoute:
+    enabled: false
+  ingress:
+    enabled: true
+    annotations:
+      kubernetes.io/ingress.class: "nginx"
+      nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
+  certificate:
+    issuerSpec:
+      selfSigned: {}
