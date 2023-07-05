@@ -154,21 +154,10 @@ spec:
               mountPath: /etc/etcd/tls/peer
             - name: server-certs
               mountPath: /etc/etcd/tls/server
+          {{- with .Values.etcd.resources }}
           resources:
-            limits:
-              {{- if .Values.etcd.cpuLimit }}
-              cpu: '{{ .Values.etcd.cpuLimit }}'
-              {{- end }}
-              {{- if .Values.etcd.memoryLimit }}
-              memory: '{{ .Values.etcd.memoryLimit }}'
-              {{- end }}
-            requests:
-              {{- if .Values.etcd.cpuRequest }}
-              cpu: '{{ .Values.etcd.cpuRequest }}'
-              {{- end }}
-              {{- if .Values.etcd.memoryRequest }}
-              memory: '{{ .Values.etcd.memoryRequest }}'
-              {{- end }}
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
           command:
             - /bin/sh
             - -c

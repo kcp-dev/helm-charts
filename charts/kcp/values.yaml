@@ -3,9 +3,13 @@ etcd:
   enabled: true
   image: quay.io/coreos/etcd
   tag: v3.5.4
-  cpuRequest: 500m
-  memoryLimit: 20Gi
-  memoryRequest: 2Gi
+  resources:
+    requests:
+      cpu: 500m
+      memory: 2Gi
+    limits:
+      # cpu: 1
+     memory: 20Gi
   volumeSize: 8Gi
   profiling:
     enabled: false
@@ -15,9 +19,13 @@ kcp:
   v: "3"
   logicalClusterAdminFlag: true
   externalLogicalClusterAdminFlag: true
-  memoryLimit: 20Gi
-  memoryRequest: 5Gi
-  cpuRequest: 100m
+  resources:
+    requests:
+      memory: 5Gi
+      cpu: 100m
+    limits:
+      # cpu: 1
+      memory: 20Gi
   volumeClassName: gp2-csi
   etcd:
     serverAddress: https://etcd:2379
