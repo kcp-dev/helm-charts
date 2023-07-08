@@ -322,21 +322,10 @@ spec:
             path: readyz
             port: 6443
             scheme: HTTPS
+        {{- with .Values.kcp.resources }}
         resources:
-          limits:
-            {{- if .Values.kcp.cpuLimit }}
-            cpu: '{{ .Values.kcp.cpuLimit }}'
-            {{- end }}
-            {{- if .Values.kcp.memoryLimit }}
-            memory: '{{ .Values.kcp.memoryLimit }}'
-            {{- end }}
-          requests:
-            {{- if .Values.kcp.cpuRequest }}
-            cpu: '{{ .Values.kcp.cpuRequest }}'
-            {{- end }}
-            {{- if .Values.kcp.memoryRequest }}
-            memory: '{{ .Values.kcp.memoryRequest }}'
-            {{- end }}
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
         volumeMounts:
         - name: kcp-front-proxy-cert
           mountPath: /etc/kcp-front-proxy/tls

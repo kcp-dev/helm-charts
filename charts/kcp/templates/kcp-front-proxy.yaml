@@ -273,12 +273,10 @@ spec:
             path: readyz
             port: 8443
             scheme: HTTPS
+        {{- with .Values.kcpFrontProxy.resources }}
         resources:
-          limits:
-            memory: 1Gi
-          requests:
-            cpu: 100m
-            memory: 128Mi
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
         volumeMounts:
         - name: kcp-front-proxy-cert
           mountPath: /etc/kcp-front-proxy/tls
