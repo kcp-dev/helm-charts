@@ -28,7 +28,9 @@ spec:
   tls:
   - hosts:
       - {{ .Values.externalHostname }}
-    {{- with .Values.kcpFrontProxy.ingress.secret -}}secretName: {{ . }}{{- end }}
+    {{- if .Values.kcpFrontProxy.ingress.secret }}
+    secretName: {{ .Values.kcpFrontProxy.ingress.secret }}
+    {{- end }}
   rules:
   - host: {{ .Values.externalHostname }}
     http:
@@ -74,13 +76,6 @@ spec:
 {{- end }}
 ---
 apiVersion: cert-manager.io/v1
-kind: Issuer
-metadata:
-  name: kcp-front-proxy-issuer
-spec:
-  {{- toYaml .Values.kcpFrontProxy.certificate.issuerSpec | nindent 2 }}
----
-apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
   name: kcp-front-proxy
@@ -99,7 +94,9 @@ spec:
   dnsNames:
     - "{{ .Values.externalHostname }}"
   issuerRef:
-    name: kcp-front-proxy-issuer
+    name: {{ .Values.kcpFrontProxy.certificate.issuer }}
+    kind: ClusterIssuer
+    group: cert-manager.io
 ---
 apiVersion: cert-manager.io/v1
 kind: Certificate
@@ -167,6 +164,41 @@ spec:
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
+  name: kcp-service-account-signing-ca
+spec:
+  isCA: true
+  commonName: kcp-service-account-signing-ca
+  secretName: kcp-service-account-signing-ca
+  privateKey:
+    {{- toYaml .Values.certificates.privateKeys | nindent 4 }}
+  issuerRef:
+    name: kcp-pki-ca
+    kind: Issuer
+    group: cert-manager.io
+---
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: kcp-service-account-issuer
+spec:
+  ca:
+    secretName: kcp-service-account-signing-ca
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: kcp-service-account-cert
+spec:
+  commonName: kcp-service-account-cert
+  secretName: kcp-service-account-cert
+  issuerRef:
+    name: kcp-service-account-issuer
+    kind: Issuer
+    group: cert-manager.io
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
   name: kcp-front-proxy-virtual-workspaces-client-cert
 spec:
   secretName: kcp-front-proxy-virtual-workspaces-client-cert
@@ -228,9 +260,14 @@ spec:
       labels:
         app: kcp-front-proxy
     spec:
+      {{- if .Values.kcpFrontProxy.hostAliases.enabled }}
+      hostAliases:
+        {{- toYaml .Values.kcpFrontProxy.hostAliases.values | nindent 6 }}
+      {{- end }}
       containers:
       - name: kcp-front-proxy
         image: {{ .Values.kcpFrontProxy.image }}:{{ .Values.kcpFrontProxy.tag }}
+        imagePullPolicy: {{ .Values.kcpFrontProxy.pullPolicy }}
         ports:
         - containerPort: 8443
         command: ["/kcp-front-proxy"]
@@ -243,19 +280,26 @@ spec:
         - --tls-private-key-file=/etc/kcp-front-proxy/tls/tls.key
         - --tls-cert-file=/etc/kcp-front-proxy/tls/tls.crt
         - --client-ca-file=/etc/kcp-front-proxy/client/tls/ca.crt
+        - --service-account-key-file=/etc/kcp/tls/service-account/tls.key
         - --mapping-file=/etc/kcp-front-proxy/config/path-mapping.yaml
         - --v={{ .Values.kcpFrontProxy.v }}
         - --logging-format=json
         {{- if .Values.kcpFrontProxy.profiling.enabled }}
         - --profiler-address=localhost:{{- .Values.kcpFrontProxy.profiling.port -}}
         {{- end }}
-        {{- if .Values.oidc }}
+        {{- if .Values.oidc.enabled }}
         - --oidc-issuer-url={{ .Values.oidc.issuerUrl }}
         - --oidc-client-id={{ .Values.oidc.clientId }}
         - --oidc-groups-claim={{ .Values.oidc.groupClaim }}
         - --oidc-username-claim={{ .Values.oidc.usernameClaim }}
         - --oidc-username-prefix={{ .Values.oidc.usernamePrefix }}
         - --oidc-groups-prefix={{ .Values.oidc.groupsPrefix }}
+        {{- if .Values.oidc.caSecretName }}
+        - --oidc-ca-file=/etc/kcp/tls/oidc/ca.crt
+        {{- end }}
+        {{- end }}
+        {{- if .Values.kcp.tokenAuth.enabled }}
+        - --token-auth-file=/etc/kcp/token-auth/{{ .Values.kcp.tokenAuth.fileName }}
         {{- end }}
         livenessProbe:
           failureThreshold: 3
@@ -296,6 +340,18 @@ spec:
           mountPath: /etc/kcp-front-proxy/requestheader-client/tls/kcp
         - name: kcp-front-proxy-virtual-workspaces-client-cert
           mountPath: /etc/kcp-front-proxy/requestheader-client/tls/virtual-workspaces
+        - name: kcp-service-account-cert
+          mountPath: /etc/kcp/tls/service-account
+        {{- if .Values.kcp.tokenAuth.enabled }}
+        - name: kcp-token-auth-file
+          mountPath: /etc/kcp/token-auth
+        {{- end}}
+        {{- if .Values.oidc.enabled }}
+        {{- if .Values.oidc.caSecretName }}
+        - name: oidc-ca
+          mountPath: /etc/kcp/tls/oidc
+        {{- end }}
+        {{- end }}
       volumes:
       - name: kcp-front-proxy-cert
         secret:
@@ -342,6 +398,14 @@ spec:
               path: tls.crt
             - key: tls.key
               path: tls.key
+      - name: kcp-service-account-cert
+        secret:
+          secretName: kcp-service-account-cert
+          items:
+            - key: tls.crt
+              path: tls.crt
+            - key: tls.key
+              path: tls.key
       - name: proxy-kcp-kubeconfig
         secret:
           secretName: proxy-kcp-kubeconfig
@@ -354,3 +418,15 @@ spec:
           items:
             - key: "path-mapping.yaml"
               path: "path-mapping.yaml"
+      {{- if .Values.oidc.enabled }}
+      {{- if .Values.oidc.caSecretName }}
+      - name: oidc-ca
+        secret:
+          secretName: {{.Values.oidc.caSecretName }}
+      {{- end }}
+      {{- end }}
+      {{- if .Values.kcp.tokenAuth.enabled }}
+      - name: kcp-token-auth-file
+        secret:
+          secretName: kcp-token-auth-file
+      {{- end }}
