@@ -295,8 +295,8 @@ spec:
         - --oidc-client-id={{ .Values.oidc.clientId }}
         - --oidc-groups-claim={{ .Values.oidc.groupClaim }}
         - --oidc-username-claim={{ .Values.oidc.usernameClaim }}
-        - --oidc-username-prefix={{ .Values.oidc.usernamePrefix }}
-        - --oidc-groups-prefix={{ .Values.oidc.groupsPrefix }}
+        - '--oidc-username-prefix={{ .Values.oidc.usernamePrefix }}'
+        - '--oidc-groups-prefix={{ .Values.oidc.groupsPrefix }}'
         {{- if .Values.oidc.caSecretName }}
         - --oidc-ca-file=/etc/kcp/tls/oidc/ca.crt
         {{- end }}
