@@ -69,6 +69,11 @@ kcpFrontProxy:
   gateway:
     enabled: false
     className: ""
+  service:
+    annotations: {}
+    # set this to LoadBalancer if you want to publish kcp-front-proxy
+    # directly instead of going via Route/Ingress/Gateway resources.
+    type: LoadBalancer
   certificate:
     issuer: kcp-selfsigned-issuer
   profiling:
