@@ -1,8 +1,12 @@
 externalHostname: "kcp.dev.local"
+etcd:
+  enabled: false
 kcp:
   volumeClassName: "standard"
   tokenAuth:
     enabled: true
+  etcd:
+    serverAddress: embedded
 kcpFrontProxy:
   openshiftRoute:
     enabled: false

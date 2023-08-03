@@ -113,6 +113,7 @@ spec:
   {{- end }}
   issuerRef:
     name: kcp-server-issuer
+{{- if .Values.etcd.enabled }}
 ---
 apiVersion: cert-manager.io/v1
 kind: Certificate
@@ -129,6 +130,7 @@ spec:
     - client auth
   issuerRef:
     name: {{ .Values.kcp.etcd.clientCertificate.issuer }}
+{{- end }}
 ---
 apiVersion: cert-manager.io/v1
 kind: Certificate
@@ -272,9 +274,11 @@ spec:
         command: ["/kcp", "start"]
         args:
         - --etcd-servers={{ .Values.kcp.etcd.serverAddress }}
+        {{- if ne .Values.kcp.etcd.serverAddress "embedded" }}
         - --etcd-keyfile=/etc/etcd/tls/server/tls.key
         - --etcd-certfile=/etc/etcd/tls/server/tls.crt
         - --etcd-cafile=/etc/etcd/tls/server/ca.crt
+        {{- end }}
         - --client-ca-file=/etc/kcp/tls/server-client/ca.crt
         - --tls-private-key-file=/etc/kcp/tls/server/tls.key
         - --tls-cert-file=/etc/kcp/tls/server/tls.crt
@@ -369,8 +373,10 @@ spec:
         volumeMounts:
         - name: kcp-front-proxy-cert
           mountPath: /etc/kcp-front-proxy/tls
+        {{- if ne .Values.kcp.etcd.serverAddress "embedded" }}
         - name: etcd-certs
           mountPath: /etc/etcd/tls/server
+        {{- end }}
         - name: kcp-certs
           mountPath: /etc/kcp/tls/server
         - name: kcp-server-client-ca
@@ -411,9 +417,11 @@ spec:
       - name: kcp-front-proxy-cert
         secret:
           secretName: kcp-front-proxy-cert
+      {{- if ne .Values.kcp.etcd.serverAddress "embedded" }}
       - name: etcd-certs
         secret:
           secretName: kcp-etcd-client
+      {{- end }}
       - name: kcp-certs
         secret:
           secretName: kcp-cert

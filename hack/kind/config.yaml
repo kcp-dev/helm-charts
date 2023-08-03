@@ -13,7 +13,7 @@ kubeadmConfigPatches:
       "enable-admission-plugins": NamespaceLifecycle,LimitRanger,ServiceAccount,TaintNodesByCondition,Priority,DefaultTolerationSeconds,DefaultStorageClass,PersistentVolumeClaimResize,MutatingAdmissionWebhook,ValidatingAdmissionWebhook,ResourceQuota
 nodes:
   - role: control-plane
-    image: kindest/node:v1.24.2
+    image: kindest/node:v1.26.6
     kubeadmConfigPatches:
       - |
         kind: InitConfiguration
