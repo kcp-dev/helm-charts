@@ -48,6 +48,9 @@ helm install \
   --create-namespace \
   --version v1.9.1
 
+# Installing cert-manager will end with a message saying that the next step
+# is to create some Issuers and/or ClusterIssuers.  That is indeed
+# among the things that the kcp helm chart will do.
 
 echo "Install KCP"
 

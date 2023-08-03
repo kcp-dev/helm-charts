@@ -129,38 +129,48 @@ We can now add these credentials to the `admin.kubeconfig` and access KCP:
 ## Install to KIND cluster (for development)
 
 There is a helper script to install KCP to a KIND cluster. It will install cert-manager, nginx-ingress and KCP.
-Kind cluster binds to host ports 80 and 443 for ingress. Ingress is emulated using host entries in `/etc/hosts`.
+Kind cluster binds to host ports 6440 (for kind container port 80) and 6443 (for kind container port 443) for ingress. Ingress is emulated using host entries in `/etc/hosts`.
 This particular configuration is useful for development and testing, but will not work with LetsEncrypt.
 
     ./hack/kind-setup.sh
 
 
-Pre-requisites:
-* Kind cluster running (e.g. `kind create cluster`)
+Pre-requisites established by that script:
+* `kind` executable installed at `/usr/local/bin/kind`
+* Kind cluster named `kcp`
 * Cert-manager installer and running
 * Ingress installed
 * `/etc/hosts entry` for `kcp.dev.local` pointing to `127.0.0.1`
 
-Run helm install:
+That script will do this helm install:
 
       helm upgrade -i my-kcp ./charts/kcp/ \
-      --values values.yaml \
+      --values ./hack/kind-values.yaml \
       --namespace kcp \
       --create-namespace
 
-Where `values.yaml` is:
+Where `hack/kind-values.yaml` is:
 
-      externalHostname: "kcp.dev.local"
-      kcp:
-        volumeClassName: "standard"
-      kcpFrontProxy:
-        ingress:
-          enabled: true
-          annotations:
-            kubernetes.io/ingress.class: "nginx"
-            nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
+```yaml
+externalHostname: "kcp.dev.local"
+kcp:
+  volumeClassName: "standard"
+  tokenAuth:
+    enabled: true
+kcpFrontProxy:
+  openshiftRoute:
+    enabled: false
+  ingress:
+    enabled: true
+    annotations:
+      kubernetes.io/ingress.class: "nginx"
+      nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
+  certificate:
+    issuerSpec:
+      selfSigned: {}
+```
 
 # Known issues
 
 * https://github.com/kcp-dev/kcp/issues/2295 - Deployments fail to start.
-Workaround: Delete the empty token file in `kcp` volume and restart kcp pod.
+Workaround: Delete the corrupted token store file in the `kcp` PersistentVolume and restart kcp pod.
