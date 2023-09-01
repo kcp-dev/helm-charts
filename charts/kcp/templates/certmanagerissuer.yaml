@@ -5,6 +5,9 @@ apiVersion: cert-manager.io/v1
 kind: ClusterIssuer
 metadata:
   name: kcp-letsencrypt-staging
+  labels:
+    {{- include "common.labels" . | nindent 4 }}
+    app.kubernetes.io/component: "pki"
 spec:
   acme:
     # You must replace this email address with your own.
@@ -27,6 +30,9 @@ apiVersion: cert-manager.io/v1
 kind: ClusterIssuer
 metadata:
   name: kcp-letsencrypt-prod
+  labels:
+    {{- include "common.labels" . | nindent 4 }}
+    app.kubernetes.io/component: "pki"
 spec:
   acme:
     # You must replace this email address with your own.
@@ -49,6 +55,9 @@ apiVersion: cert-manager.io/v1
 kind: ClusterIssuer
 metadata:
   name: kcp-selfsigned-issuer
+  labels:
+    {{- include "common.labels" . | nindent 4 }}
+    app.kubernetes.io/component: "pki"
 spec:
   selfSigned: {}
 
