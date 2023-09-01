@@ -252,11 +252,10 @@ spec:
       labels:
         app: kcp
     spec:
+      {{- with .Values.kcp.securityContext }}
       securityContext:
-        # this matches the group id as set in the kcp Dockerfile.
-        fsGroup: 65532
-        seccompProfile:
-          type: RuntimeDefault
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       {{- if .Values.kcp.hostAliases.enabled }}
       hostAliases:
         {{- toYaml .Values.kcp.hostAliases.values | nindent 6 }}

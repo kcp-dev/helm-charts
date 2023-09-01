@@ -265,9 +265,10 @@ spec:
       labels:
         app: kcp-front-proxy
     spec:
+      {{- with .Values.kcpFrontProxy.securityContext }}
       securityContext:
-        seccompProfile:
-          type: RuntimeDefault
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       {{- if .Values.kcpFrontProxy.hostAliases.enabled }}
       hostAliases:
         {{- toYaml .Values.kcpFrontProxy.hostAliases.values | nindent 6 }}
