@@ -13,7 +13,7 @@ spec:
   privateKey:
     {{- toYaml .Values.certificates.privateKeys | nindent 4 }}
   issuerRef:
-    name: kcp-pki-ca
+    name: kcp-pki
     kind: Issuer
     group: cert-manager.io
 ---
@@ -31,7 +31,7 @@ spec:
   privateKey:
     {{- toYaml .Values.certificates.privateKeys | nindent 4 }}
   issuerRef:
-    name: kcp-pki-ca
+    name: kcp-pki
     kind: Issuer
     group: cert-manager.io
 ---
@@ -49,7 +49,7 @@ spec:
   privateKey:
     {{- toYaml .Values.certificates.privateKeys | nindent 4 }}
   issuerRef:
-    name: kcp-pki-ca
+    name: kcp-pki
     kind: Issuer
     group: cert-manager.io
 ---
@@ -324,11 +324,12 @@ spec:
         - --etcd-certfile=/etc/etcd/tls/server/tls.crt
         - --etcd-cafile=/etc/etcd/tls/server/ca.crt
         {{- end }}
-        - --client-ca-file=/etc/kcp/tls/server-client/ca.crt
+        - --client-ca-file=/etc/kcp/tls/server-client-ca/tls.crt
         - --tls-private-key-file=/etc/kcp/tls/server/tls.key
         - --tls-cert-file=/etc/kcp/tls/server/tls.crt
         - --service-account-key-file=/etc/kcp/tls/service-account/tls.key
         - --service-account-private-key-file=/etc/kcp/tls/service-account/tls.key
+        - --root-ca-file=/etc/kcp/tls/service-account/ca.crt
         - --enable-home-workspaces={{ .Values.kcp.homeWorkspaces.enabled }}
         {{- if .Values.kcp.logicalClusterAdminFlag }}
         - --logical-cluster-admin-kubeconfig=/etc/kcp/logical-cluster-admin/kubeconfig/logical-cluster-admin.kubeconfig
@@ -336,15 +337,14 @@ spec:
         {{- if .Values.kcp.externalLogicalClusterAdminFlag }}
         - --external-logical-cluster-admin-kubeconfig=/etc/kcp/external-logical-cluster-admin/kubeconfig/external-logical-cluster-admin.kubeconfig
         {{- end }}
-        - --requestheader-client-ca-file=/etc/kcp/tls/requestheader-client/ca.crt
+        - --requestheader-client-ca-file=/etc/kcp/tls/requestheader-client-ca/tls.crt
         - --requestheader-username-headers=X-Remote-User
         - --requestheader-group-headers=X-Remote-Group
         - --root-directory=/etc/kcp/config
-        - --shard-virtual-workspace-ca-file=/etc/kcp/tls/ca/root-ca.pem
+        - --shard-virtual-workspace-ca-file=/etc/kcp/tls/kcp-virtual-workspaces/ca.crt
         - --shard-base-url=https://kcp:6443
         - --shard-external-url=https://$(EXTERNAL_HOSTNAME):$(EXTERNAL_PORT)
         - --external-hostname=$(EXTERNAL_HOSTNAME):$(EXTERNAL_PORT)
-        - --root-ca-file=/etc/kcp/tls/ca/root-ca.pem
         {{- if .Values.oidc.enabled }}
         - --oidc-issuer-url={{ .Values.oidc.issuerUrl }}
         - --oidc-client-id={{ .Values.oidc.clientId }}
@@ -425,11 +425,13 @@ spec:
         - name: kcp-certs
           mountPath: /etc/kcp/tls/server
         - name: kcp-server-client-ca
-          mountPath: /etc/kcp/tls/server-client
+          mountPath: /etc/kcp/tls/server-client-ca
         - name: kcp-requestheader-client-ca
-          mountPath: /etc/kcp/tls/requestheader-client
+          mountPath: /etc/kcp/tls/requestheader-client-ca
         - name: kcp-service-account-cert
           mountPath: /etc/kcp/tls/service-account
+        - name: kcp-virtual-workspaces-cert
+          mountPath: /etc/kcp/tls/kcp-virtual-workspaces
         - name: kubeconfig
           mountPath: /etc/kcp/config
         {{- if .Values.kcp.tokenAuth.enabled }}
@@ -450,8 +452,6 @@ spec:
         - name: audit-policy
           mountPath: {{ .Values.audit.policy.dir }}
         {{- end }}
-        - name: root-ca-file
-          mountPath: /etc/kcp/tls/ca
         {{- if .Values.oidc.enabled }}
         {{- if .Values.oidc.caSecretName }}
         - name: oidc-ca
@@ -470,21 +470,24 @@ spec:
       - name: kcp-certs
         secret:
           secretName: kcp-cert
-      - name: virtual-workspaces-certs
+      - name: kcp-virtual-workspaces-cert
         secret:
           secretName: kcp-virtual-workspaces-cert
+          items:
+          - key: ca.crt
+            path: ca.crt
       - name: kcp-requestheader-client-ca
         secret:
           secretName: kcp-requestheader-client-ca
           items:
-          - key: ca.crt
-            path: ca.crt
+          - key: tls.crt
+            path: tls.crt
       - name: kcp-server-client-ca
         secret:
           secretName: kcp-server-client-ca
           items:
-          - key: ca.crt
-            path: ca.crt
+          - key: tls.crt
+            path: tls.crt
       - name: logical-cluster-admin-client-cert-for-kubeconfig
         secret:
           secretName: logical-cluster-admin-client-cert-for-kubeconfig
@@ -497,6 +500,8 @@ spec:
         secret:
           secretName: kcp-service-account-cert
           items:
+            - key: ca.crt
+              path: ca.crt
             - key: tls.crt
               path: tls.crt
             - key: tls.key
@@ -537,9 +542,6 @@ spec:
         secret:
           secretName: kcp-token-auth-file
       {{- end }}
-      - name: root-ca-file
-        configMap:
-          name: kcp-root-ca
       {{- if .Values.oidc.enabled }}
       {{- if .Values.oidc.caSecretName }}
       - name: oidc-ca
