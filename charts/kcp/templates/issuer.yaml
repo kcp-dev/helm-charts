@@ -2,6 +2,9 @@ apiVersion: cert-manager.io/v1
 kind: Issuer
 metadata:
   name: kcp-pki-bootstrap
+  labels:
+    {{- include "common.labels" . | nindent 4 }}
+    app.kubernetes.io/component: "pki"
 spec:
   selfSigned: {}
 ---
@@ -9,6 +12,9 @@ apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
   name: kcp-pki-ca
+  labels:
+    {{- include "common.labels" . | nindent 4 }}
+    app.kubernetes.io/component: "pki"
 spec:
   isCA: true
   commonName: kcp-pki-ca
@@ -26,6 +32,9 @@ apiVersion: cert-manager.io/v1
 kind: Issuer
 metadata:
   name: kcp-pki-ca
+  labels:
+    {{- include "common.labels" . | nindent 4 }}
+    app.kubernetes.io/component: "pki"
 spec:
   ca:
     secretName: kcp-pki-ca

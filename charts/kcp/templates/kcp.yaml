@@ -3,6 +3,9 @@ apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
   name: kcp-ca
+  labels:
+    {{- include "common.labels" . | nindent 4 }}
+    app.kubernetes.io/component: "server"
 spec:
   isCA: true
   commonName: kcp-ca
@@ -18,6 +21,9 @@ apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
   name: kcp-requestheader-client-ca
+  labels:
+    {{- include "common.labels" . | nindent 4 }}
+    app.kubernetes.io/component: "server"
 spec:
   isCA: true
   commonName: kcp-requestheader-client-ca
@@ -33,6 +39,9 @@ apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
   name: kcp-server-client-ca
+  labels:
+    {{- include "common.labels" . | nindent 4 }}
+    app.kubernetes.io/component: "server"
 spec:
   isCA: true
   commonName: kcp-server-client-ca
@@ -48,6 +57,9 @@ apiVersion: cert-manager.io/v1
 kind: Issuer
 metadata:
   name: kcp-server-issuer
+  labels:
+    {{- include "common.labels" . | nindent 4 }}
+    app.kubernetes.io/component: "server"
 spec:
   ca:
     secretName: kcp-ca
@@ -56,6 +68,9 @@ apiVersion: cert-manager.io/v1
 kind: Issuer
 metadata:
   name: kcp-server-client-issuer
+  labels:
+    {{- include "common.labels" . | nindent 4 }}
+    app.kubernetes.io/component: "server"
 spec:
   ca:
     secretName: kcp-server-client-ca
@@ -64,6 +79,9 @@ apiVersion: cert-manager.io/v1
 kind: Issuer
 metadata:
   name: kcp-requestheader-client-issuer
+  labels:
+    {{- include "common.labels" . | nindent 4 }}
+    app.kubernetes.io/component: "server"
 spec:
   ca:
     secretName: kcp-requestheader-client-ca
@@ -72,6 +90,9 @@ apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
   name: kcp
+  labels:
+    {{- include "common.labels" . | nindent 4 }}
+    app.kubernetes.io/component: "server"
 spec:
   secretName: kcp-cert
   duration: 8760h0m0s # 365d
@@ -95,6 +116,9 @@ apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
   name: kcp-virtual-workspaces
+  labels:
+    {{- include "common.labels" . | nindent 4 }}
+    app.kubernetes.io/component: "server"
 spec:
   secretName: kcp-virtual-workspaces-cert
   duration: 8760h0m0s # 365d
@@ -119,6 +143,9 @@ apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
   name: kcp-etcd-client
+  labels:
+    {{- include "common.labels" . | nindent 4 }}
+    app.kubernetes.io/component: "server"
 spec:
   secretName: kcp-etcd-client
   duration: 8760h0m0s # 365d
@@ -136,6 +163,9 @@ apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
   name: logical-cluster-admin-client-cert-for-kubeconfig
+  labels:
+    {{- include "common.labels" . | nindent 4 }}
+    app.kubernetes.io/component: "server"
 spec:
   secretName: logical-cluster-admin-client-cert-for-kubeconfig
   duration: 8760h0m0s # 365d
@@ -155,6 +185,9 @@ apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
   name: external-logical-cluster-admin-client-cert-for-kubeconfig
+  labels:
+    {{- include "common.labels" . | nindent 4 }}
+    app.kubernetes.io/component: "server"
 spec:
   secretName: external-logical-cluster-admin-client-cert-for-kubeconfig
   duration: 8760h0m0s # 365d
@@ -174,6 +207,9 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: kcp
+  labels:
+    {{- include "common.labels" . | nindent 4 }}
+    app.kubernetes.io/component: "server"
 spec:
   accessModes:
   - ReadWriteOnce
@@ -187,6 +223,9 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: kcp-audit-logs
+  labels:
+    {{- include "common.labels" . | nindent 4 }}
+    app.kubernetes.io/component: "server"
 spec:
   accessModes:
   - ReadWriteOnce
@@ -201,7 +240,8 @@ kind: Service
 metadata:
   name: kcp
   labels:
-    app: kcp
+    {{- include "common.labels" . | nindent 4 }}
+    app.kubernetes.io/component: "server"
 spec:
   ports:
     - protocol: TCP
@@ -213,14 +253,16 @@ spec:
       port: 6444
       targetPort: 6444
   selector:
-    app: kcp
+    {{- include "common.labels.selector" . | nindent 4 }}
+    app.kubernetes.io/component: "server"
 ---
 apiVersion: v1
 kind: Service
 metadata:
   name: kcp-internal
   labels:
-    app: kcp
+    {{- include "common.labels" . | nindent 4 }}
+    app.kubernetes.io/component: "server"
 spec:
   ports:
     - protocol: TCP
@@ -232,25 +274,29 @@ spec:
       port: 444
       targetPort: 6444
   selector:
-    app: kcp
+    {{- include "common.labels.selector" . | nindent 4 }}
+    app.kubernetes.io/component: "server"
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: kcp
   labels:
-    app: kcp
+    {{- include "common.labels" . | nindent 4 }}
+    app.kubernetes.io/component: "server"
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: kcp
+      {{- include "common.labels.selector" . | nindent 6 }}
+      app.kubernetes.io/component: "server"
   strategy:
     type: Recreate
   template:
     metadata:
       labels:
-        app: kcp
+        {{- include "common.labels" . | nindent 8 }}
+        app.kubernetes.io/component: "server"
     spec:
       securityContext:
         # this matches the group id as set in the kcp Dockerfile.

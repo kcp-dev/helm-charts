@@ -4,6 +4,9 @@ apiVersion: route.openshift.io/v1
 kind: Route
 metadata:
   name: kcp-front-proxy
+  labels:
+    {{- include "common.labels" . | nindent 4 }}
+    app.kubernetes.io/component: "front-proxy"
 spec:
   host: {{ .Values.externalHostname }}
   port:
@@ -22,6 +25,9 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: kcp-front-proxy
+  labels:
+    {{- include "common.labels" . | nindent 4 }}
+    app.kubernetes.io/component: "front-proxy"
   annotations:
     {{- toYaml .Values.kcpFrontProxy.ingress.annotations | nindent 4 }}
 spec:
@@ -49,6 +55,9 @@ apiVersion: gateway.networking.k8s.io/v1beta1
 kind: Gateway
 metadata:
   name: kcp-front-proxy
+  labels:
+    {{- include "common.labels" . | nindent 4 }}
+    app.kubernetes.io/component: "front-proxy"
 spec:
   gatewayClassName: {{ required "gateway.classname is required" .Values.kcpFrontProxy.gateway.className }}
   listeners:
@@ -63,6 +72,9 @@ apiVersion: gateway.networking.k8s.io/v1alpha2
 kind: TLSRoute
 metadata:
   name: kcp-front-proxy
+  labels:
+    {{- include "common.labels" . | nindent 4 }}
+    app.kubernetes.io/component: "front-proxy"
 spec:
   parentRefs:
   - kind: Gateway
@@ -79,6 +91,9 @@ apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
   name: kcp-front-proxy
+  labels:
+    {{- include "common.labels" . | nindent 4 }}
+    app.kubernetes.io/component: "front-proxy"
 spec:
   secretName: kcp-front-proxy-cert
   duration: 8760h0m0s # 365d
@@ -102,6 +117,9 @@ apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
   name: kcp-client-ca
+  labels:
+    {{- include "common.labels" . | nindent 4 }}
+    app.kubernetes.io/component: "front-proxy"
 spec:
   isCA: true
   commonName: kcp-client-ca
@@ -117,6 +135,9 @@ apiVersion: cert-manager.io/v1
 kind: Issuer
 metadata:
   name: kcp-client-issuer
+  labels:
+    {{- include "common.labels" . | nindent 4 }}
+    app.kubernetes.io/component: "front-proxy"
 spec:
   ca:
     secretName: kcp-client-ca
@@ -125,6 +146,9 @@ apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
   name: kcp-front-proxy-kcp-client-cert
+  labels:
+    {{- include "common.labels" . | nindent 4 }}
+    app.kubernetes.io/component: "front-proxy"
 spec:
   secretName: kcp-front-proxy-kcp-client-cert
   duration: 8760h0m0s # 365d
@@ -146,6 +170,9 @@ apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
   name: client-cert-for-kubeconfig
+  labels:
+    {{- include "common.labels" . | nindent 4 }}
+    app.kubernetes.io/component: "front-proxy"
 spec:
   secretName: client-cert-for-kubeconfig
   duration: 8760h0m0s # 365d
@@ -165,6 +192,9 @@ apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
   name: kcp-service-account-signing-ca
+  labels:
+    {{- include "common.labels" . | nindent 4 }}
+    app.kubernetes.io/component: "front-proxy"
 spec:
   isCA: true
   commonName: kcp-service-account-signing-ca
@@ -180,6 +210,9 @@ apiVersion: cert-manager.io/v1
 kind: Issuer
 metadata:
   name: kcp-service-account-issuer
+  labels:
+    {{- include "common.labels" . | nindent 4 }}
+    app.kubernetes.io/component: "front-proxy"
 spec:
   ca:
     secretName: kcp-service-account-signing-ca
@@ -188,6 +221,9 @@ apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
   name: kcp-service-account-cert
+  labels:
+    {{- include "common.labels" . | nindent 4 }}
+    app.kubernetes.io/component: "front-proxy"
 spec:
   commonName: kcp-service-account-cert
   secretName: kcp-service-account-cert
@@ -200,6 +236,9 @@ apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
   name: kcp-front-proxy-virtual-workspaces-client-cert
+  labels:
+    {{- include "common.labels" . | nindent 4 }}
+    app.kubernetes.io/component: "front-proxy"
 spec:
   secretName: kcp-front-proxy-virtual-workspaces-client-cert
   duration: 8760h0m0s # 365d
@@ -221,6 +260,9 @@ apiVersion: v1
 kind: Service
 metadata:
   name: kcp-front-proxy
+  labels:
+    {{- include "common.labels" . | nindent 4 }}
+    app.kubernetes.io/component: "front-proxy"
   {{- with .Values.kcpFrontProxy.service.annotations }}
   annotations: 
     {{- toYaml . | nindent 4 }}
@@ -233,12 +275,16 @@ spec:
       port: 8443
       targetPort: 8443
   selector:
-    app: kcp-front-proxy
+    {{- include "common.labels.selector" . | nindent 4 }}
+    app.kubernetes.io/component: "front-proxy"
 ---
 apiVersion: v1
 kind: ConfigMap
 metadata:
   name: kcp-front-proxy-config
+  labels:
+    {{- include "common.labels" . | nindent 4 }}
+    app.kubernetes.io/component: "front-proxy"
 data:
   path-mapping.yaml: |
     - path: /
@@ -252,18 +298,21 @@ kind: Deployment
 metadata:
   name: kcp-front-proxy
   labels:
-    app: kcp-front-proxy
+    {{- include "common.labels" . | nindent 4 }}
+    app.kubernetes.io/component: "front-proxy"
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: kcp-front-proxy
+      {{- include "common.labels.selector" . | nindent 6 }}
+      app.kubernetes.io/component: "front-proxy"
   strategy:
     type: Recreate
   template:
     metadata:
       labels:
-        app: kcp-front-proxy
+        {{- include "common.labels" . | nindent 8 }}
+        app.kubernetes.io/component: "front-proxy"
     spec:
       securityContext:
         seccompProfile:

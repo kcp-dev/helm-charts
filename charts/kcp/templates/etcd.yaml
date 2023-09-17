@@ -4,6 +4,9 @@ apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
   name: etcd-client-ca
+  labels:
+    {{- include "common.labels" . | nindent 4 }}
+    app.kubernetes.io/component: "etcd"
 spec:
   isCA: true
   commonName: etcd-client-bootstrap
@@ -19,6 +22,9 @@ apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
   name: etcd-peer-ca
+  labels:
+    {{- include "common.labels" . | nindent 4 }}
+    app.kubernetes.io/component: "etcd"
 spec:
   isCA: true
   commonName: etcd-peer-bootstrap
@@ -34,6 +40,9 @@ apiVersion: cert-manager.io/v1
 kind: Issuer
 metadata:
   name: etcd-client-issuer
+  labels:
+    {{- include "common.labels" . | nindent 4 }}
+    app.kubernetes.io/component: "etcd"
 spec:
   ca:
     secretName: etcd-client-bootstrap-secret
@@ -42,6 +51,9 @@ apiVersion: cert-manager.io/v1
 kind: Issuer
 metadata:
   name: etcd-peer-issuer
+  labels:
+    {{- include "common.labels" . | nindent 4 }}
+    app.kubernetes.io/component: "etcd"
 spec:
   ca:
     secretName: etcd-peer-bootstrap-secret
@@ -50,6 +62,9 @@ apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
   name: etcd
+  labels:
+    {{- include "common.labels" . | nindent 4 }}
+    app.kubernetes.io/component: "etcd"
 spec:
   secretName: etcd-cert
   duration: 8760h0m0s # 365d
@@ -80,6 +95,9 @@ apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
   name: etcd-peer
+  labels:
+    {{- include "common.labels" . | nindent 4 }}
+    app.kubernetes.io/component: "etcd"
 spec:
   secretName: etcd-peer-cert
   duration: 8760h0m0s # 365d
@@ -110,7 +128,8 @@ kind: Service
 metadata:
   name: etcd
   labels:
-    app: etcd
+    {{- include "common.labels" . | nindent 4 }}
+    app.kubernetes.io/component: "etcd"
 spec:
   clusterIP: None
   ports:
@@ -126,18 +145,21 @@ kind: StatefulSet
 metadata:
   name: etcd
   labels:
-    app: etcd
+    {{- include "common.labels" . | nindent 4 }}
+    app.kubernetes.io/component: "etcd"
 spec:
   serviceName: etcd
   selector:
     matchLabels:
-      app: etcd
+      {{- include "common.labels.selector" . | nindent 6 }}
+      app.kubernetes.io/component: "etcd"
   replicas: 3
   template:
     metadata:
       name: etcd
       labels:
-        app: etcd
+        {{- include "common.labels" . | nindent 8 }}
+        app.kubernetes.io/component: "etcd"
     spec:
       containers:
         - name: etcd
