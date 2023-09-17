@@ -49,6 +49,11 @@ kcp:
     enabled: false
   homeWorkspaces:
     enabled: false
+  securityContext:
+  # this matches the group id as set in the kcp Dockerfile.
+    fsGroup: 65532
+    seccompProfile:
+      type: RuntimeDefault
 kcpFrontProxy:
   image: ghcr.io/kcp-dev/kcp
   tag: latest
@@ -88,6 +93,9 @@ kcpFrontProxy:
       memory: 1Gi
   hostAliases:
     enabled: false
+  securityContext:
+    seccompProfile:
+      type: RuntimeDefault
 oidc:
   enabled: false
 audit:
