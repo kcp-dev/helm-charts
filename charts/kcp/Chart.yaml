@@ -8,7 +8,7 @@ appVersion: "0.10"
 
 # optional metadata
 type: application
-home: https://kcp.io
+home: https://www.kcp.io/
 keywords:
   - kcp
   - kubernetes

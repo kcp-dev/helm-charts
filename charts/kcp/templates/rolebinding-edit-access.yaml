@@ -1,3 +1,4 @@
+{{- with .Values.githubUserEditAccess }}
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
@@ -9,8 +10,9 @@ roleRef:
   kind: ClusterRole
   name: edit
 subjects:
-{{- range .Values.githubUserEditAccess }}
+{{- range . }}
 - apiGroup: rbac.authorization.k8s.io
   kind: User
   name: {{ . }}
+{{- end }}
 {{- end }}

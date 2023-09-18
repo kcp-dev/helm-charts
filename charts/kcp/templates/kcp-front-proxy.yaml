@@ -109,9 +109,7 @@ spec:
   dnsNames:
     - "{{ .Values.externalHostname }}"
   issuerRef:
-    name: {{ .Values.kcpFrontProxy.certificate.issuer }}
-    kind: ClusterIssuer
-    group: cert-manager.io
+{{ .Values.kcpFrontProxy.certificateIssuer | toYaml | indent 4 }}
 ---
 apiVersion: cert-manager.io/v1
 kind: Certificate
@@ -127,7 +125,7 @@ spec:
   privateKey:
     {{- toYaml .Values.certificates.privateKeys | nindent 4 }}
   issuerRef:
-    name: kcp-pki-ca
+    name: kcp-pki
     kind: Issuer
     group: cert-manager.io
 ---
@@ -202,7 +200,7 @@ spec:
   privateKey:
     {{- toYaml .Values.certificates.privateKeys | nindent 4 }}
   issuerRef:
-    name: kcp-pki-ca
+    name: kcp-pki
     kind: Issuer
     group: cert-manager.io
 ---
@@ -264,7 +262,7 @@ metadata:
     {{- include "common.labels" . | nindent 4 }}
     app.kubernetes.io/component: "front-proxy"
   {{- with .Values.kcpFrontProxy.service.annotations }}
-  annotations: 
+  annotations:
     {{- toYaml . | nindent 4 }}
   {{- end }}
 spec:
@@ -287,11 +285,7 @@ metadata:
     app.kubernetes.io/component: "front-proxy"
 data:
   path-mapping.yaml: |
-    - path: /
-      backend: https://kcp:6443
-      backend_server_ca: /etc/kcp/tls/ca.crt
-      proxy_client_cert: /etc/kcp-front-proxy/requestheader-client/tls/kcp/tls.crt
-      proxy_client_key: /etc/kcp-front-proxy/requestheader-client/tls/kcp/tls.key
+{{ .Values.kcpFrontProxy.pathMapping | toYaml | indent 4 }}
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -337,7 +331,7 @@ spec:
         {{- end }}
         - --tls-private-key-file=/etc/kcp-front-proxy/tls/tls.key
         - --tls-cert-file=/etc/kcp-front-proxy/tls/tls.crt
-        - --client-ca-file=/etc/kcp-front-proxy/client/tls/ca.crt
+        - --client-ca-file=/etc/kcp-front-proxy/client-ca/tls.crt
         - --service-account-key-file=/etc/kcp/tls/service-account/tls.key
         - --mapping-file=/etc/kcp-front-proxy/config/path-mapping.yaml
         - --v={{ .Values.kcpFrontProxy.v }}
@@ -389,15 +383,11 @@ spec:
         - name: proxy-kcp-kubeconfig
           mountPath: /etc/kcp-front-proxy/kubeconfig
         - name: kcp-client-ca
-          mountPath: /etc/kcp-front-proxy/client/tls
-        - name: kcp-ca
-          mountPath: /etc/kcp/tls
-        - name: kcp-virtual-workspaces-ca
-          mountPath: /etc/virtual-workspaces/tls
+          mountPath: /etc/kcp-front-proxy/client-ca
+        - name: kcp
+          mountPath: /etc/kcp/tls/server
         - name: kcp-front-proxy-kcp-client-cert
           mountPath: /etc/kcp-front-proxy/requestheader-client/tls/kcp
-        - name: kcp-front-proxy-virtual-workspaces-client-cert
-          mountPath: /etc/kcp-front-proxy/requestheader-client/tls/virtual-workspaces
         - name: kcp-service-account-cert
           mountPath: /etc/kcp/tls/service-account
         {{- if .Values.kcp.tokenAuth.enabled }}
@@ -410,6 +400,9 @@ spec:
           mountPath: /etc/kcp/tls/oidc
         {{- end }}
         {{- end }}
+{{- with .Values.kcpFrontProxy.extraVolumeMounts }}
+{{ . | toYaml | indent 8 }}
+{{- end }}
       volumes:
       - name: kcp-front-proxy-cert
         secret:
@@ -418,39 +411,25 @@ spec:
         secret:
           secretName: kcp-client-ca
           items:
-            - key: ca.crt
-              path: ca.crt
-      - name: kcp-ca
+            - key: tls.crt
+              path: tls.crt
+      - name: kcp
         secret:
           secretName: kcp-cert
           items:
             - key: ca.crt
               path: ca.crt
-      - name: kcp-virtual-workspaces-ca
-        secret:
-          secretName: kcp-virtual-workspaces-cert
-          items:
-            - key: ca.crt
-              path: ca.crt
-      - name: kcp-front-proxy-kcp-client-cert
-        secret:
-          secretName: kcp-front-proxy-kcp-client-cert
-          items:
-            - key: tls.crt
-              path: tls.crt
-            - key: tls.key
-              path: tls.key
-      - name: kcp-front-proxy-virtual-workspaces-client-cert
-        secret:
-          secretName: kcp-front-proxy-virtual-workspaces-client-cert
-          items:
-            - key: tls.crt
-              path: tls.crt
-            - key: tls.key
-              path: tls.key
       - name: client-cert-for-kubeconfig
         secret:
           secretName: client-cert-for-kubeconfig
+          items:
+            - key: tls.crt
+              path: tls.crt
+            - key: tls.key
+              path: tls.key
+      - name: kcp-front-proxy-kcp-client-cert
+        secret:
+          secretName: kcp-front-proxy-kcp-client-cert
           items:
             - key: tls.crt
               path: tls.crt
@@ -460,8 +439,6 @@ spec:
         secret:
           secretName: kcp-service-account-cert
           items:
-            - key: tls.crt
-              path: tls.crt
             - key: tls.key
               path: tls.key
       - name: proxy-kcp-kubeconfig
@@ -488,3 +465,6 @@ spec:
         secret:
           secretName: kcp-token-auth-file
       {{- end }}
+{{- with .Values.kcpFrontProxy.extraVolumes }}
+{{ . | toYaml | indent 6 }}
+{{- end }}

@@ -31,7 +31,7 @@ spec:
 apiVersion: cert-manager.io/v1
 kind: Issuer
 metadata:
-  name: kcp-pki-ca
+  name: kcp-pki
   labels:
     {{- include "common.labels" . | nindent 4 }}
     app.kubernetes.io/component: "pki"
