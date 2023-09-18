@@ -41,23 +41,25 @@ Changes can then be made locally and tested via upgrade:
 Note `myvalues.yaml` will depend on your environment (you must specify which ingress method
 is used to expose the front-proxy endpoint), a minimal example:
 
-    externalHostname: "<external hostname as exposed by ingress method below>"
-    kcpFrontProxy:
-      ingress:
-        enabled: true
-        annotations:
-          kubernetes.io/ingress.class: "nginx"
-          nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
-      certificates:
-        issuerSpec:
-          acme:
-            server: https://acme-v02.api.letsencrypt.org/directory
-            privateKeySecretRef:
-              name: kcp-front-proxy-issuer-account-key
-            solvers:
-            - http01:
-                ingress:
-                  serviceType: ClusterIP
+```yaml
+externalHostname: "<external hostname as exposed by ingress method below>"
+kcpFrontProxy:
+  ingress:
+    enabled: true
+    annotations:
+      kubernetes.io/ingress.class: "nginx"
+      nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
+  certificates:
+    issuerSpec:
+      acme:
+        server: https://acme-v02.api.letsencrypt.org/directory
+        privateKeySecretRef:
+          name: kcp-front-proxy-issuer-account-key
+        solvers:
+        - http01:
+            ingress:
+              serviceType: ClusterIP
+```
 
 ## Accessing the deployed KCP
 
@@ -70,6 +72,12 @@ one option which uses client-cert auth to enable a kcp-admin user.
 :warning: this example allows global admin permissions across all workspaces, you may also want to
 consider using more restricted groups for example `system:kcp:workspace:access` to provide a
 user `system:authenticated` access to a workspace.
+
+### PKI
+
+The chart will create a full PKI system, with root CA, intermediate CAs and more.
+
+![PKI Architecture Diagram](docs/pki.png)
 
 ### Create kubeconfig and add CA cert
 
@@ -134,7 +142,6 @@ This particular configuration is useful for development and testing, but will no
 
     ./hack/kind-setup.sh
 
-
 Pre-requisites established by that script:
 * `kind` executable installed at `/usr/local/bin/kind`
 * Kind cluster named `kcp`
@@ -144,7 +151,7 @@ Pre-requisites established by that script:
 
 That script will do this helm install:
 
-      helm upgrade -i my-kcp ./charts/kcp/ \
+    helm upgrade --install my-kcp ./charts/kcp/ \
       --values ./hack/kind-values.yaml \
       --namespace kcp \
       --create-namespace
