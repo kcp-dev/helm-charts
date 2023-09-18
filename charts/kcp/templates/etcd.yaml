@@ -138,7 +138,8 @@ spec:
     - port: 2380
       name: peer
   selector:
-    app: etcd
+    {{- include "common.labels.selector" . | nindent 4 }}
+    app.kubernetes.io/component: "etcd"
 ---
 apiVersion: apps/v1
 kind: StatefulSet
