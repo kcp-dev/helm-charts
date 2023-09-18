@@ -1,0 +1,19 @@
+presubmits:
+  - name: pull-helm-charts-render
+    always_run: true
+    decorate: true
+    clone_uri: "https://github.com/kcp-dev/helm-charts"
+    spec:
+      containers:
+        - image: ghcr.io/kcp-dev/infra/build:1.20.8-1
+          command:
+            - helm
+          args:
+            - template
+            - --debug
+            - kcp
+            - charts/kcp/
+          resources:
+            requests:
+              memory: 64Mi
+              cpu: 250m
