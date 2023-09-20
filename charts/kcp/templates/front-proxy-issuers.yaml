@@ -1,22 +1,4 @@
 apiVersion: cert-manager.io/v1
-kind: Certificate
-metadata:
-  name: kcp-client-ca
-  labels:
-    {{- include "common.labels" . | nindent 4 }}
-    app.kubernetes.io/component: "front-proxy"
-spec:
-  isCA: true
-  commonName: kcp-client-ca
-  secretName: kcp-client-ca
-  privateKey:
-    {{- toYaml .Values.certificates.privateKeys | nindent 4 }}
-  issuerRef:
-    name: kcp-pki
-    kind: Issuer
-    group: cert-manager.io
----
-apiVersion: cert-manager.io/v1
 kind: Issuer
 metadata:
   name: kcp-client-issuer
@@ -26,24 +8,6 @@ metadata:
 spec:
   ca:
     secretName: kcp-client-ca
----
-apiVersion: cert-manager.io/v1
-kind: Certificate
-metadata:
-  name: kcp-service-account-signing-ca
-  labels:
-    {{- include "common.labels" . | nindent 4 }}
-    app.kubernetes.io/component: "front-proxy"
-spec:
-  isCA: true
-  commonName: kcp-service-account-signing-ca
-  secretName: kcp-service-account-signing-ca
-  privateKey:
-    {{- toYaml .Values.certificates.privateKeys | nindent 4 }}
-  issuerRef:
-    name: kcp-pki
-    kind: Issuer
-    group: cert-manager.io
 ---
 apiVersion: cert-manager.io/v1
 kind: Issuer
