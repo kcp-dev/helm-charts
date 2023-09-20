@@ -1,0 +1,67 @@
+{{- if .Values.etcd.enabled -}}
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: etcd
+  labels:
+    {{- include "common.labels" . | nindent 4 }}
+    app.kubernetes.io/component: "etcd"
+spec:
+  secretName: etcd-cert
+  duration: 8760h0m0s # 365d
+  renewBefore: 360h0m0s # 15d
+  {{- with .Values.certificates.subject }}
+  subject:
+    {{- toYaml . | nindent 4 }}
+  {{- end}}
+  privateKey:
+    {{- toYaml .Values.certificates.privateKeys | nindent 4 }}
+  usages:
+    - server auth
+    - client auth  # required because etcd uses this cert for calls to itself
+  dnsNames:
+    - etcd
+    - etcd-0
+    - etcd-1
+    - etcd-2
+    - etcd-0.etcd
+    - etcd-1.etcd
+    - etcd-2.etcd
+  ipAddresses:
+    - 0.0.0.0
+  issuerRef:
+    name: etcd-client-issuer
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: etcd-peer
+  labels:
+    {{- include "common.labels" . | nindent 4 }}
+    app.kubernetes.io/component: "etcd"
+spec:
+  secretName: etcd-peer-cert
+  duration: 8760h0m0s # 365d
+  renewBefore: 360h0m0s # 15d
+  {{- with .Values.certificates.subject }}
+  subject:
+    {{- toYaml . | nindent 4 }}
+  {{- end}}
+  privateKey:
+    {{- toYaml .Values.certificates.privateKeys | nindent 4 }}
+  usages:
+    - server auth
+    - client auth
+  dnsNames:
+    - etcd-0.etcd
+    - etcd-1.etcd
+    - etcd-2.etcd
+    - etcd-0
+    - etcd-1
+    - etcd-2
+  ipAddresses:
+    - 0.0.0.0
+  issuerRef:
+    name: etcd-peer-issuer
+---
+{{- end }}

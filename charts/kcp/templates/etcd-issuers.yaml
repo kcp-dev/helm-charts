@@ -1,0 +1,62 @@
+
+{{- if .Values.etcd.enabled -}}
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: etcd-client-ca
+  labels:
+    {{- include "common.labels" . | nindent 4 }}
+    app.kubernetes.io/component: "etcd"
+spec:
+  isCA: true
+  commonName: etcd-client-bootstrap
+  secretName: etcd-client-bootstrap-secret
+  privateKey:
+    {{- toYaml .Values.certificates.privateKeys | nindent 4 }}
+  issuerRef:
+    name: kcp-pki
+    kind: Issuer
+    group: cert-manager.io
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: etcd-peer-ca
+  labels:
+    {{- include "common.labels" . | nindent 4 }}
+    app.kubernetes.io/component: "etcd"
+spec:
+  isCA: true
+  commonName: etcd-peer-bootstrap
+  secretName: etcd-peer-bootstrap-secret
+  privateKey:
+    {{- toYaml .Values.certificates.privateKeys | nindent 4 }}
+  issuerRef:
+    name: kcp-pki
+    kind: Issuer
+    group: cert-manager.io
+---
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: etcd-client-issuer
+  labels:
+    {{- include "common.labels" . | nindent 4 }}
+    app.kubernetes.io/component: "etcd"
+spec:
+  ca:
+    secretName: etcd-client-bootstrap-secret
+---
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: etcd-peer-issuer
+  labels:
+    {{- include "common.labels" . | nindent 4 }}
+    app.kubernetes.io/component: "etcd"
+spec:
+  ca:
+    secretName: etcd-peer-bootstrap-secret
+---
+{{- end }}
