@@ -201,7 +201,7 @@ spec:
   usages:
     - client auth
   issuerRef:
-    name: kcp-server-client-issuer
+    name: kcp-client-issuer
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
