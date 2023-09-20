@@ -1,0 +1,32 @@
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: kcp-server-issuer
+  labels:
+    {{- include "common.labels" . | nindent 4 }}
+    app.kubernetes.io/component: "server"
+spec:
+  ca:
+    secretName: kcp-ca
+---
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: kcp-server-client-issuer
+  labels:
+    {{- include "common.labels" . | nindent 4 }}
+    app.kubernetes.io/component: "server"
+spec:
+  ca:
+    secretName: kcp-server-client-ca
+---
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: kcp-requestheader-client-issuer
+  labels:
+    {{- include "common.labels" . | nindent 4 }}
+    app.kubernetes.io/component: "server"
+spec:
+  ca:
+    secretName: kcp-requestheader-client-ca

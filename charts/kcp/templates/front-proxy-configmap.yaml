@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kcp-front-proxy-config
+  labels:
+    {{- include "common.labels" . | nindent 4 }}
+    app.kubernetes.io/component: "front-proxy"
+data:
+  path-mapping.yaml: |
+{{ .Values.kcpFrontProxy.pathMapping | toYaml | indent 4 }}
