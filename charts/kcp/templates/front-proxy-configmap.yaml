@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: kcp-front-proxy-config
+  name: {{ include "frontproxy.fullname" . }}-config
   labels:
     {{- include "common.labels" . | nindent 4 }}
     app.kubernetes.io/component: "front-proxy"

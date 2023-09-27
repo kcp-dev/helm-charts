@@ -1,12 +1,12 @@
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
-  name: kcp
+  name: {{ include "kcp.fullname" . }}
   labels:
     {{- include "common.labels" . | nindent 4 }}
     app.kubernetes.io/component: "server"
 spec:
-  secretName: kcp-cert
+  secretName: {{ include "kcp.fullname" . }}-cert
   duration: 8760h0m0s # 365d
   renewBefore: 360h0m0s # 15d
   {{- with .Values.certificates.subject }}
@@ -18,21 +18,22 @@ spec:
   usages:
     - server auth
   dnsNames:
-  {{- range .Values.certificates.dnsNames }}
-  - {{ . }}
-  {{- end }}
+    - {{ include "kcp.fullname" . }}
+    {{- range .Values.certificates.dnsNames }}
+    - {{ . }}
+    {{- end }}
   issuerRef:
-    name: kcp-server-issuer
+    name: {{ include "kcp.fullname" . }}-server-issuer
 ---
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
-  name: kcp-virtual-workspaces
+  name: {{ include "kcp.fullname" . }}-virtual-workspaces
   labels:
     {{- include "common.labels" . | nindent 4 }}
     app.kubernetes.io/component: "server"
 spec:
-  secretName: kcp-virtual-workspaces-cert
+  secretName: {{ include "kcp.fullname" . }}-virtual-workspaces-cert
   duration: 8760h0m0s # 365d
   renewBefore: 360h0m0s # 15d
   {{- with .Values.certificates.subject }}
@@ -48,18 +49,18 @@ spec:
   - {{ . }}
   {{- end }}
   issuerRef:
-    name: kcp-server-issuer
+    name: {{ include "kcp.fullname" . }}-server-issuer
 {{- if .Values.etcd.enabled }}
 ---
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
-  name: kcp-etcd-client
+  name: {{ include "kcp.fullname" . }}-etcd-client
   labels:
     {{- include "common.labels" . | nindent 4 }}
     app.kubernetes.io/component: "server"
 spec:
-  secretName: kcp-etcd-client
+  secretName: {{ include "kcp.fullname" . }}-etcd-client
   duration: 8760h0m0s # 365d
   renewBefore: 360h0m0s # 15d
   commonName: {{ .Values.kcp.etcd.clientCertificate.commonName }}
@@ -68,18 +69,22 @@ spec:
   usages:
     - client auth
   issuerRef:
+    {{- if .Values.kcp.etcd.clientCertificate.issuer }}
     name: {{ .Values.kcp.etcd.clientCertificate.issuer }}
+    {{- else }}
+    name: {{ include "etcd.fullname" . }}-client-issuer
+    {{- end }}
 {{- end }}
 ---
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
-  name: logical-cluster-admin-client-cert-for-kubeconfig
+  name: {{ include "kcp.fullname" . }}-internal-admin-kubeconfig
   labels:
     {{- include "common.labels" . | nindent 4 }}
     app.kubernetes.io/component: "server"
 spec:
-  secretName: logical-cluster-admin-client-cert-for-kubeconfig
+  secretName: {{ include "kcp.fullname" . }}-internal-admin-kubeconfig-cert
   duration: 8760h0m0s # 365d
   renewBefore: 360h0m0s # 15d
   commonName: logical-cluster-admin
@@ -91,17 +96,17 @@ spec:
   usages:
     - client auth
   issuerRef:
-    name: kcp-server-client-issuer
+    name: {{ include "kcp.fullname" . }}-client-issuer
 ---
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
-  name: external-logical-cluster-admin-client-cert-for-kubeconfig
+  name: {{ include "kcp.fullname" . }}-external-admin-kubeconfig
   labels:
     {{- include "common.labels" . | nindent 4 }}
     app.kubernetes.io/component: "server"
 spec:
-  secretName: external-logical-cluster-admin-client-cert-for-kubeconfig
+  secretName: {{ include "kcp.fullname" . }}-external-admin-kubeconfig-cert
   duration: 8760h0m0s # 365d
   renewBefore: 360h0m0s # 15d
   commonName: external-logical-cluster-admin
@@ -113,4 +118,19 @@ spec:
   usages:
     - client auth
   issuerRef:
-    name: kcp-client-issuer
+    name: {{ include "frontproxy.fullname" . }}-client-issuer
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: {{ include "kcp.fullname" . }}-service-account
+  labels:
+    {{- include "common.labels" . | nindent 4 }}
+    app.kubernetes.io/component: "server"
+spec:
+  commonName: {{ include "kcp.fullname" . }}-service-account-cert
+  secretName: {{ include "kcp.fullname" . }}-service-account-cert
+  issuerRef:
+    name: {{ include "kcp.fullname" . }}-service-account-issuer
+    kind: Issuer
+    group: cert-manager.io

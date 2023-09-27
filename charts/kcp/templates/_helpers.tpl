@@ -19,6 +19,16 @@
 {{- end -}}
 {{- end -}}
 
+{{- define "frontproxy.fullname" -}}
+{{- $trimmedName := printf "%s" (include "kcp.fullname" .) | trunc 52 | trimSuffix "-" -}}
+{{- printf "%s-front-proxy" $trimmedName | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+
+{{- define "etcd.fullname" -}}
+{{- $trimmedName := printf "%s" (include "kcp.fullname" .) | trunc 58 | trimSuffix "-" -}}
+{{- printf "%s-etcd" $trimmedName | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+
 {{- define "common.labels" -}}
 app.kubernetes.io/name: {{ template "kcp.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}

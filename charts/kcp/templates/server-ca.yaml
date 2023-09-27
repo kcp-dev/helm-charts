@@ -1,53 +1,72 @@
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
-  name: kcp-ca
+  name: {{ include "kcp.fullname" . }}-ca
   labels:
     {{- include "common.labels" . | nindent 4 }}
     app.kubernetes.io/component: "server"
 spec:
   isCA: true
-  commonName: kcp-ca
-  secretName: kcp-ca
+  commonName: {{ include "kcp.fullname" . }}-ca
+  secretName: {{ include "kcp.fullname" . }}-ca
   privateKey:
     {{- toYaml .Values.certificates.privateKeys | nindent 4 }}
   issuerRef:
-    name: kcp-pki
+    name: {{ include "kcp.fullname" . }}-pki
     kind: Issuer
     group: cert-manager.io
 ---
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
-  name: kcp-requestheader-client-ca
+  name: {{ include "kcp.fullname" . }}-requestheader-client-ca
   labels:
     {{- include "common.labels" . | nindent 4 }}
     app.kubernetes.io/component: "server"
 spec:
   isCA: true
-  commonName: kcp-requestheader-client-ca
-  secretName: kcp-requestheader-client-ca
+  commonName: {{ include "kcp.fullname" . }}-requestheader-client-ca
+  secretName: {{ include "kcp.fullname" . }}-requestheader-client-ca
   privateKey:
     {{- toYaml .Values.certificates.privateKeys | nindent 4 }}
   issuerRef:
-    name: kcp-pki
+    name: {{ include "kcp.fullname" . }}-pki
     kind: Issuer
     group: cert-manager.io
 ---
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
-  name: kcp-server-client-ca
+  name: {{ include "kcp.fullname" . }}-client-ca
   labels:
     {{- include "common.labels" . | nindent 4 }}
     app.kubernetes.io/component: "server"
 spec:
   isCA: true
-  commonName: kcp-server-client-ca
-  secretName: kcp-server-client-ca
+  commonName: {{ include "kcp.fullname" . }}-client-ca
+  secretName: {{ include "kcp.fullname" . }}-client-ca
   privateKey:
     {{- toYaml .Values.certificates.privateKeys | nindent 4 }}
   issuerRef:
-    name: kcp-pki
+    name: {{ include "kcp.fullname" . }}-pki
     kind: Issuer
     group: cert-manager.io
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: {{ include "kcp.fullname" . }}-service-account-ca
+  labels:
+    {{- include "common.labels" . | nindent 4 }}
+    app.kubernetes.io/component: "front-proxy"
+spec:
+  isCA: true
+  commonName: {{ include "kcp.fullname" . }}-service-account-ca
+  secretName: {{ include "kcp.fullname" . }}-service-account-ca
+  privateKey:
+    {{- toYaml .Values.certificates.privateKeys | nindent 4 }}
+  issuerRef:
+    name: {{ include "kcp.fullname" . }}-pki
+    kind: Issuer
+    group: cert-manager.io
+

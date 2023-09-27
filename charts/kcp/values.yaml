@@ -22,16 +22,20 @@ kcp:
   externalLogicalClusterAdminFlag: true
   resources:
     requests:
-      memory: 5Gi
+      memory: 512Mi
       cpu: 100m
     limits:
       # cpu: 1
       memory: 20Gi
-  volumeClassName: gp2-csi
+  volumeClassName: ""
   etcd:
-    serverAddress: https://etcd:2379
+    # set this if you are using external or embedded etcds.
+    serverAddress: ""
     clientCertificate:
-      issuer: etcd-client-issuer
+      # set this to a cert-manager Issuer that knows how to
+      # issue client certificates for your external etcd if
+      # you are not using the etcd provided by this chart.
+      issuer: ""
       commonName: root
   volumeSize: 1Gi
   extraFlags: []
@@ -79,9 +83,11 @@ kcpFrontProxy:
     # set this to LoadBalancer if you want to publish kcp-front-proxy
     # directly instead of going via Route/Ingress/Gateway resources.
     type: ClusterIP
-  certificateIssuer:
-    name: kcp-server-issuer
-    kind: Issuer
+  # set this if you want kcp-front-proxy to use a specific certificate issuer
+  # (e.g. the Let's Encrypt ones in this chart).
+  # certificateIssuer:
+  #   name: ""
+  #   kind: Issuer
   profiling:
     enabled: false
     port: 6060
@@ -132,7 +138,7 @@ oidc:
 audit:
   enabled: false
   volumeSize: 1Gi
-  volumeClassName: "gp2-csi"
+  volumeClassName: ""
   policy:
     dir: /etc/kcp/audit
     fileName: audit-policy.yml
@@ -152,8 +158,8 @@ certificates:
     algorithm: RSA
     size: 2048
   subject: {}
+  # add additional dns names that should be embedded into the kcp server certificate.
   dnsNames:
-  - kcp
   - localhost
 githubUserEditAccess:
 - test
