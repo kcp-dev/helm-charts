@@ -67,6 +67,7 @@ spec:
     - client auth
   issuerRef:
     name: kcp-server-client-issuer
+---
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
