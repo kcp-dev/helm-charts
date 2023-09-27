@@ -7,4 +7,11 @@ metadata:
     app.kubernetes.io/component: "front-proxy"
 data:
   path-mapping.yaml: |
-{{ .Values.kcpFrontProxy.pathMapping | toYaml | indent 4 }}
+    - path: /
+      backend: https://{{ include "kcp.fullname" . }}:6443
+      backend_server_ca: /etc/kcp/tls/server/ca.crt
+      proxy_client_cert: /etc/kcp-front-proxy/requestheader-client/tls/kcp/tls.crt
+      proxy_client_key: /etc/kcp-front-proxy/requestheader-client/tls/kcp/tls.key
+    {{- with .Values.kcpFrontProxy.additionalPathMappings }}
+    {{- . | toYaml | nindent 4 }}
+    {{- end }}

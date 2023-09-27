@@ -107,17 +107,12 @@ kcpFrontProxy:
   # The default virtual workspaces run in-process, but you can
   # extend the path mapping to include custom virtual workspaces
   # in the front-proxy's routing.
-  pathMapping:
-  - path: /
-    backend: https://kcp:6443
-    backend_server_ca: /etc/kcp/tls/server/ca.crt
-    proxy_client_cert: /etc/kcp-front-proxy/requestheader-client/tls/kcp/tls.crt
-    proxy_client_key: /etc/kcp-front-proxy/requestheader-client/tls/kcp/tls.key
-  # - path: /services/...
-  #   backend: https://your-external-virtual-workspaces-server:6443
-  #   backend_server_ca: /etc/kcp/tls/ca.crt # if your server used a cert from the kcp-server-issuer
-  #   proxy_client_cert: /etc/kcp-front-proxy/requestheader-client/tls/kcp/tls.crt
-  #   proxy_client_key: /etc/kcp-front-proxy/requestheader-client/tls/kcp/tls.key
+  additionalPathMappings: []
+  #- path: /services/...
+  #  backend: https://your-external-virtual-workspaces-server:6443
+  # backend_server_ca: /etc/kcp/tls/ca.crt # if your server used a cert from the kcp-server-issuer
+  #  proxy_client_cert: /etc/kcp-front-proxy/requestheader-client/tls/kcp/tls.crt
+  #  proxy_client_key: /etc/kcp-front-proxy/requestheader-client/tls/kcp/tls.key
 
   # When running external virtual workspaces, kcp-front-proxy needs
   # access to the CA that signed the VW's serving cert. Unless your
