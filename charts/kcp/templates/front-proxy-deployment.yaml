@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: kcp-front-proxy
+  name: {{ include "frontproxy.fullname" . }}
   labels:
     {{- include "common.labels" . | nindent 4 }}
     app.kubernetes.io/component: "front-proxy"
@@ -23,7 +23,7 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: kcp-front-proxy
+  name: {{ include "frontproxy.fullname" . }}
   labels:
     {{- include "common.labels" . | nindent 4 }}
     app.kubernetes.io/component: "front-proxy"
@@ -111,15 +111,15 @@ spec:
           mountPath: /etc/kcp-front-proxy/tls
         - name: kcp-front-proxy-config
           mountPath: /etc/kcp-front-proxy/config
-        - name: client-cert-for-kubeconfig
-          mountPath: /etc/kcp-front-proxy/client-cert-for-kubeconfig
-        - name: proxy-kcp-kubeconfig
+        - name: kubeconfig-client-cert
+          mountPath: /etc/kcp-front-proxy/kubeconfig-client-cert
+        - name: kcp-front-proxy-kubeconfig
           mountPath: /etc/kcp-front-proxy/kubeconfig
         - name: kcp-client-ca
           mountPath: /etc/kcp-front-proxy/client-ca
         - name: kcp
           mountPath: /etc/kcp/tls/server
-        - name: kcp-front-proxy-kcp-client-cert
+        - name: kcp-requestheader-client-cert
           mountPath: /etc/kcp-front-proxy/requestheader-client/tls/kcp
         - name: kcp-service-account-cert
           mountPath: /etc/kcp/tls/service-account
@@ -139,30 +139,30 @@ spec:
       volumes:
       - name: kcp-front-proxy-cert
         secret:
-          secretName: kcp-front-proxy-cert
+          secretName: {{ include "frontproxy.fullname" . }}-cert
       - name: kcp-client-ca
         secret:
-          secretName: kcp-client-ca
+          secretName: {{ include "frontproxy.fullname" . }}-client-ca
           items:
             - key: tls.crt
               path: tls.crt
       - name: kcp
         secret:
-          secretName: kcp-cert
+          secretName: {{ include "kcp.fullname" . }}-cert
           items:
             - key: ca.crt
               path: ca.crt
-      - name: client-cert-for-kubeconfig
+      - name: kubeconfig-client-cert
         secret:
-          secretName: client-cert-for-kubeconfig
+          secretName: {{ include "frontproxy.fullname" . }}-kubeconfig-cert
           items:
             - key: tls.crt
               path: tls.crt
             - key: tls.key
               path: tls.key
-      - name: kcp-front-proxy-kcp-client-cert
+      - name: kcp-requestheader-client-cert
         secret:
-          secretName: kcp-front-proxy-kcp-client-cert
+          secretName: {{ include "frontproxy.fullname" . }}-requestheader-cert
           items:
             - key: tls.crt
               path: tls.crt
@@ -170,19 +170,19 @@ spec:
               path: tls.key
       - name: kcp-service-account-cert
         secret:
-          secretName: kcp-service-account-cert
+          secretName: {{ include "kcp.fullname" . }}-service-account-cert
           items:
             - key: tls.key
               path: tls.key
-      - name: proxy-kcp-kubeconfig
+      - name: kcp-front-proxy-kubeconfig
         secret:
-          secretName: proxy-kcp-kubeconfig
+          secretName: {{ include "frontproxy.fullname" . }}-kubeconfig
           items:
             - key: kubeconfig
               path: root-shard.kubeconfig
       - name: kcp-front-proxy-config
         configMap:
-          name: kcp-front-proxy-config
+          name: {{ include "frontproxy.fullname" . }}-config
           items:
             - key: "path-mapping.yaml"
               path: "path-mapping.yaml"

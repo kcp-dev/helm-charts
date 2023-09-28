@@ -1,23 +1,10 @@
 apiVersion: cert-manager.io/v1
 kind: Issuer
 metadata:
-  name: kcp-client-issuer
+  name: {{ include "frontproxy.fullname" . }}-client-issuer
   labels:
     {{- include "common.labels" . | nindent 4 }}
     app.kubernetes.io/component: "front-proxy"
 spec:
   ca:
-    secretName: kcp-client-ca
----
-apiVersion: cert-manager.io/v1
-kind: Issuer
-metadata:
-  name: kcp-service-account-issuer
-  labels:
-    {{- include "common.labels" . | nindent 4 }}
-    app.kubernetes.io/component: "front-proxy"
-spec:
-  ca:
-    secretName: kcp-service-account-signing-ca
----
-
+    secretName: {{ include "frontproxy.fullname" . }}-client-ca

@@ -1,7 +1,7 @@
 apiVersion: cert-manager.io/v1
 kind: Issuer
 metadata:
-  name: kcp-pki-bootstrap
+  name: {{ include "kcp.fullname" . }}-pki-bootstrap
   labels:
     {{- include "common.labels" . | nindent 4 }}
     app.kubernetes.io/component: "pki"
@@ -11,30 +11,30 @@ spec:
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
-  name: kcp-pki-ca
+  name: {{ include "kcp.fullname" . }}-pki-ca
   labels:
     {{- include "common.labels" . | nindent 4 }}
     app.kubernetes.io/component: "pki"
 spec:
   isCA: true
-  commonName: kcp-pki-ca
-  secretName: kcp-pki-ca
+  commonName: {{ include "kcp.fullname" . }}-pki-ca
+  secretName: {{ include "kcp.fullname" . }}-pki-ca
   duration: 8760h0m0s # 365d
   renewBefore: 360h0m0s # 15d
   privateKey:
     {{- toYaml .Values.certificates.privateKeys | nindent 4 }}
   issuerRef:
-    name: kcp-pki-bootstrap
+    name: {{ include "kcp.fullname" . }}-pki-bootstrap
     kind: Issuer
     group: cert-manager.io
 ---
 apiVersion: cert-manager.io/v1
 kind: Issuer
 metadata:
-  name: kcp-pki
+  name: {{ include "kcp.fullname" . }}-pki
   labels:
     {{- include "common.labels" . | nindent 4 }}
     app.kubernetes.io/component: "pki"
 spec:
   ca:
-    secretName: kcp-pki-ca
+    secretName: {{ include "kcp.fullname" . }}-pki-ca

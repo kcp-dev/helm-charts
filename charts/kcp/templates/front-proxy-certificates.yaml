@@ -1,15 +1,15 @@
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
-  name: kcp-front-proxy
+  name: {{ include "frontproxy.fullname" . }}
   labels:
     {{- include "common.labels" . | nindent 4 }}
     app.kubernetes.io/component: "front-proxy"
 spec:
-  secretName: kcp-front-proxy-cert
+  secretName: {{ include "frontproxy.fullname" . }}-cert
   duration: 8760h0m0s # 365d
   renewBefore: 360h0m0s # 15d
-  {{ with .Values.certificates.subject }}
+  {{- with .Values.certificates.subject }}
   subject:
     {{- toYaml . | nindent 4 }}
   {{ end}}
@@ -20,20 +20,25 @@ spec:
   dnsNames:
     - "{{ .Values.externalHostname }}"
   issuerRef:
-{{ .Values.kcpFrontProxy.certificateIssuer | toYaml | indent 4 }}
+    {{- if .Values.kcpFrontProxy.certificateIssuer }}
+    {{ .Values.kcpFrontProxy.certificateIssuer | toYaml | nindent 4 }}
+    {{- else }}
+    name: {{ include "kcp.fullname" . }}-server-issuer
+    kind: Issuer
+    {{- end }}
 ---
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
-  name: kcp-front-proxy-kcp-client-cert
+  name: {{ include "frontproxy.fullname" . }}-requestheader
   labels:
     {{- include "common.labels" . | nindent 4 }}
     app.kubernetes.io/component: "front-proxy"
 spec:
-  secretName: kcp-front-proxy-kcp-client-cert
+  secretName: {{ include "frontproxy.fullname" . }}-requestheader-cert
   duration: 8760h0m0s # 365d
   renewBefore: 360h0m0s # 15d
-  {{ with .Values.certificates.subject }}
+  {{- with .Values.certificates.subject }}
   subject:
     {{- toYaml . | nindent 4 }}
   {{ end}}
@@ -42,22 +47,22 @@ spec:
   usages:
     - client auth
   dnsNames:
-    - "kcp-front-proxy"
+    - "{{ include "frontproxy.fullname" . }}"
   issuerRef:
-    name: kcp-requestheader-client-issuer
+    name: {{ include "kcp.fullname" . }}-requestheader-client-issuer
 ---
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
-  name: client-cert-for-kubeconfig
+  name: {{ include "frontproxy.fullname" . }}-kubeconfig
   labels:
     {{- include "common.labels" . | nindent 4 }}
     app.kubernetes.io/component: "front-proxy"
 spec:
-  secretName: client-cert-for-kubeconfig
+  secretName: {{ include "frontproxy.fullname" . }}-kubeconfig-cert
   duration: 8760h0m0s # 365d
   renewBefore: 360h0m0s # 15d
-  commonName: kcp-front-proxy
+  commonName: {{ include "frontproxy.fullname" . }}
   subject:
     organizations:
       - "system:masters"
@@ -66,35 +71,22 @@ spec:
   usages:
     - client auth
   issuerRef:
-    name: kcp-server-client-issuer
----
-apiVersion: cert-manager.io/v1
-kind: Certificate
-metadata:
-  name: kcp-service-account-cert
-  labels:
-    {{- include "common.labels" . | nindent 4 }}
-    app.kubernetes.io/component: "front-proxy"
-spec:
-  commonName: kcp-service-account-cert
-  secretName: kcp-service-account-cert
-  issuerRef:
-    name: kcp-service-account-issuer
+    name: {{ include "kcp.fullname" . }}-client-issuer
     kind: Issuer
     group: cert-manager.io
 ---
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
-  name: kcp-front-proxy-virtual-workspaces-client-cert
+  name: {{ include "frontproxy.fullname" . }}-vw-client
   labels:
     {{- include "common.labels" . | nindent 4 }}
     app.kubernetes.io/component: "front-proxy"
 spec:
-  secretName: kcp-front-proxy-virtual-workspaces-client-cert
+  secretName: {{ include "frontproxy.fullname" . }}-vw-client-cert
   duration: 8760h0m0s # 365d
   renewBefore: 360h0m0s # 15d
-  {{ with .Values.certificates.subject }}
+  {{- with .Values.certificates.subject }}
   subject:
     {{- toYaml . | nindent 4 }}
   {{ end}}
@@ -103,7 +95,8 @@ spec:
   usages:
     - client auth
   dnsNames:
-    - "kcp-front-proxy"
+    - "{{ include "frontproxy.fullname" . }}"
   issuerRef:
-    name: kcp-requestheader-client-issuer
----
+    name: {{ include "kcp.fullname" . }}-requestheader-client-issuer
+    kind: Issuer
+    group: cert-manager.io

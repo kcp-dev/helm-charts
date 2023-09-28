@@ -3,7 +3,7 @@
 apiVersion: route.openshift.io/v1
 kind: Route
 metadata:
-  name: kcp-front-proxy
+  name: {{ include "frontproxy.fullname" . }}
   labels:
     {{- include "common.labels" . | nindent 4 }}
     app.kubernetes.io/component: "front-proxy"
@@ -24,7 +24,7 @@ spec:
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: kcp-front-proxy
+  name: {{ include "frontproxy.fullname" . }}
   labels:
     {{- include "common.labels" . | nindent 4 }}
     app.kubernetes.io/component: "front-proxy"
@@ -54,7 +54,7 @@ spec:
 apiVersion: gateway.networking.k8s.io/v1beta1
 kind: Gateway
 metadata:
-  name: kcp-front-proxy
+  name: {{ include "frontproxy.fullname" . }}
   labels:
     {{- include "common.labels" . | nindent 4 }}
     app.kubernetes.io/component: "front-proxy"
@@ -71,17 +71,17 @@ spec:
 apiVersion: gateway.networking.k8s.io/v1alpha2
 kind: TLSRoute
 metadata:
-  name: kcp-front-proxy
+  name: {{ include "frontproxy.fullname" . }}
   labels:
     {{- include "common.labels" . | nindent 4 }}
     app.kubernetes.io/component: "front-proxy"
 spec:
   parentRefs:
   - kind: Gateway
-    name: kcp-front-proxy
+    name: {{ include "frontproxy.fullname" . }}
   rules:
   - backendRefs:
-    - name: kcp-front-proxy
+    - name: {{ include "frontproxy.fullname" . }}
       port: 8443
   hostnames:
   - {{ .Values.externalHostname }}

@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: kcp
+  name: {{ include "kcp.fullname" . }}
   labels:
     {{- include "common.labels" . | nindent 4 }}
     app.kubernetes.io/component: "server"
@@ -17,7 +17,7 @@ spec:
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: kcp-audit-logs
+  name: {{ include "kcp.fullname" . }}-audit-logs
   labels:
     {{- include "common.labels" . | nindent 4 }}
     app.kubernetes.io/component: "server"
@@ -27,13 +27,15 @@ spec:
   resources:
     requests:
       storage: {{ .Values.audit.volumeSize }}
-  {{ with .Values.audit.volumeClassName -}}storageClassName: {{ . }}{{- end }}
+  {{- with .Values.audit.volumeClassName }}
+  storageClassName: {{ . }}
+  {{- end }}
 {{- end }}
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: kcp
+  name: {{ include "kcp.fullname" . }}
   labels:
     {{- include "common.labels" . | nindent 4 }}
     app.kubernetes.io/component: "server"
@@ -54,7 +56,7 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: kcp-internal
+  name: {{ include "kcp.fullname" . }}-internal
   labels:
     {{- include "common.labels" . | nindent 4 }}
     app.kubernetes.io/component: "server"
@@ -75,7 +77,7 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: kcp
+  name: {{ include "kcp.fullname" . }}
   labels:
     {{- include "common.labels" . | nindent 4 }}
     app.kubernetes.io/component: "server"
@@ -113,13 +115,17 @@ spec:
         {{- end}}
         command: ["/kcp", "start"]
         args:
+        {{- if .Values.kcp.etcd.serverAddress }}
         - --etcd-servers={{ .Values.kcp.etcd.serverAddress }}
+        {{- else if .Values.kcp.etcd.enabled }}
+        - --etcd-servers=https://{{ include "etcd.fullname" . }}:2379
+        {{- end }}
         {{- if ne .Values.kcp.etcd.serverAddress "embedded" }}
         - --etcd-keyfile=/etc/etcd/tls/server/tls.key
         - --etcd-certfile=/etc/etcd/tls/server/tls.crt
         - --etcd-cafile=/etc/etcd/tls/server/ca.crt
         {{- end }}
-        - --client-ca-file=/etc/kcp/tls/server-client-ca/tls.crt
+        - --client-ca-file=/etc/kcp/tls/client-ca/tls.crt
         - --tls-private-key-file=/etc/kcp/tls/server/tls.key
         - --tls-cert-file=/etc/kcp/tls/server/tls.crt
         - --service-account-key-file=/etc/kcp/tls/service-account/tls.key
@@ -137,7 +143,7 @@ spec:
         - --requestheader-group-headers=X-Remote-Group
         - --root-directory=/etc/kcp/config
         - --shard-virtual-workspace-ca-file=/etc/kcp/tls/kcp-virtual-workspaces/ca.crt
-        - --shard-base-url=https://kcp:6443
+        - --shard-base-url=https://{{ include "kcp.fullname" . }}:6443
         - --shard-external-url=https://$(EXTERNAL_HOSTNAME):$(EXTERNAL_PORT)
         - --external-hostname=$(EXTERNAL_HOSTNAME):$(EXTERNAL_PORT)
         {{- if .Values.oidc.enabled }}
@@ -219,8 +225,8 @@ spec:
         {{- end }}
         - name: kcp-certs
           mountPath: /etc/kcp/tls/server
-        - name: kcp-server-client-ca
-          mountPath: /etc/kcp/tls/server-client-ca
+        - name: kcp-client-ca
+          mountPath: /etc/kcp/tls/client-ca
         - name: kcp-requestheader-client-ca
           mountPath: /etc/kcp/tls/requestheader-client-ca
         - name: kcp-service-account-cert
@@ -233,12 +239,12 @@ spec:
         - name: kcp-token-auth-file
           mountPath: /etc/kcp/token-auth
         {{- end}}
-        - name: logical-cluster-admin-client-cert-for-kubeconfig
-          mountPath: /etc/kcp/logical-cluster-admin/client-cert-for-kubeconfig
+        - name: logical-cluster-admin-kubeconfig-cert
+          mountPath: /etc/kcp/logical-cluster-admin/kubeconfig-client-cert
         - name: logical-cluster-admin-kubeconfig
           mountPath: /etc/kcp/logical-cluster-admin/kubeconfig
-        - name: external-logical-cluster-admin-client-cert-for-kubeconfig
-          mountPath: /etc/kcp/external-logical-cluster-admin/client-cert-for-kubeconfig
+        - name: external-logical-cluster-admin-kubeconfig-cert
+          mountPath: /etc/kcp/external-logical-cluster-admin/kubeconfig-client-cert
         - name: external-logical-cluster-admin-kubeconfig
           mountPath: /etc/kcp/external-logical-cluster-admin/kubeconfig
         {{- if .Values.audit.enabled }}
@@ -256,36 +262,39 @@ spec:
       volumes:
       - name: kcp-front-proxy-cert
         secret:
-          secretName: kcp-front-proxy-cert
+          secretName: {{ include "frontproxy.fullname" . }}-cert
+          items:
+          - key: ca.crt
+            path: ca.crt
       {{- if ne .Values.kcp.etcd.serverAddress "embedded" }}
       - name: etcd-certs
         secret:
-          secretName: kcp-etcd-client
+          secretName: {{ include "kcp.fullname" . }}-etcd-client
       {{- end }}
       - name: kcp-certs
         secret:
-          secretName: kcp-cert
+          secretName: {{ include "kcp.fullname" .}}-cert
       - name: kcp-virtual-workspaces-cert
         secret:
-          secretName: kcp-virtual-workspaces-cert
+          secretName: {{ include "kcp.fullname" . }}-virtual-workspaces-cert
           items:
           - key: ca.crt
             path: ca.crt
       - name: kcp-requestheader-client-ca
         secret:
-          secretName: kcp-requestheader-client-ca
+          secretName: {{ include "kcp.fullname" . }}-requestheader-client-ca
           items:
           - key: tls.crt
             path: tls.crt
-      - name: kcp-server-client-ca
+      - name: kcp-client-ca
         secret:
-          secretName: kcp-server-client-ca
+          secretName: {{ include "kcp.fullname" . }}-client-ca
           items:
           - key: tls.crt
             path: tls.crt
-      - name: logical-cluster-admin-client-cert-for-kubeconfig
+      - name: logical-cluster-admin-kubeconfig-cert
         secret:
-          secretName: logical-cluster-admin-client-cert-for-kubeconfig
+          secretName: {{ include "kcp.fullname" . }}-internal-admin-kubeconfig-cert
           items:
             - key: tls.crt
               path: tls.crt
@@ -293,7 +302,7 @@ spec:
               path: tls.key
       - name: kcp-service-account-cert
         secret:
-          secretName: kcp-service-account-cert
+          secretName: {{ include "kcp.fullname" . }}-service-account-cert
           items:
             - key: ca.crt
               path: ca.crt
@@ -303,13 +312,13 @@ spec:
               path: tls.key
       - name: logical-cluster-admin-kubeconfig
         secret:
-          secretName: logical-cluster-admin-kubeconfig
+          secretName: {{ include "kcp.fullname" . }}-internal-admin-kubeconfig
           items:
             - key: kubeconfig
               path: logical-cluster-admin.kubeconfig
-      - name: external-logical-cluster-admin-client-cert-for-kubeconfig
+      - name: external-logical-cluster-admin-kubeconfig-cert
         secret:
-          secretName: external-logical-cluster-admin-client-cert-for-kubeconfig
+          secretName: {{ include "kcp.fullname" . }}-external-admin-kubeconfig-cert
           items:
             - key: tls.crt
               path: tls.crt
@@ -317,25 +326,25 @@ spec:
               path: tls.key
       - name: external-logical-cluster-admin-kubeconfig
         secret:
-          secretName: external-logical-cluster-admin-kubeconfig
+          secretName: {{ include "kcp.fullname" . }}-external-admin-kubeconfig
           items:
             - key: kubeconfig
               path: external-logical-cluster-admin.kubeconfig
       - name: kubeconfig
         persistentVolumeClaim:
-          claimName: kcp
+          claimName: {{ include "kcp.fullname" . }}
       {{- if .Values.audit.enabled }}
       - name: audit-policy
         configMap:
-          name: audit-policy
+          name: {{ include "kcp.fullname" . }}-audit-policy
       - name: audit-log
         persistentVolumeClaim:
-          claimName: kcp-audit-logs
+          claimName: {{ include "kcp.fullname" . }}-audit-logs
       {{- end }}
       {{- if .Values.kcp.tokenAuth.enabled }}
       - name: kcp-token-auth-file
         secret:
-          secretName: kcp-token-auth-file
+          secretName: {{ include "kcp.fullname" . }}-token-auth-file
       {{- end }}
       {{- if .Values.oidc.enabled }}
       {{- if .Values.oidc.caSecretName }}
@@ -348,7 +357,7 @@ spec:
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: audit-policy
+  name: {{ include "kcp.fullname" . }}-audit-policy
 data:
   {{ .Values.audit.policy.fileName }}: |
     {{- .Values.audit.policy.config | nindent 4 }}
@@ -358,7 +367,7 @@ data:
 apiVersion: v1
 kind: Secret
 metadata:
-  name: kcp-token-auth-file
+  name: {{ include "kcp.fullname" . }}-token-auth-file
 stringData:
   {{ .Values.kcp.tokenAuth.fileName }}: |
     {{- .Values.kcp.tokenAuth.config | nindent 4 }}
