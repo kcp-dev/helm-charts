@@ -4,7 +4,7 @@ description: A prototype of a multi-tenant Kubernetes control plane for workload
 
 # version information
 version: 0.3.0
-appVersion: "0.30"
+appVersion: "0.20"
 
 # optional metadata
 type: application
