@@ -2,6 +2,27 @@ apiVersion: v1
 entries:
   kcp:
   - apiVersion: v2
+    appVersion: "0.20"
+    created: "2023-10-10T10:40:12.230782759Z"
+    description: A prototype of a multi-tenant Kubernetes control plane for workloads
+      on many clusters
+    digest: 3ff11694ea58a600549bcd3df3df499263a47609a8259e26d0cd50d251cf2a3d
+    home: https://www.kcp.io/
+    icon: https://raw.githubusercontent.com/kcp-dev/kcp/main/contrib/logo/blue-green.svg
+    keywords:
+    - kcp
+    - kubernetes
+    - multitenancy
+    - controlplane
+    name: kcp
+    sources:
+    - https://github.com/kcp-dev/helm-charts
+    - https://github.com/kcp-dev/kcp
+    type: application
+    urls:
+    - https://github.com/kcp-dev/helm-charts/releases/download/kcp-0.3.0/kcp-0.3.0.tgz
+    version: 0.3.0
+  - apiVersion: v2
     appVersion: "0.10"
     created: "2023-02-14T14:59:02.849397511Z"
     description: A prototype of a multi-tenant Kubernetes control plane for workloads
@@ -78,4 +99,4 @@ entries:
     urls:
     - https://github.com/kcp-dev/helm-charts/releases/download/kcp-0.1.1/kcp-0.1.1.tgz
     version: 0.1.1
-generated: "2023-02-14T14:59:02.849419912Z"
+generated: "2023-10-10T10:40:12.23082336Z"
