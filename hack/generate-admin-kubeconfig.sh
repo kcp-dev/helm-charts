@@ -1,29 +1,30 @@
-#!/bin/bash
-set -e
+#!/usr/bin/env bash
 
-hostname=$(cat ./hack/kind-values.yaml | grep externalHostname | cut -d" " -f2- | tr -d '"')
+set -euo pipefail
+
+cd "$(dirname "$0")/.."
+
+hostname="$(yq '.externalHostname' hack/kind-values.yaml)"
 
 cat << EOF > kcp.kubeconfig
 apiVersion: v1
-clusters:
-- cluster:
-    insecure-skip-tls-verify: true
-    server: https://${hostname}:6443/clusters/root
-  name: kind-kcp
-contexts:
-- context:
-    cluster: kind-kcp
-    user: kind-kcp
-  name: kind-kcp
-current-context: kind-kcp
 kind: Config
-preferences: {}
+clusters:
+  - cluster:
+      insecure-skip-tls-verify: true
+      server: "https://$hostname:6443/clusters/root"
+    name: kind-kcp
+contexts:
+  - context:
+      cluster: kind-kcp
+      user: kind-kcp
+    name: kind-kcp
+current-context: kind-kcp
 users:
-- name: kind-kcp
-  user:
-    token: admin-token
+  - name: kind-kcp
+    user:
+      token: admin-token
 EOF
-
 
 echo "Kubeconfig file created at kcp.kubeconfig"
 echo ""

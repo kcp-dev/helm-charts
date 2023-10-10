@@ -1,72 +1,80 @@
-#!/bin/bash
-set -e
+#!/usr/bin/env bash
 
-if [ ! -f "/usr/local/bin/kind" ]; then
- echo "Installing KIND"
- curl -Lo ./kind https://kind.sigs.k8s.io/dl/v0.14.0/kind-linux-amd64
- chmod +x ./kind
- sudo mv ./kind /usr/local/bin/kind
-else
-    echo "KIND already installed"
+set -euo pipefail
+
+cd "$(dirname "$0")/.."
+
+kind=kind
+if ! [ -x "$(command -v kind)" ]; then
+  mkdir -p .kind
+
+  kind=.kind/kind
+  if [ ! -f $kind ]; then
+    echo "Downloading kind…"
+    curl -Lo $kind https://kind.sigs.k8s.io/dl/v0.20.0/kind-linux-amd64
+    chmod +x $kind
+  fi
 fi
 
-CLUSTER_NAME=${CLUSTER_NAME:-kcp}
+CLUSTER_NAME="${CLUSTER_NAME:-kcp}"
+export KUBECONFIG="$CLUSTER_NAME-kind.kubeconfig"
+export KUBECTL_CONTEXT="${KUBECTL_CONTEXT:-}"
 
-if ! kind get clusters | grep -w -q "${CLUSTER_NAME}"; then
-kind create cluster --name ${CLUSTER_NAME} \
-     --kubeconfig ./${CLUSTER_NAME}.kubeconfig \
-     --config ./hack/kind/config.yaml
+if ! $kind get clusters | grep -w -q "$CLUSTER_NAME"; then
+  $kind create cluster \
+    --name "$CLUSTER_NAME" \
+    --config hack/kind/config.yaml
 else
-    echo "Cluster already exists"
+  echo "Cluster $CLUSTER_NAME already exists."
 fi
 
-export KUBECONFIG=./${CLUSTER_NAME}.kubeconfig
+echo "Installing ingress…"
 
-echo "Installing ingress"
+kubectl apply --filename https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/kind/deploy.yaml
+kubectl label nodes "$CLUSTER_NAME-control-plane" "node-role.kubernetes.io/control-plane-"
 
-kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/kind/deploy.yaml
-kubectl label nodes ${CLUSTER_NAME}-control-plane node-role.kubernetes.io/control-plane-
-
-echo "Waiting for the ingress controller to become ready..."
-# https://github.com/kubernetes/kubernetes/issues/83242
-until kubectl --context "${KUBECTL_CONTEXT}" -n ingress-nginx get pod -l app.kubernetes.io/component=controller -o go-template='{{.items | len}}' | grep -qxF 1; do
-    echo "Waiting for pod"
-    sleep 1
-done
-kubectl --context "${KUBECTL_CONTEXT}" -n ingress-nginx wait --for=condition=Ready pod -l app.kubernetes.io/component=controller --timeout=5m
-
-echo "Installing cert-manager"
+echo "Installing cert-manager…"
 
 helm repo add jetstack https://charts.jetstack.io
 helm repo update
 
-kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.9.1/cert-manager.crds.yaml
-helm install \
+kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.13.0/cert-manager.crds.yaml
+helm upgrade \
+  --install \
   --wait \
-  cert-manager jetstack/cert-manager \
   --namespace cert-manager \
   --create-namespace \
-  --version v1.9.1
+  --version v1.13.0 \
+  cert-manager jetstack/cert-manager
+
+# wait till now before checking nginx so that it and cert-manager can boot up in parallel
+echo "Waiting for the ingress controller to become ready…"
+kubectl --context "$KUBECTL_CONTEXT" --namespace ingress-nginx rollout status deployment/ingress-nginx-controller --timeout 5m
 
 # Installing cert-manager will end with a message saying that the next step
 # is to create some Issuers and/or ClusterIssuers.  That is indeed
 # among the things that the kcp helm chart will do.
 
-echo "Install KCP"
+export KCP_TAG="${KCP_TAG:-latest}"
+echo "Installing KCP version $KCP_TAG…"
 
-mkdir -p ./dev
+helm upgrade \
+  --install \
+  --values ./hack/kind-values.yaml \
+  --set "kcp.tag=$KCP_TAG" \
+  --set "kcpFrontProxy.tag=$KCP_TAG" \
+  --namespace kcp \
+  --create-namespace \
+  kcp ./charts/kcp
 
-helm upgrade -i kcp ./charts/kcp \
-     --values ./hack/kind-values.yaml \
-     --namespace kcp \
-     --create-namespace
-
-echo "Generate KCP admin kubeconfig"
+echo "Generating KCP admin kubeconfig…"
 ./hack/generate-admin-kubeconfig.sh
 
-echo "Check /etc/hosts for kcp.dev.local"
-if ! grep -q kcp.dev.local /etc/hosts; then
-    echo "127.0.0.1 kcp.dev.local" | sudo tee -a /etc/hosts
+hostname="$(yq '.externalHostname' hack/kind-values.yaml)"
+
+echo "Checking /etc/hosts for $hostname…"
+if ! grep -q "$hostname" /etc/hosts; then
+  echo "127.0.0.1 $hostname" | sudo tee -a /etc/hosts
 else
-    echo "kcp.dev.local already exists in /etc/hosts"
+  echo "$hostname already exists in /etc/hosts."
 fi
