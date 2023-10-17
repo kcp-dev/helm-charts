@@ -7,8 +7,8 @@ metadata:
     app.kubernetes.io/component: "server"
 spec:
   secretName: {{ include "kcp.fullname" . }}-cert
-  duration: 8760h0m0s # 365d
-  renewBefore: 360h0m0s # 15d
+  duration: 8760h # 365d
+  renewBefore: 360h # 15d
   {{- with .Values.certificates.subject }}
   subject:
     {{- toYaml . | nindent 4 }}
@@ -24,6 +24,7 @@ spec:
     {{- end }}
   issuerRef:
     name: {{ include "kcp.fullname" . }}-server-issuer
+
 ---
 apiVersion: cert-manager.io/v1
 kind: Certificate
@@ -34,8 +35,8 @@ metadata:
     app.kubernetes.io/component: "server"
 spec:
   secretName: {{ include "kcp.fullname" . }}-virtual-workspaces-cert
-  duration: 8760h0m0s # 365d
-  renewBefore: 360h0m0s # 15d
+  duration: 8760h # 365d
+  renewBefore: 360h # 15d
   {{- with .Values.certificates.subject }}
   subject:
     {{- toYaml . | nindent 4 }}
@@ -51,6 +52,7 @@ spec:
   issuerRef:
     name: {{ include "kcp.fullname" . }}-server-issuer
 {{- if .Values.etcd.enabled }}
+
 ---
 apiVersion: cert-manager.io/v1
 kind: Certificate
@@ -61,8 +63,8 @@ metadata:
     app.kubernetes.io/component: "server"
 spec:
   secretName: {{ include "kcp.fullname" . }}-etcd-client
-  duration: 8760h0m0s # 365d
-  renewBefore: 360h0m0s # 15d
+  duration: 8760h # 365d
+  renewBefore: 360h # 15d
   commonName: {{ .Values.kcp.etcd.clientCertificate.commonName }}
   privateKey:
     {{- toYaml .Values.certificates.privateKeys | nindent 4 }}
@@ -75,6 +77,7 @@ spec:
     name: {{ include "etcd.fullname" . }}-client-issuer
     {{- end }}
 {{- end }}
+
 ---
 apiVersion: cert-manager.io/v1
 kind: Certificate
@@ -85,8 +88,8 @@ metadata:
     app.kubernetes.io/component: "server"
 spec:
   secretName: {{ include "kcp.fullname" . }}-internal-admin-kubeconfig-cert
-  duration: 8760h0m0s # 365d
-  renewBefore: 360h0m0s # 15d
+  duration: 8760h # 365d
+  renewBefore: 360h # 15d
   commonName: logical-cluster-admin
   subject:
     organizations:
@@ -97,6 +100,7 @@ spec:
     - client auth
   issuerRef:
     name: {{ include "kcp.fullname" . }}-client-issuer
+
 ---
 apiVersion: cert-manager.io/v1
 kind: Certificate
@@ -107,8 +111,8 @@ metadata:
     app.kubernetes.io/component: "server"
 spec:
   secretName: {{ include "kcp.fullname" . }}-external-admin-kubeconfig-cert
-  duration: 8760h0m0s # 365d
-  renewBefore: 360h0m0s # 15d
+  duration: 8760h # 365d
+  renewBefore: 360h # 15d
   commonName: external-logical-cluster-admin
   subject:
     organizations:
@@ -119,6 +123,7 @@ spec:
     - client auth
   issuerRef:
     name: {{ include "frontproxy.fullname" . }}-client-issuer
+
 ---
 apiVersion: cert-manager.io/v1
 kind: Certificate
@@ -128,6 +133,8 @@ metadata:
     {{- include "common.labels" . | nindent 4 }}
     app.kubernetes.io/component: "server"
 spec:
+  duration: 8760h # 365d
+  renewBefore: 360h # 15d
   commonName: {{ include "kcp.fullname" . }}-service-account-cert
   secretName: {{ include "kcp.fullname" . }}-service-account-cert
   issuerRef:

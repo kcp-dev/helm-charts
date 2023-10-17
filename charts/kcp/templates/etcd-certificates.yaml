@@ -8,8 +8,8 @@ metadata:
     app.kubernetes.io/component: "etcd"
 spec:
   secretName: {{ include "etcd.fullname" . }}-cert
-  duration: 8760h0m0s # 365d
-  renewBefore: 360h0m0s # 15d
+  duration: 8760h # 365d
+  renewBefore: 360h # 15d
   {{- with .Values.certificates.subject }}
   subject:
     {{- toYaml . | nindent 4 }}
@@ -31,6 +31,7 @@ spec:
     - 0.0.0.0
   issuerRef:
     name: {{ include "etcd.fullname" . }}-client-issuer
+
 ---
 apiVersion: cert-manager.io/v1
 kind: Certificate
@@ -41,8 +42,8 @@ metadata:
     app.kubernetes.io/component: "etcd"
 spec:
   secretName: {{ include "etcd.fullname" . }}-peer-cert
-  duration: 8760h0m0s # 365d
-  renewBefore: 360h0m0s # 15d
+  duration: 8760h # 365d
+  renewBefore: 360h # 15d
   {{- with .Values.certificates.subject }}
   subject:
     {{- toYaml . | nindent 4 }}
@@ -63,5 +64,4 @@ spec:
     - 0.0.0.0
   issuerRef:
     name: {{ include "etcd.fullname" . }}-peer-issuer
----
 {{- end }}

@@ -7,6 +7,7 @@ metadata:
     app.kubernetes.io/component: "server"
 spec:
   isCA: true
+  duration: 87600h # 3650d = 10y
   commonName: {{ include "kcp.fullname" . }}-ca
   secretName: {{ include "kcp.fullname" . }}-ca
   privateKey:
@@ -15,6 +16,7 @@ spec:
     name: {{ include "kcp.fullname" . }}-pki
     kind: Issuer
     group: cert-manager.io
+
 ---
 apiVersion: cert-manager.io/v1
 kind: Certificate
@@ -25,6 +27,7 @@ metadata:
     app.kubernetes.io/component: "server"
 spec:
   isCA: true
+  duration: 87600h # 3650d = 10y
   commonName: {{ include "kcp.fullname" . }}-requestheader-client-ca
   secretName: {{ include "kcp.fullname" . }}-requestheader-client-ca
   privateKey:
@@ -33,6 +36,7 @@ spec:
     name: {{ include "kcp.fullname" . }}-pki
     kind: Issuer
     group: cert-manager.io
+
 ---
 apiVersion: cert-manager.io/v1
 kind: Certificate
@@ -43,6 +47,7 @@ metadata:
     app.kubernetes.io/component: "server"
 spec:
   isCA: true
+  duration: 87600h # 3650d = 10y
   commonName: {{ include "kcp.fullname" . }}-client-ca
   secretName: {{ include "kcp.fullname" . }}-client-ca
   privateKey:
@@ -51,6 +56,7 @@ spec:
     name: {{ include "kcp.fullname" . }}-pki
     kind: Issuer
     group: cert-manager.io
+
 ---
 apiVersion: cert-manager.io/v1
 kind: Certificate
@@ -61,6 +67,7 @@ metadata:
     app.kubernetes.io/component: "front-proxy"
 spec:
   isCA: true
+  duration: 87600h # 3650d = 10y
   commonName: {{ include "kcp.fullname" . }}-service-account-ca
   secretName: {{ include "kcp.fullname" . }}-service-account-ca
   privateKey:

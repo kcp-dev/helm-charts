@@ -8,6 +8,7 @@ metadata:
     app.kubernetes.io/component: "etcd"
 spec:
   isCA: true
+  duration: 87600h # 3650d = 10y
   commonName: {{ include "etcd.fullname" . }}-client-bootstrap
   secretName: {{ include "etcd.fullname" . }}-client-bootstrap-secret
   privateKey:
@@ -26,6 +27,7 @@ metadata:
     app.kubernetes.io/component: "etcd"
 spec:
   isCA: true
+  duration: 87600h # 3650d = 10y
   commonName: {{ include "etcd.fullname" . }}-peer-bootstrap
   secretName: {{ include "etcd.fullname" . }}-peer-bootstrap-secret
   privateKey:
