@@ -1,6 +1,6 @@
-# KCP Helm Charts
+# kcp Helm Charts
 
-Repository for KCP helm charts.
+Repository for kcp helm charts.
 
 ## Pre-requisites
 
@@ -9,16 +9,15 @@ Repository for KCP helm charts.
 
 ## Usage
 
-[Helm](https://helm.sh) must be installed to use the charts.  Please refer to
-Helm's [documentation](https://helm.sh/docs) to get started.
+[Helm](https://helm.sh) must be installed to use the charts. Please refer to Helm's
+[documentation](https://helm.sh/docs) to get started.
 
 Once Helm has been set up correctly, add the repo as follows:
 
     helm repo add kcp https://kcp-dev.github.io/helm-charts
 
-If you had already added this repo earlier, run `helm repo update` to retrieve
-the latest versions of the packages.  You can then run `helm search repo
-kcp` to see the charts.
+If you had already added this repo earlier, run `helm repo update` to retrieve the latest versions
+of the packages. You can then run `helm search repo kcp` to see the charts.
 
 To install the kcp chart:
 
@@ -46,27 +45,34 @@ externalHostname: "<external hostname as exposed by ingress method below>"
 kcpFrontProxy:
   ingress:
     enabled: true
-    annotations:
-      kubernetes.io/ingress.class: "nginx"
-      nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
-  certificates:
-    issuerSpec:
-      acme:
-        server: https://acme-v02.api.letsencrypt.org/directory
-        privateKeySecretRef:
-          name: kcp-front-proxy-issuer-account-key
-        solvers:
-        - http01:
-            ingress:
-              serviceType: ClusterIP
 ```
 
-## Accessing the deployed KCP
+Note that by default all certificates are signed by the Helm chart's own PKI and so will not be
+trusted by browsers. You can however change the `kcp-front-proxy`'s certificate to be issued
+by, for example, Let's Encrypt. For this you have to enable the creation of the Let's Encrypt
+issuer like so:
 
-To access the deployed KCP, it will be necessary to create a kubeconfig which connects via the
+```yaml
+externalHostname: "<external hostname as exposed by ingress method below>"
+kcpFrontProxy:
+  ingress:
+    enabled: true
+  certificateIssuer:
+    name: kcp-letsencrypt-prod
+    kind: ClusterIssuer
+letsEncrypt:
+  enabled: true
+  production:
+    enabled: true
+    email: lets-encrypt-notifications@example.com
+```
+
+## Accessing the deployed kcp
+
+To access the deployed kcp, it will be necessary to create a kubeconfig which connects via the
 front-proxy external endpoint (specified via `externalHostname` above).
 
-The content of the kubeconfig will depend on the KCP authentication configuration, below we describe
+The content of the kubeconfig will depend on the kcp authentication configuration, below we describe
 one option which uses client-cert auth to enable a kcp-admin user.
 
 :warning: this example allows global admin permissions across all workspaces, you may also want to
@@ -160,7 +166,7 @@ This will result in a `cluster-admin-client-cert` secret which we can again save
     $ kubectl get secret cluster-admin-client-cert -o=jsonpath='{.data.tls\.key}' | base64 -d > client.key
     $ chmod 600 client.crt client.key
 
-We can now add these credentials to the `admin.kubeconfig` and access KCP:
+We can now add these credentials to the `admin.kubeconfig` and access kcp:
 
     $ kubectl --kubeconfig=admin.kubeconfig config set-credentials kcp-admin --client-certificate=client.crt --client-key=client.key
     $ kubectl --kubeconfig=admin.kubeconfig config set-context base --cluster=base --user=kcp-admin
@@ -171,15 +177,17 @@ We can now add these credentials to the `admin.kubeconfig` and access KCP:
     $ kubectl workspace
     Current workspace is "1gnrr0twy6c3o".
 
-## Install to KIND cluster (for development)
+## Install to kind cluster (for development)
 
-There is a helper script to install KCP to a KIND cluster. It will install cert-manager, nginx-ingress and KCP.
-Kind cluster binds to host ports 6440 (for kind container port 80) and 6443 (for kind container port 443) for ingress. Ingress is emulated using host entries in `/etc/hosts`.
+There is a helper script to install kcp to a [kind](https://github.com/kubernetes-sigs/kind) cluster.
+It will install cert-manager, nginx-ingress and kcp. Kind cluster binds to host ports 6440 (for kind container port 80)
+and 6443 (for kind container port 443) for ingress. Ingress is emulated using host entries in `/etc/hosts`.
 This particular configuration is useful for development and testing, but will not work with LetsEncrypt.
 
     ./hack/kind-setup.sh
 
 Pre-requisites established by that script:
+
 * `kind` executable installed at `/usr/local/bin/kind`
 * Kind cluster named `kcp`
 * Cert-manager installer and running
