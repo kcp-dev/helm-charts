@@ -19,6 +19,7 @@ spec:
     weight: 100
   wildcardPolicy: None
 {{- end }}
+
 {{- if .Values.kcpFrontProxy.ingress.enabled }}
 ---
 apiVersion: networking.k8s.io/v1
@@ -32,23 +33,24 @@ metadata:
     {{- toYaml .Values.kcpFrontProxy.ingress.annotations | nindent 4 }}
 spec:
   tls:
-  - hosts:
-      - {{ .Values.externalHostname }}
-    {{- if .Values.kcpFrontProxy.ingress.secret }}
-    secretName: {{ .Values.kcpFrontProxy.ingress.secret }}
-    {{- end }}
+    - hosts:
+        - {{ .Values.externalHostname }}
+      {{- if .Values.kcpFrontProxy.ingress.secret }}
+      secretName: {{ .Values.kcpFrontProxy.ingress.secret }}
+      {{- end }}
   rules:
-  - host: {{ .Values.externalHostname }}
-    http:
-      paths:
-      - path: /
-        pathType: Prefix
-        backend:
-          service:
-            name: kcp-front-proxy
-            port:
-              number: 8443
+    - host: {{ .Values.externalHostname }}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: kcp-front-proxy
+                port:
+                  number: 8443
 {{- end }}
+
 {{- if .Values.kcpFrontProxy.gateway.enabled }}
 ---
 apiVersion: gateway.networking.k8s.io/v1beta1
@@ -61,12 +63,13 @@ metadata:
 spec:
   gatewayClassName: {{ required "gateway.classname is required" .Values.kcpFrontProxy.gateway.className }}
   listeners:
-  - name: tls
-    protocol: TLS
-    port: 8443
-    tls:
-      mode: Passthrough
-    hostname: {{ .Values.externalHostname }}
+    - name: tls
+      protocol: TLS
+      port: 8443
+      tls:
+        mode: Passthrough
+      hostname: {{ .Values.externalHostname }}
+
 ---
 apiVersion: gateway.networking.k8s.io/v1alpha2
 kind: TLSRoute
@@ -77,12 +80,12 @@ metadata:
     app.kubernetes.io/component: "front-proxy"
 spec:
   parentRefs:
-  - kind: Gateway
-    name: {{ include "frontproxy.fullname" . }}
+    - kind: Gateway
+      name: {{ include "frontproxy.fullname" . }}
   rules:
-  - backendRefs:
-    - name: {{ include "frontproxy.fullname" . }}
-      port: 8443
+    - backendRefs:
+        - name: {{ include "frontproxy.fullname" . }}
+          port: 8443
   hostnames:
-  - {{ .Values.externalHostname }}
+    - {{ .Values.externalHostname }}
 {{- end }}
