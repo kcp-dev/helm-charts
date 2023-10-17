@@ -62,7 +62,7 @@ metadata:
     {{- include "common.labels" . | nindent 4 }}
     app.kubernetes.io/component: "server"
 spec:
-  secretName: {{ include "kcp.fullname" . }}-etcd-client
+  secretName: {{ include "kcp.fullname" . }}-etcd-client-cert
   duration: 8760h # 365d
   renewBefore: 360h # 15d
   commonName: {{ .Values.kcp.etcd.clientCertificate.commonName }}
@@ -135,7 +135,7 @@ metadata:
 spec:
   duration: 8760h # 365d
   renewBefore: 360h # 15d
-  commonName: {{ include "kcp.fullname" . }}-service-account-cert
+  commonName: {{ include "kcp.fullname" . }}-service-account
   secretName: {{ include "kcp.fullname" . }}-service-account-cert
   issuerRef:
     name: {{ include "kcp.fullname" . }}-service-account-issuer
