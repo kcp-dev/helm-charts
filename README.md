@@ -75,9 +75,46 @@ user `system:authenticated` access to a workspace.
 
 ### PKI
 
-The chart will create a full PKI system, with root CA, intermediate CAs and more.
+The chart will create a full PKI system, with root CA, intermediate CAs and more. The diagram below
+shows the default configuration, however the issuer for the `kcp-front-proxy` certificate can be
+configured and use, for example, Let's Encrypt.
 
-![PKI Architecture Diagram](docs/pki.png)
+```mermaid
+graph TB
+    A([kcp-pki-bootstrap]):::issuer --> B(kcp-pki-ca):::ca
+    B --> C([kcp-pki]):::issuer
+
+    X([lets-encrypt-staging]):::issuer
+    Y([lets-encrypt-prod]):::issuer
+
+    C --> D(kcp-etcd-client-ca):::ca
+    C --> E(kcp-etcd-peer-ca):::ca
+    C --> F(kcp-front-proxy-client-ca):::ca
+    C --> G(kcp-ca):::ca
+    C --> H(kcp-requestheader-client-ca):::ca
+    C --> I(kcp-client-ca):::ca
+    C --> J(kcp-service-account-ca):::ca
+
+    D --> K([kcp-etcd-client-issuer]):::issuer
+    E --> L([kcp-etcd-peer-issuer]):::issuer
+    F --> M([kcp-front-proxy-client-issuer]):::issuer
+    G --> N([kcp-server-issuer]):::issuer
+    H --> O([kcp-requestheader-client-issuer]):::issuer
+    I --> P([kcp-client-issuer]):::issuer
+    J --> Q([kcp-service-account-issuer]):::issuer
+
+    K --- K1(kcp-etcd):::cert --> K2(kcp-etcd-client):::cert
+    L --> L1(kcp-etcd-peer):::cert
+    M --> M1(kcp-external-admin-kubeconfig):::cert
+    N --- N1(kcp):::cert --- N2(kcp-front-proxy):::cert --> N3(kcp-virtual-workspaces):::cert
+    O --- O1(kcp-front-proxy-requestheader):::cert --> O2(kcp-front-proxy-vw-client):::cert
+    P --- P1(kcp-front-proxy-kubeconfig):::cert --> P2(kcp-internal-admin-kubeconfig):::cert
+    Q --> Q1(kcp-service-account):::cert
+
+    classDef issuer color:#77F
+    classDef ca color:#F77
+    classDef cert color:orange
+```
 
 ### Create kubeconfig and add CA cert
 
