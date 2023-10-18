@@ -1,4 +1,4 @@
-externalHostname: "kcp.example.com"
+externalHostname: ""
 etcd:
   enabled: true
   image: quay.io/coreos/etcd
@@ -15,8 +15,9 @@ etcd:
     enabled: false
 kcp:
   image: ghcr.io/kcp-dev/kcp
-  tag: latest
-  pullPolicy: Always
+  # set this to override the image tag used for kcp (determined by chart appVersion by default).
+  tag: ""
+  pullPolicy: IfNotPresent
   v: "3"
   logicalClusterAdminFlag: true
   externalLogicalClusterAdminFlag: true
@@ -60,8 +61,9 @@ kcp:
       type: RuntimeDefault
 kcpFrontProxy:
   image: ghcr.io/kcp-dev/kcp
-  tag: latest
-  pullPolicy: Always
+  # set this to override the image tag used for kcp-front-proxy (determined by chart appVersion by default).
+  tag: ""
+  pullPolicy: IfNotPresent
   v: "4"
   shardsKubeConfigFlag: true
   openshiftRoute:
@@ -164,8 +166,6 @@ certificates:
   # add additional dns names that should be embedded into the kcp server certificate.
   dnsNames:
   - localhost
-githubUserEditAccess:
-- test
 letsEncrypt:
   enabled: false
   staging:

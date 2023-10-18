@@ -109,7 +109,7 @@ spec:
       {{- end }}
       containers:
         - name: kcp
-          image: {{ .Values.kcp.image }}:{{ .Values.kcp.tag }}
+          image: {{ .Values.kcp.image }}:{{- include "kcp.version" . }}
           imagePullPolicy: {{ .Values.kcp.pullPolicy }}
           ports:
             - containerPort: 6443
