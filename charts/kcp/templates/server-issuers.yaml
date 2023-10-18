@@ -8,6 +8,7 @@ metadata:
 spec:
   ca:
     secretName: {{ include "kcp.fullname" . }}-ca
+
 ---
 apiVersion: cert-manager.io/v1
 kind: Issuer
@@ -19,6 +20,7 @@ metadata:
 spec:
   ca:
     secretName: {{ include "kcp.fullname" . }}-client-ca
+
 ---
 apiVersion: cert-manager.io/v1
 kind: Issuer
@@ -30,6 +32,7 @@ metadata:
 spec:
   ca:
     secretName: {{ include "kcp.fullname" . }}-requestheader-client-ca
+
 ---
 apiVersion: cert-manager.io/v1
 kind: Issuer

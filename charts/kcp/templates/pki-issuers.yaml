@@ -7,6 +7,7 @@ metadata:
     app.kubernetes.io/component: "pki"
 spec:
   selfSigned: {}
+
 ---
 apiVersion: cert-manager.io/v1
 kind: Certificate
@@ -19,14 +20,15 @@ spec:
   isCA: true
   commonName: {{ include "kcp.fullname" . }}-pki-ca
   secretName: {{ include "kcp.fullname" . }}-pki-ca
-  duration: 8760h0m0s # 365d
-  renewBefore: 360h0m0s # 15d
+  duration: 87600h # 3650d = 10y
+  renewBefore: 360h # 15d
   privateKey:
     {{- toYaml .Values.certificates.privateKeys | nindent 4 }}
   issuerRef:
     name: {{ include "kcp.fullname" . }}-pki-bootstrap
     kind: Issuer
     group: cert-manager.io
+
 ---
 apiVersion: cert-manager.io/v1
 kind: Issuer

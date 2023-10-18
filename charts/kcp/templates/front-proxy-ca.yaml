@@ -7,6 +7,7 @@ metadata:
     app.kubernetes.io/component: "front-proxy"
 spec:
   isCA: true
+  duration: 87600h # 3650d = 10y
   commonName: {{ include "frontproxy.fullname" . }}-client-ca
   secretName: {{ include "frontproxy.fullname" . }}-client-ca
   privateKey:

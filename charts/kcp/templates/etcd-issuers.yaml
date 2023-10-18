@@ -8,7 +8,8 @@ metadata:
     app.kubernetes.io/component: "etcd"
 spec:
   ca:
-    secretName: {{ include "etcd.fullname" . }}-client-bootstrap-secret
+    secretName: {{ include "etcd.fullname" . }}-client-ca
+
 ---
 apiVersion: cert-manager.io/v1
 kind: Issuer
@@ -19,5 +20,5 @@ metadata:
     app.kubernetes.io/component: "etcd"
 spec:
   ca:
-    secretName: {{ include "etcd.fullname" . }}-peer-bootstrap-secret
+    secretName: {{ include "etcd.fullname" . }}-peer-ca
 {{- end }}

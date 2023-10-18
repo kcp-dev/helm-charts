@@ -11,8 +11,8 @@ roleRef:
   name: edit
 subjects:
 {{- range . }}
-- apiGroup: rbac.authorization.k8s.io
-  kind: User
-  name: {{ . }}
+  - apiGroup: rbac.authorization.k8s.io
+    kind: User
+    name: {{ . }}
 {{- end }}
 {{- end }}
