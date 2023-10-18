@@ -11,6 +11,7 @@ presubmits:
           args:
             - template
             - --debug
+            - --set=externalHostname=ci.kcp.io
             - kcp
             - charts/kcp/
           resources:
