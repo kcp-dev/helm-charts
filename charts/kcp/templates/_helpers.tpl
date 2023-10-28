@@ -19,9 +19,25 @@
 {{- end -}}
 {{- end -}}
 
+{{- define "kcp.version" -}}
+{{- if .Values.kcp.tag -}}
+{{- .Values.kcp.tag -}}
+{{- else -}}
+v{{- .Chart.AppVersion -}}
+{{- end -}}
+{{- end -}}
+
 {{- define "frontproxy.fullname" -}}
 {{- $trimmedName := printf "%s" (include "kcp.fullname" .) | trunc 52 | trimSuffix "-" -}}
 {{- printf "%s-front-proxy" $trimmedName | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+
+{{- define "frontproxy.version" -}}
+{{- if .Values.kcpFrontProxy.tag -}}
+{{- .Values.kcpFrontProxy.tag -}}
+{{- else -}}
+v{{- .Chart.AppVersion -}}
+{{- end -}}
 {{- end -}}
 
 {{- define "etcd.fullname" -}}
