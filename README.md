@@ -147,7 +147,7 @@ One way to do this is to create a client certificate with a cert-manager `Certif
     spec:
       commonName: cluster-admin
       issuerRef:
-        name: kcp-client-issuer
+        name: kcp-front-proxy-client-issuer
       privateKey:
         algorithm: RSA
         size: 2048
