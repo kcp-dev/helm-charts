@@ -21,6 +21,9 @@ kcp:
   v: "3"
   logicalClusterAdminFlag: true
   externalLogicalClusterAdminFlag: true
+  # enabled "batteries" (see kcp start --help for available batteries).
+  batteries:
+    - workspace-types
   resources:
     requests:
       memory: 512Mi
