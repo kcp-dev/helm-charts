@@ -182,7 +182,7 @@ spec:
             - --batteries-included={{ join "," . }}
             {{- end }}
             {{- range .Values.kcp.extraFlags }}
-            {{ . }}
+            - {{ . }}
             {{- end }}
           env:
             - name: EXTERNAL_HOSTNAME
