@@ -121,7 +121,7 @@ spec:
           args:
             {{- if .Values.kcp.etcd.serverAddress }}
             - --etcd-servers={{ .Values.kcp.etcd.serverAddress }}
-            {{- else if .Values.kcp.etcd.enabled }}
+            {{- else if .Values.etcd.enabled }}
             - --etcd-servers=https://{{ include "etcd.fullname" . }}:2379
             {{- end }}
             {{- if ne .Values.kcp.etcd.serverAddress "embedded" }}
