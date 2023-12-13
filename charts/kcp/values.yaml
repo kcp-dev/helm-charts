@@ -123,16 +123,17 @@ kcpFrontProxy:
   # access to the CA that signed the VW's serving cert. Unless your
   # VWs all use the kcp-server-issuer, you must mount all additional
   # certificates yourself.
-  extraVolumes:
+  extraVolumes: []
   # - name: example-vw-serving-cert
   #   secret:
   #     secretName: example-vw-serving-cert
   #     items:
   #       - key: ca.crt
   #         path: ca.crt
-  extraVolumeMounts:
+  extraVolumeMounts: []
   # - name: example-vw-serving-cert
   #   mountPath: /etc/example-vw-serving-cert
+  extraFlags: []
 oidc:
   enabled: false
   caSecretName: ""

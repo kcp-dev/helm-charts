@@ -85,6 +85,9 @@ spec:
             {{- if .Values.kcp.tokenAuth.enabled }}
             - --token-auth-file=/etc/kcp/token-auth/{{ .Values.kcp.tokenAuth.fileName }}
             {{- end }}
+            {{- range .Values.kcpFrontProxy.extraFlags }}
+            - {{ . }}
+            {{- end }}
           ports:
             - containerPort: 8443
           livenessProbe:
