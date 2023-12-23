@@ -170,6 +170,10 @@ certificates:
   # add additional dns names that should be embedded into the kcp server certificate.
   dnsNames:
   - localhost
+  secretTemplate:
+    enabled: false
+    annotations: {}
+    labels: {}
 letsEncrypt:
   enabled: false
   staging:
