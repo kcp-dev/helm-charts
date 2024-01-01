@@ -55,26 +55,49 @@ kubectl --context "$KUBECTL_CONTEXT" --namespace ingress-nginx rollout status de
 # is to create some Issuers and/or ClusterIssuers.  That is indeed
 # among the things that the kcp helm chart will do.
 
+echo "Install reflector…"
+helm repo add emberstack https://emberstack.github.io/helm-charts
+helm upgrade \
+  --install \
+  --wait \
+  --namespace reflector \
+  --create-namespace \
+  reflector emberstack/reflector
+
 export KCP_TAG="${KCP_TAG:-latest}"
 echo "Installing KCP version $KCP_TAG…"
 
 helm upgrade \
   --install \
-  --values ./hack/kind-values.yaml \
-  --set "kcp.tag=$KCP_TAG" \
-  --set "kcpFrontProxy.tag=$KCP_TAG" \
-  --namespace kcp \
+  --values ./hack/kind-values-phase1.yaml \
+  --namespace kcp-certs \
   --create-namespace \
-  kcp ./charts/kcp
+  certs ./charts/kcp
 
-echo "Generating KCP admin kubeconfig…"
-./hack/generate-admin-kubeconfig.sh
+helm upgrade \
+  --install \
+  --values ./hack/kind-values-phase2-alpha.yaml \
+  --namespace kcp-certs \
+  --create-namespace \
+  alpha ./charts/kcp
 
-hostname="$(yq '.externalHostname' hack/kind-values.yaml)"
+helm upgrade \
+  --install \
+  --values ./hack/kind-values-phase2-beta.yaml \
+  --namespace kcp-certs \
+  --create-namespace \
+  beta ./charts/kcp
 
-echo "Checking /etc/hosts for $hostname…"
-if ! grep -q "$hostname" /etc/hosts; then
-  echo "127.0.0.1 $hostname" | sudo tee -a /etc/hosts
-else
-  echo "$hostname already exists in /etc/hosts."
-fi
+helm upgrade \
+  --install \
+  --values ./hack/kind-values-phase3-alpha.yaml \
+  --namespace kcp-alpha \
+  --create-namespace \
+  alpha ./charts/kcp
+
+helm upgrade \
+  --install \
+  --values ./hack/kind-values-phase3-beta.yaml \
+  --namespace kcp-beta \
+  --create-namespace \
+  beta ./charts/kcp

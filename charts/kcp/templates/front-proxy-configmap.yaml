@@ -1,3 +1,4 @@
+{{- if .Values.kcpFrontProxy.enabled }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -15,3 +16,4 @@ data:
     {{- with .Values.kcpFrontProxy.additionalPathMappings }}
     {{- . | toYaml | nindent 4 }}
     {{- end }}
+{{- end }}

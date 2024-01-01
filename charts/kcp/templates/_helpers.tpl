@@ -19,6 +19,16 @@
 {{- end -}}
 {{- end -}}
 
+{{- define "certificates.kcp" -}}
+{{- if not (eq .Values.certificates.name "") -}}
+{{- $trimmedName := printf "%s" .Values.certificates.name | trunc 58 | trimSuffix "-" -}}
+{{- printf "%s-kcp" $trimmedName | trunc 63 | trimSuffix "-" -}}
+{{- else }}
+{{- $trimmedName := printf "%s" (include "kcp.fullname" .) | trunc 58 | trimSuffix "-" -}}
+{{- printf "%s-kcp" $trimmedName | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+{{- end -}}
+
 {{- define "kcp.version" -}}
 {{- if .Values.kcp.tag -}}
 {{- .Values.kcp.tag -}}
@@ -32,11 +42,31 @@ v{{- .Chart.AppVersion -}}
 {{- printf "%s-front-proxy" $trimmedName | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
+{{- define "certificates.frontproxy" -}}
+{{- if not (eq .Values.certificates.name "") -}}
+{{- $trimmedName := printf "%s" .Values.certificates.name | trunc 58 | trimSuffix "-" -}}
+{{- printf "%s-front-proxy" $trimmedName | trunc 63 | trimSuffix "-" -}}
+{{- else }}
+{{- $trimmedName := printf "%s" (include "kcp.fullname" .) | trunc 58 | trimSuffix "-" -}}
+{{- printf "%s-front-proxy" $trimmedName | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+{{- end -}}
+
 {{- define "frontproxy.version" -}}
 {{- if .Values.kcpFrontProxy.tag -}}
 {{- .Values.kcpFrontProxy.tag -}}
 {{- else -}}
 v{{- .Chart.AppVersion -}}
+{{- end -}}
+{{- end -}}
+
+{{- define "certificates.etcd" -}}
+{{- if not (eq .Values.certificates.name "") -}}
+{{- $trimmedName := printf "%s" .Values.certificates.name | trunc 58 | trimSuffix "-" -}}
+{{- printf "%s-etcd" $trimmedName | trunc 63 | trimSuffix "-" -}}
+{{- else }}
+{{- $trimmedName := printf "%s" (include "kcp.fullname" .) | trunc 58 | trimSuffix "-" -}}
+{{- printf "%s-etcd" $trimmedName | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 {{- end -}}
 

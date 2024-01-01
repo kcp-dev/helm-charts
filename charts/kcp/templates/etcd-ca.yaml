@@ -1,40 +1,62 @@
-{{- if .Values.etcd.enabled -}}
+{{- if .Values.certificates.etcd.pki -}}
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
-  name: {{ include "etcd.fullname" . }}-client-ca
+  name: {{ include "certificates.etcd" . }}-client-ca
   labels:
     {{- include "common.labels" . | nindent 4 }}
     app.kubernetes.io/component: "etcd"
 spec:
   isCA: true
   duration: 87600h # 3650d = 10y
-  commonName: {{ include "etcd.fullname" . }}-client-ca
-  secretName: {{ include "etcd.fullname" . }}-client-ca
+  commonName: {{ include "certificates.etcd" . }}-client-ca
+  secretName: {{ include "certificates.etcd" . }}-client-ca
   privateKey:
     {{- toYaml .Values.certificates.privateKeys | nindent 4 }}
   issuerRef:
     name: {{ include "kcp.fullname" . }}-pki
     kind: Issuer
     group: cert-manager.io
+{{- if .Values.certificates.secretTemplate.enabled }}
+  secretTemplate:
+{{- if .Values.certificates.secretTemplate.annotations }}
+    annotations:
+    {{- toYaml .Values.certificates.secretTemplate.annotations | nindent 6 }}
+{{- end }}
+{{- if .Values.certificates.secretTemplate.labels }}
+    labels:
+    {{- toYaml .Values.certificates.secretTemplate.labels | nindent 6 }}
+{{- end }}
+{{- end }}
 
 ---
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
-  name: {{ include "etcd.fullname" . }}-peer-ca
+  name: {{ include "certificates.etcd" . }}-peer-ca
   labels:
     {{- include "common.labels" . | nindent 4 }}
     app.kubernetes.io/component: "etcd"
 spec:
   isCA: true
   duration: 87600h # 3650d = 10y
-  commonName: {{ include "etcd.fullname" . }}-peer-ca
-  secretName: {{ include "etcd.fullname" . }}-peer-ca
+  commonName: {{ include "certificates.etcd" . }}-peer-ca
+  secretName: {{ include "certificates.etcd" . }}-peer-ca
   privateKey:
     {{- toYaml .Values.certificates.privateKeys | nindent 4 }}
   issuerRef:
     name: {{ include "kcp.fullname" . }}-pki
     kind: Issuer
     group: cert-manager.io
+{{- if .Values.certificates.secretTemplate.enabled }}
+  secretTemplate:
+{{- if .Values.certificates.secretTemplate.annotations }}
+    annotations:
+    {{- toYaml .Values.certificates.secretTemplate.annotations | nindent 6 }}
+{{- end }}
+{{- if .Values.certificates.secretTemplate.labels }}
+    labels:
+    {{- toYaml .Values.certificates.secretTemplate.labels | nindent 6 }}
+{{- end }}
+{{- end }}
 {{- end }}

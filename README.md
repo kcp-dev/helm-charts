@@ -83,7 +83,14 @@ user `system:authenticated` access to a workspace.
 
 The chart will create a full PKI system, with root CA, intermediate CAs and more. The diagram below
 shows the default configuration, however the issuer for the `kcp-front-proxy` certificate can be
-configured and use, for example, Let's Encrypt.
+configured and used, for example, Let's Encrypt.
+
+```
+.Values.certificates.createPKI - create CA, Issues
+.Values.certificates.createCA - create CA's for etcd, front-proxy, server, requestheader, client, service-account
+.Values.certificates.enabled - creates certificates for named components
+```
+
 
 ```mermaid
 graph TB

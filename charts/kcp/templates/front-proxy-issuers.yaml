@@ -1,10 +1,12 @@
+{{- if.Values.certificates.frontproxy.pki  -}}
 apiVersion: cert-manager.io/v1
 kind: Issuer
 metadata:
-  name: {{ include "frontproxy.fullname" . }}-client-issuer
+  name: {{ include "certificates.frontproxy" . }}-client-issuer
   labels:
     {{- include "common.labels" . | nindent 4 }}
     app.kubernetes.io/component: "front-proxy"
 spec:
   ca:
-    secretName: {{ include "frontproxy.fullname" . }}-client-ca
+    secretName: {{ include "certificates.frontproxy" . }}-client-ca
+{{- end }}

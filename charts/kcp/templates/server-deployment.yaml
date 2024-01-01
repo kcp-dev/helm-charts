@@ -1,3 +1,4 @@
+{{- if .Values.kcp.enabled }}
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
@@ -275,26 +276,26 @@ spec:
             secretName: {{ include "kcp.fullname" . }}-etcd-client-cert
         - name: etcd-client-ca
           secret:
-            secretName: {{ include "etcd.fullname" . }}-client-ca
+            secretName: {{ include "certificates.etcd" . }}-client-ca
         {{- end }}
         - name: kcp-ca
           secret:
-            secretName: {{ include "kcp.fullname" . }}-ca
+            secretName: {{ include "certificates.kcp" . }}-ca
         - name: kcp-cert
           secret:
             secretName: {{ include "kcp.fullname" .}}-cert
         - name: kcp-client-ca
           secret:
-            secretName: {{ include "kcp.fullname" . }}-client-ca
+            secretName: {{ include "certificates.kcp" . }}-client-ca
         - name: kcp-service-account-cert
           secret:
             secretName: {{ include "kcp.fullname" . }}-service-account-cert
         - name: kcp-service-account-ca
           secret:
-            secretName: {{ include "kcp.fullname" . }}-service-account-ca
+            secretName: {{ include "certificates.kcp" . }}-service-account-ca
         - name: kcp-requestheader-client-ca
           secret:
-            secretName: {{ include "kcp.fullname" . }}-requestheader-client-ca
+            secretName: {{ include "certificates.kcp" . }}-requestheader-client-ca
         {{- if .Values.oidc.enabled }}
         {{- if .Values.oidc.caSecretName }}
         - name: oidc-ca
@@ -350,3 +351,4 @@ stringData:
   {{ .Values.kcp.tokenAuth.fileName }}: |
     {{- .Values.kcp.tokenAuth.config | nindent 4 }}
 {{- end}}
+{{- end }}

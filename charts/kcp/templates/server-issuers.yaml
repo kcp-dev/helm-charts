@@ -1,46 +1,48 @@
+{{- if .Values.certificates.kcp.pki -}}
 apiVersion: cert-manager.io/v1
 kind: Issuer
 metadata:
-  name: {{ include "kcp.fullname" . }}-server-issuer
+  name: {{ include "certificates.kcp" . }}-server-issuer
   labels:
     {{- include "common.labels" . | nindent 4 }}
     app.kubernetes.io/component: "server"
 spec:
   ca:
-    secretName: {{ include "kcp.fullname" . }}-ca
+    secretName: {{ include "certificates.kcp" . }}-ca
 
 ---
 apiVersion: cert-manager.io/v1
 kind: Issuer
 metadata:
-  name: {{ include "kcp.fullname" . }}-client-issuer
+  name: {{ include "certificates.kcp" . }}-client-issuer
   labels:
     {{- include "common.labels" . | nindent 4 }}
     app.kubernetes.io/component: "server"
 spec:
   ca:
-    secretName: {{ include "kcp.fullname" . }}-client-ca
+    secretName: {{ include "certificates.kcp" . }}-client-ca
 
 ---
 apiVersion: cert-manager.io/v1
 kind: Issuer
 metadata:
-  name: {{ include "kcp.fullname" . }}-requestheader-client-issuer
+  name: {{ include "certificates.kcp" . }}-requestheader-client-issuer
   labels:
     {{- include "common.labels" . | nindent 4 }}
     app.kubernetes.io/component: "server"
 spec:
   ca:
-    secretName: {{ include "kcp.fullname" . }}-requestheader-client-ca
+    secretName: {{ include "certificates.kcp" . }}-requestheader-client-ca
 
 ---
 apiVersion: cert-manager.io/v1
 kind: Issuer
 metadata:
-  name: {{ include "kcp.fullname" . }}-service-account-issuer
+  name: {{ include "certificates.kcp" . }}-service-account-issuer
   labels:
     {{- include "common.labels" . | nindent 4 }}
     app.kubernetes.io/component: "front-proxy"
 spec:
   ca:
-    secretName: {{ include "kcp.fullname" . }}-service-account-ca
+    secretName: {{ include "certificates.kcp" . }}-service-account-ca
+{{- end }}

@@ -93,15 +93,15 @@ spec:
         - name: peer-cert
           secret:
             secretName: {{ include "etcd.fullname" . }}-peer-cert
-        - name: peer-ca
-          secret:
-            secretName: {{ include "etcd.fullname" . }}-peer-ca
         - name: server-cert
           secret:
             secretName: {{ include "etcd.fullname" . }}-cert
+        - name: peer-ca
+          secret:
+            secretName: {{ include "certificates.etcd" . }}-peer-ca
         - name: client-ca
           secret:
-            secretName: {{ include "etcd.fullname" . }}-client-ca
+            secretName: {{ include "certificates.etcd" . }}-client-ca
   volumeClaimTemplates:
     - metadata:
         name: etcd-data

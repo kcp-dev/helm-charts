@@ -1,3 +1,4 @@
+{{- if .Values.certificates.frontproxy.certs -}}
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
@@ -23,10 +24,20 @@ spec:
     {{- if .Values.kcpFrontProxy.certificateIssuer }}
     {{ .Values.kcpFrontProxy.certificateIssuer | toYaml | nindent 4 }}
     {{- else }}
-    name: {{ include "kcp.fullname" . }}-server-issuer
+    name: {{ include "certificates.kcp" . }}-server-issuer
     kind: Issuer
     {{- end }}
-
+{{- if .Values.certificates.secretTemplate.enabled }}
+  secretTemplate:
+{{- if .Values.certificates.secretTemplate.annotations }}
+    annotations:
+    {{- toYaml .Values.certificates.secretTemplate.annotations | nindent 6 }}
+{{- end }}
+{{- if .Values.certificates.secretTemplate.labels }}
+    labels:
+    {{- toYaml .Values.certificates.secretTemplate.labels | nindent 6 }}
+{{- end }}
+{{- end }}
 ---
 apiVersion: cert-manager.io/v1
 kind: Certificate
@@ -50,8 +61,18 @@ spec:
   dnsNames:
     - "{{ include "frontproxy.fullname" . }}"
   issuerRef:
-    name: {{ include "kcp.fullname" . }}-requestheader-client-issuer
-
+    name: {{ include "certificates.kcp" . }}-requestheader-client-issuer
+{{- if .Values.certificates.secretTemplate.enabled }}
+  secretTemplate:
+{{- if .Values.certificates.secretTemplate.annotations }}
+    annotations:
+    {{- toYaml .Values.certificates.secretTemplate.annotations | nindent 6 }}
+{{- end }}
+{{- if .Values.certificates.secretTemplate.labels }}
+    labels:
+    {{- toYaml .Values.certificates.secretTemplate.labels | nindent 6 }}
+{{- end }}
+{{- end }}
 ---
 apiVersion: cert-manager.io/v1
 kind: Certificate
@@ -73,10 +94,20 @@ spec:
   usages:
     - client auth
   issuerRef:
-    name: {{ include "kcp.fullname" . }}-client-issuer
+    name: {{ include "certificates.kcp" . }}-client-issuer
     kind: Issuer
     group: cert-manager.io
-
+{{- if .Values.certificates.secretTemplate.enabled }}
+  secretTemplate:
+{{- if .Values.certificates.secretTemplate.annotations }}
+    annotations:
+    {{- toYaml .Values.certificates.secretTemplate.annotations | nindent 6 }}
+{{- end }}
+{{- if .Values.certificates.secretTemplate.labels }}
+    labels:
+    {{- toYaml .Values.certificates.secretTemplate.labels | nindent 6 }}
+{{- end }}
+{{- end }}
 ---
 apiVersion: cert-manager.io/v1
 kind: Certificate
@@ -100,6 +131,18 @@ spec:
   dnsNames:
     - "{{ include "frontproxy.fullname" . }}"
   issuerRef:
-    name: {{ include "kcp.fullname" . }}-requestheader-client-issuer
+    name: {{ include "certificates.kcp" . }}-requestheader-client-issuer
     kind: Issuer
     group: cert-manager.io
+    {{- if .Values.certificates.secretTemplate.enabled }}
+  secretTemplate:
+{{- if .Values.certificates.secretTemplate.annotations }}
+    annotations:
+    {{- toYaml .Values.certificates.secretTemplate.annotations | nindent 6 }}
+{{- end }}
+{{- if .Values.certificates.secretTemplate.labels }}
+    labels:
+    {{- toYaml .Values.certificates.secretTemplate.labels | nindent 6 }}
+{{- end }}
+{{- end }}
+{{- end }}

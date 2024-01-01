@@ -1,0 +1,33 @@
+# Phase 1 creates PKI & CA infrastructure for all shards
+#
+# helm upgrade \
+#  --install \
+#  --values ./hack/kind-values-phase1.yaml \
+#  --namespace kcp-root \
+#  --create-namespace \
+#  kcp ./charts/kcp
+#
+etcd:
+  enabled: false
+kcp:
+  enabled: false
+kcpFrontProxy:
+  enabled: false
+certificates:
+  name: certs
+  kcp:
+    pki: true
+    certs: false
+  frontproxy:
+    pki: true
+    certs: false
+  etcd:
+    pki: true
+    certs: false
+  secretTemplate:
+    enabled: true
+    annotations:
+      reflector.v1.k8s.emberstack.com/reflection-allowed: "true"
+      reflector.v1.k8s.emberstack.com/reflection-allowed-namespaces: "kcp-alpha,kcp-beta"
+      reflector.v1.k8s.emberstack.com/reflection-auto-enabled: "true"
+      reflector.v1.k8s.emberstack.com/reflection-auto-namespaces: "kcp-alpha,kcp-beta"

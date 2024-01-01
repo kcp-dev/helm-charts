@@ -1,4 +1,5 @@
-{{- if .Values.etcd.enabled -}}
+
+{{- if .Values.certificates.etcd.certs -}}
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
@@ -30,8 +31,18 @@ spec:
   ipAddresses:
     - 0.0.0.0
   issuerRef:
-    name: {{ include "etcd.fullname" . }}-client-issuer
-
+    name: {{ include "certificates.etcd" . }}-client-issuer
+{{- if .Values.certificates.secretTemplate.enabled }}
+  secretTemplate:
+{{- if .Values.certificates.secretTemplate.annotations }}
+    annotations:
+    {{- toYaml .Values.certificates.secretTemplate.annotations | nindent 6 }}
+{{- end }}
+{{- if .Values.certificates.secretTemplate.labels }}
+    labels:
+    {{- toYaml .Values.certificates.secretTemplate.labels | nindent 6 }}
+{{- end }}
+{{- end }}
 ---
 apiVersion: cert-manager.io/v1
 kind: Certificate
@@ -63,5 +74,16 @@ spec:
   ipAddresses:
     - 0.0.0.0
   issuerRef:
-    name: {{ include "etcd.fullname" . }}-peer-issuer
+    name: {{ include "certificates.etcd" . }}-peer-issuer
+{{- if .Values.certificates.secretTemplate.enabled }}
+  secretTemplate:
+{{- if .Values.certificates.secretTemplate.annotations }}
+    annotations:
+    {{- toYaml .Values.certificates.secretTemplate.annotations | nindent 6 }}
+{{- end }}
+{{- if .Values.certificates.secretTemplate.labels }}
+    labels:
+    {{- toYaml .Values.certificates.secretTemplate.labels | nindent 6 }}
+{{- end }}
+{{- end }}
 {{- end }}
