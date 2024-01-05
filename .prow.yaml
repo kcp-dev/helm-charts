@@ -5,15 +5,9 @@ presubmits:
     clone_uri: "https://github.com/kcp-dev/helm-charts"
     spec:
       containers:
-        - image: ghcr.io/kcp-dev/infra/build:1.20.8-1
+        - image: ghcr.io/kcp-dev/infra/build:1.20.9-3
           command:
-            - helm
-          args:
-            - template
-            - --debug
-            - --set=externalHostname=ci.kcp.io
-            - kcp
-            - charts/kcp/
+            - hack/ci/render-helm-charts.sh
           resources:
             requests:
               memory: 64Mi

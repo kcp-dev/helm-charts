@@ -1,1 +1,4 @@
 *.kubeconfig
+
+# output of hack/ci/validate-helm-resources.sh
+kcp-templated.yaml
