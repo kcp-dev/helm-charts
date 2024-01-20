@@ -1,0 +1,209 @@
+{{- if .Values.certificates.frontproxy.certs -}}
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: {{ include "frontproxy.fullname" . }}
+  labels:
+    {{- include "common.labels" . | nindent 4 }}
+    app.kubernetes.io/component: "front-proxy"
+spec:
+  secretName: {{ include "frontproxy.fullname" . }}-cert
+  duration: 8760h # 365d
+  renewBefore: 360h # 15d
+  {{- with .Values.certificates.subject }}
+  subject:
+    {{- toYaml . | nindent 4 }}
+  {{ end}}
+  privateKey:
+    {{- toYaml .Values.certificates.privateKeys | nindent 4 }}
+  usages:
+    - server auth
+  dnsNames:
+    - "{{ .Values.externalHostname }}"
+  issuerRef:
+    {{- if .Values.certificates.certificateIssuer }}
+    {{ .Values.certificates.certificateIssuer | toYaml | nindent 4 }}
+    {{- else }}
+    name: {{ include "certificates.kcp" . }}-server-issuer
+    kind: Issuer
+    {{- end }}
+{{- if .Values.certificates.secretTemplate.enabled }}
+  secretTemplate:
+{{- if .Values.certificates.secretTemplate.annotations }}
+    annotations:
+    {{- toYaml .Values.certificates.secretTemplate.annotations | nindent 6 }}
+{{- end }}
+{{- if .Values.certificates.secretTemplate.labels }}
+    labels:
+    {{- toYaml .Values.certificates.secretTemplate.labels | nindent 6 }}
+{{- end }}
+{{- end }}
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: {{ include "frontproxy.fullname" . }}-requestheader
+  labels:
+    {{- include "common.labels" . | nindent 4 }}
+    app.kubernetes.io/component: "front-proxy"
+spec:
+  secretName: {{ include "frontproxy.fullname" . }}-requestheader-cert
+  duration: 8760h # 365d
+  renewBefore: 360h # 15d
+  {{- with .Values.certificates.subject }}
+  subject:
+    {{- toYaml . | nindent 4 }}
+  {{ end}}
+  privateKey:
+    {{- toYaml .Values.certificates.privateKeys | nindent 4 }}
+  usages:
+    - client auth
+  dnsNames:
+    - "{{ include "frontproxy.fullname" . }}"
+  issuerRef:
+    name: {{ include "certificates.kcp" . }}-requestheader-client-issuer
+{{- if .Values.certificates.secretTemplate.enabled }}
+  secretTemplate:
+{{- if .Values.certificates.secretTemplate.annotations }}
+    annotations:
+    {{- toYaml .Values.certificates.secretTemplate.annotations | nindent 6 }}
+{{- end }}
+{{- if .Values.certificates.secretTemplate.labels }}
+    labels:
+    {{- toYaml .Values.certificates.secretTemplate.labels | nindent 6 }}
+{{- end }}
+{{- end }}
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: {{ include "frontproxy.fullname" . }}-kubeconfig
+  labels:
+    {{- include "common.labels" . | nindent 4 }}
+    app.kubernetes.io/component: "front-proxy"
+spec:
+  secretName: {{ include "frontproxy.fullname" . }}-kubeconfig-cert
+  duration: 8760h # 365d
+  renewBefore: 360h # 15d
+  commonName: {{ include "frontproxy.fullname" . }}
+  subject:
+    organizations:
+      - "system:masters"
+  privateKey:
+    {{- toYaml .Values.certificates.privateKeys | nindent 4 }}
+  usages:
+    - client auth
+  issuerRef:
+    name: {{ include "certificates.kcp" . }}-client-issuer
+    kind: Issuer
+    group: cert-manager.io
+{{- if .Values.certificates.secretTemplate.enabled }}
+  secretTemplate:
+{{- if .Values.certificates.secretTemplate.annotations }}
+    annotations:
+    {{- toYaml .Values.certificates.secretTemplate.annotations | nindent 6 }}
+{{- end }}
+{{- if .Values.certificates.secretTemplate.labels }}
+    labels:
+    {{- toYaml .Values.certificates.secretTemplate.labels | nindent 6 }}
+{{- end }}
+{{- end }}
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: {{ include "frontproxy.fullname" . }}-service-account
+  labels:
+    {{- include "common.labels" . | nindent 4 }}
+    app.kubernetes.io/component: "server"
+spec:
+  duration: 8760h # 365d
+  renewBefore: 360h # 15d
+  commonName: {{ include "frontproxy.fullname" . }}-service-account
+  secretName: {{ include "frontproxy.fullname" . }}-service-account-cert
+  issuerRef:
+    name: {{ include "certificates.kcp" . }}-service-account-issuer
+    kind: Issuer
+    group: cert-manager.io
+{{- if .Values.certificates.secretTemplate.enabled }}
+  secretTemplate:
+{{- if .Values.certificates.secretTemplate.annotations }}
+    annotations:
+    {{- toYaml .Values.certificates.secretTemplate.annotations | nindent 6 }}
+{{- end }}
+{{- if .Values.certificates.secretTemplate.labels }}
+    labels:
+    {{- toYaml .Values.certificates.secretTemplate.labels | nindent 6 }}
+{{- end }}
+{{- end }}
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: {{ include "frontproxy.fullname" . }}-shard-client
+  labels:
+    {{- include "common.labels" . | nindent 4 }}
+    app.kubernetes.io/component: "server"
+spec:
+  secretName: {{ include "frontproxy.fullname" . }}-shard-client-cert
+  duration: 8760h # 365d
+  renewBefore: 360h # 15d
+  commonName: {{ include "frontproxy.fullname" . }}
+  privateKey:
+    {{- toYaml .Values.certificates.privateKeys | nindent 4 }}
+  subject:
+    organizations:
+      - "system:masters"
+  usages:
+    - client auth
+  issuerRef:
+    name: {{ include "certificates.kcp" . }}-client-issuer
+{{- if .Values.certificates.secretTemplate.enabled }}
+  secretTemplate:
+{{- if .Values.certificates.secretTemplate.annotations }}
+    annotations:
+    {{- toYaml .Values.certificates.secretTemplate.annotations | nindent 6 }}
+{{- end }}
+{{- if .Values.certificates.secretTemplate.labels }}
+    labels:
+    {{- toYaml .Values.certificates.secretTemplate.labels | nindent 6 }}
+{{- end }}
+{{- end }}
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: {{ include "frontproxy.fullname" . }}-vw-client
+  labels:
+    {{- include "common.labels" . | nindent 4 }}
+    app.kubernetes.io/component: "front-proxy"
+spec:
+  secretName: {{ include "frontproxy.fullname" . }}-vw-client-cert
+  duration: 8760h # 365d
+  renewBefore: 360h # 15d
+  {{- with .Values.certificates.subject }}
+  subject:
+    {{- toYaml . | nindent 4 }}
+  {{ end}}
+  privateKey:
+    {{- toYaml .Values.certificates.privateKeys | nindent 4 }}
+  usages:
+    - client auth
+  dnsNames:
+    - "{{ include "frontproxy.fullname" . }}"
+  issuerRef:
+    name: {{ include "certificates.kcp" . }}-requestheader-client-issuer
+    kind: Issuer
+    group: cert-manager.io
+    {{- if .Values.certificates.secretTemplate.enabled }}
+  secretTemplate:
+{{- if .Values.certificates.secretTemplate.annotations }}
+    annotations:
+    {{- toYaml .Values.certificates.secretTemplate.annotations | nindent 6 }}
+{{- end }}
+{{- if .Values.certificates.secretTemplate.labels }}
+    labels:
+    {{- toYaml .Values.certificates.secretTemplate.labels | nindent 6 }}
+{{- end }}
+{{- end }}
+{{- end }}

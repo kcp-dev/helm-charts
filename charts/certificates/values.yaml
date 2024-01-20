@@ -1,0 +1,49 @@
+fullnameOverride: alpha
+externalHostname: "kcp.dev.local"
+
+certificates:
+  kcp:
+    pki: true
+    certs: true
+  frontproxy:
+    pki: true
+    certs: true
+  etcd:
+    pki: true
+    certs: true
+    # set this if you are using external or embedded etcds.
+    serverAddress: ""
+    clientCertificate:
+      # set this to a cert-manager Issuer that knows how to
+      # issue client certificates for your external etcd if
+      # you are not using the etcd provided by this chart.
+      issuer: ""
+      commonName: root
+  cache:
+    pki: false
+    certs: false
+  secretTemplate:
+    enabled: false
+    annotations: {}
+    labels: {}
+  privateKeys:
+    algorithm: RSA
+    size: 2048
+  subject: {}
+  # add additional dns names that should be embedded into the kcp server certificate.
+  dnsNames:
+  - localhost
+letsEncrypt:
+  enabled: false
+  staging:
+    enabled: false
+    # You must replace this email address with your own.
+    # Let's Encrypt will use this to contact you about expiring
+    # certificates, and issues related to your account.
+    email: ""
+  production:
+    enabled: false
+    # You must replace this email address with your own.
+    # Let's Encrypt will use this to contact you about expiring
+    # certificates, and issues related to your account.
+    email: ""

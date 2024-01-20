@@ -1,0 +1,12 @@
+{{- if .Values.certificates.cache.pki -}}
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: {{ include "certificates.cache" . }}-server-issuer
+  labels:
+    {{- include "common.labels" . | nindent 4 }}
+    app.kubernetes.io/component: "server"
+spec:
+  ca:
+    secretName: {{ include "certificates.kcp" . }}-ca
+{{- end -}}

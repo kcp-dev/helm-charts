@@ -1,0 +1,14 @@
+# Phase 3 creates deployments cache server
+# helm upgrade \
+#  --install \
+#  --values ./hack/kind-values-phase3.yaml \
+#  --namespace kcp-alpha \
+#  --create-namespace \
+#  alpha ./charts/kcp
+#
+fullnameOverride: cache
+externalHostname: "kcp.dev.local"
+cache:
+  enabled: true
+certificates:
+  name: certs

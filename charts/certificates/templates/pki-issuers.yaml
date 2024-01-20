@@ -1,0 +1,44 @@
+{{- if .Values.certificates.kcp.pki -}}
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: {{ include "certificates.kcp" . }}-pki-bootstrap
+  labels:
+    {{- include "common.labels" . | nindent 4 }}
+    app.kubernetes.io/component: "pki"
+spec:
+  selfSigned: {}
+
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: {{ include "certificates.kcp" . }}-pki-ca
+  labels:
+    {{- include "common.labels" . | nindent 4 }}
+    app.kubernetes.io/component: "pki"
+spec:
+  isCA: true
+  commonName: {{ include "certificates.kcp" . }}-pki-ca
+  secretName: {{ include "certificates.kcp" . }}-pki-ca
+  duration: 87600h # 3650d = 10y
+  renewBefore: 360h # 15d
+  privateKey:
+    {{- toYaml .Values.certificates.privateKeys | nindent 4 }}
+  issuerRef:
+    name: {{ include "certificates.kcp" . }}-pki-bootstrap
+    kind: Issuer
+    group: cert-manager.io
+
+---
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: {{ include "certificates.kcp" . }}-pki
+  labels:
+    {{- include "common.labels" . | nindent 4 }}
+    app.kubernetes.io/component: "pki"
+spec:
+  ca:
+    secretName: {{ include "certificates.kcp" . }}-pki-ca
+{{- end }}

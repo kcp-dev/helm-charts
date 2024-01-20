@@ -1,0 +1,41 @@
+# Phase 2 creates creates the KCP and KCP Front Proxy, etc certs for shard 1
+#
+# helm upgrade \
+#  --install \
+#  --values ./hack/kind-values-phase2-beta.yaml \
+#  --namespace kcp-certs \
+#  --create-namespace \
+#  beta-certs ./charts/kcp
+#
+
+fullnameOverride: proxy
+# must be a valid DNS name for front proxy to work
+externalHostname: "kcp.dev.local"
+certificates:
+#  certificateIssuer:
+#     name: "kcp-letsencrypt-prod"
+#     name: "kcp-letsencrypt-staging"
+#     kind: ClusterIssuer
+  dnsNames:
+  - localhost
+  - kcp.faros.sh
+  name: certs
+  kcp:
+    pki: false
+    certs: false
+  frontproxy:
+    pki: false
+    certs: true
+  etcd:
+    pki: false
+    certs: true
+  cache:
+    pki: false
+    certs: false
+  secretTemplate:
+    enabled: true
+    annotations:
+      reflector.v1.k8s.emberstack.com/reflection-allowed: "true"
+      reflector.v1.k8s.emberstack.com/reflection-allowed-namespaces: "kcp-alpha,kcp-beta,kcp-proxy,kcp-cache"
+      reflector.v1.k8s.emberstack.com/reflection-auto-enabled: "true"
+      reflector.v1.k8s.emberstack.com/reflection-auto-namespaces: "kcp-alpha,kcp-beta,kcp-proxy,kcp-cache"

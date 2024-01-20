@@ -1,0 +1,34 @@
+# Phase 3 creates deployments for shard 1 (root)
+#
+# helm upgrade \
+#  --install \
+#  --values ./hack/kind-values-phase3.yaml \
+#  --namespace kcp-alpha \
+#  --create-namespace \
+#  alpha ./charts/kcp
+#
+fullnameOverride: beta
+externalHostname: "kcp.dev.local"
+etcd:
+  enabled: true
+kcp:
+  tag: main
+  enabled: true
+  v: 12
+  tokenAuth:
+    enabled: true
+  batteries:
+    - workspace-types
+    - metrics-viewer
+externalCache:
+  enabled: true
+  cacheInternalHostname: "cache-cache.kcp-cache.svc"
+sharding:
+  enabled: true
+  isShard: true # set this to true for the all shards, false for the first (root) shard.
+  isRoot: false # set this to true for the first (root) shard, false for all other shards.
+  rootShardInternalHostname: "alpha.kcp-alpha.svc.cluster.local"
+caBundle:
+  enabled: false
+  configMapName: faros.sh
+  configMapKey: root-certs.pem

@@ -1,0 +1,20 @@
+{{ if .Values.letsEncrypt.enabled }}
+{{ if .Values.letsEncrypt.staging.enabled }}
+apiVersion: v1
+kind: Secret
+metadata:
+  name: kcp-letsencrypt-staging-ca
+  labels:
+    {{- include "common.labels" . | nindent 4 }}
+    app.kubernetes.io/component: "pki"
+{{- if .Values.certificates.secretTemplate.enabled }}
+{{- if .Values.certificates.secretTemplate.annotations }}
+  annotations:
+    {{- toYaml .Values.certificates.secretTemplate.annotations | nindent 4 }}
+{{- end }}
+{{- end }}
+type: Opaque
+data:
+{{ (.Files.Glob "files/*").AsSecrets | indent 2 }}
+{{- end }}
+{{- end }}
