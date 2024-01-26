@@ -29,13 +29,15 @@ metadata:
     {{- include "common.labels" . | nindent 4 }}
     app.kubernetes.io/component: "front-proxy"
 spec:
-  replicas: 1
+  replicas: {{ .Values.kcpFrontProxy.replicas | default 1 }}
   selector:
     matchLabels:
       {{- include "common.labels.selector" . | nindent 6 }}
       app.kubernetes.io/component: "front-proxy"
+  {{- with .Values.kcpFrontProxy.strategy }}
   strategy:
-    type: Recreate
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
   template:
     metadata:
       labels:
