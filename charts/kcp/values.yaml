@@ -9,10 +9,13 @@ etcd:
       memory: 2Gi
     limits:
       # cpu: 1
-     memory: 20Gi
+      memory: 20Gi
   volumeSize: 8Gi
   profiling:
     enabled: false
+  monitoring:
+    serviceMonitor:
+      enabled: false
 kcp:
   replicas: 1
   strategy:
@@ -65,6 +68,9 @@ kcp:
     fsGroup: 65532
     seccompProfile:
       type: RuntimeDefault
+  monitoring:
+    serviceMonitor:
+      enabled: false
 kcpFrontProxy:
   replicas: 1
   strategy:
@@ -114,6 +120,9 @@ kcpFrontProxy:
   securityContext:
     seccompProfile:
       type: RuntimeDefault
+  monitoring:
+    serviceMonitor:
+      enabled: false
 
   # The default virtual workspaces run in-process, but you can
   # extend the path mapping to include custom virtual workspaces
