@@ -25,7 +25,6 @@ externalCache:
   cacheInternalHostname: "cache-cache.kcp-cache.svc"
 sharding:
   enabled: true
-  isShard: false
   isRoot: true
 caBundle:
   enabled: false

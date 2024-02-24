@@ -1,7 +1,7 @@
 externalHostname: ""
 cache:
   enabled: false
-  image: ghcr.io/kcp-dev/kcp
+  image: {{ .Values.cache.image }}:{{- include "kcp.version" . }}
   pullPolicy: Always
   service:
     annotations: {}

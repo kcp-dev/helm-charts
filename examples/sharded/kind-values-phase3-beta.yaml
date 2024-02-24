@@ -25,7 +25,6 @@ externalCache:
   cacheInternalHostname: "cache-cache.kcp-cache.svc"
 sharding:
   enabled: true
-  isShard: true # set this to true for the all shards, false for the first (root) shard.
   isRoot: false # set this to true for the first (root) shard, false for all other shards.
   rootShardInternalHostname: "alpha.kcp-alpha.svc.cluster.local"
 caBundle:

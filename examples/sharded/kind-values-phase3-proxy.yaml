@@ -33,7 +33,6 @@ certificates:
   name: certs
 sharding:
   enabled: false
-  isShard: false # set this to true for the all shards, false for the first (root) shard.
   isRoot: true # set this to true for the first (root) shard, false for all other shards.
   rootShardInternalHostname: "alpha.kcp-alpha.svc.cluster.local"
 caBundle:

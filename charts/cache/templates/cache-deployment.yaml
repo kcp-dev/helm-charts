@@ -49,7 +49,7 @@ spec:
       {{- end }}
       containers:
         - name: cache
-          image: {{ .Values.cache.image }}:{{ .Values.cache.tag }}
+          image: {{ .Values.cache.image }}:{{- include "kcp.version" . }}
           imagePullPolicy: {{ .Values.cache.pullPolicy }}
           ports:
             - containerPort: 8012

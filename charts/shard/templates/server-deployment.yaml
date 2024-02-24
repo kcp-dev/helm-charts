@@ -121,7 +121,7 @@ spec:
           command: ["/kcp", "start"]
           args:
             {{- if .Values.sharding.enabled }}
-            {{- if .Values.sharding.isShard }}
+            {{- if not .Values.sharding.isRoot }}
             - --shard-name={{ include "kcp.fullname" . }}
             - --root-shard-kubeconfig-file=/etc/kcp/shard/kubeconfig
             {{- end }}
