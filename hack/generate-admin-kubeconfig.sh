@@ -4,7 +4,7 @@ set -euo pipefail
 
 cd "$(dirname "$0")/.."
 
-hostname="$(yq '.externalHostname' hack/kind-values.yaml)"
+hostname="$(cat hack/kind-values.yaml | yq '.externalHostname')"
 
 cat << EOF > kcp.kubeconfig
 apiVersion: v1

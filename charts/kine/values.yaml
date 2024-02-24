@@ -1,0 +1,28 @@
+kine:
+  enabled: true
+  image: ghcr.io/faroshq/kine
+  tag: v0.11.4-1
+  resources:
+    requests:
+      cpu: 500m
+      memory: 2Gi
+    limits:
+      # cpu: 1
+     memory: 20Gi
+  profiling:
+    enabled: false
+  postgres:
+    enabled: false
+    user: postgres
+    password: postgres
+    host: postgres.svc.cluster.local
+    port: 5432
+    database: kine
+certificates:
+  privateKeys:
+    algorithm: RSA
+    size: 2048
+  subject: {}
+  # add additional dns names that should be embedded into the kcp server certificate.
+  dnsNames:
+  - localhost

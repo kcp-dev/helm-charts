@@ -51,6 +51,9 @@ helm upgrade \
 echo "Waiting for the ingress controller to become ready…"
 kubectl --context "$KUBECTL_CONTEXT" --namespace ingress-nginx rollout status deployment/ingress-nginx-controller --timeout 5m
 
+echo "Applying coredns patch…"
+kubectl apply -f hack/kind/coredns-single-ns-hack.yaml
+
 # Installing cert-manager will end with a message saying that the next step
 # is to create some Issuers and/or ClusterIssuers.  That is indeed
 # among the things that the kcp helm chart will do.
@@ -58,19 +61,39 @@ kubectl --context "$KUBECTL_CONTEXT" --namespace ingress-nginx rollout status de
 export KCP_TAG="${KCP_TAG:-latest}"
 echo "Installing KCP version $KCP_TAG…"
 
-helm upgrade \
-  --install \
-  --values ./hack/kind-values.yaml \
-  --set "kcp.tag=$KCP_TAG" \
-  --set "kcpFrontProxy.tag=$KCP_TAG" \
-  --namespace kcp \
-  --create-namespace \
-  kcp ./charts/kcp
+if [ "${KINE+set}" = "set" ]; then
+  echo "KINE is set, using kine."
+  helm upgrade \
+    --install \
+    --values ./hack/kind-values-kine.yaml \
+    --namespace kcp \
+    --create-namespace \
+    kine ./charts/kine
+  echo "Installing KCP with kine."
+  helm upgrade \
+    --install \
+    --values ./hack/kind-values-kine.yaml \
+    --set "kcp.tag=$KCP_TAG" \
+    --set "kcpFrontProxy.tag=$KCP_TAG" \
+    --namespace kcp \
+    --create-namespace \
+    kcp ./charts/kcp
+else
+  echo "Using etcd."
+  helm upgrade \
+    --install \
+    --values ./hack/kind-values.yaml \
+    --set "kcp.tag=$KCP_TAG" \
+    --set "kcpFrontProxy.tag=$KCP_TAG" \
+    --namespace kcp \
+    --create-namespace \
+    kcp ./charts/kcp
+fi
 
 echo "Generating KCP admin kubeconfig…"
 ./hack/generate-admin-kubeconfig.sh
 
-hostname="$(yq '.externalHostname' hack/kind-values.yaml)"
+hostname="$(cat hack/kind-values.yaml | yq '.externalHostname')"
 
 echo "Checking /etc/hosts for $hostname…"
 if ! grep -q "$hostname" /etc/hosts; then

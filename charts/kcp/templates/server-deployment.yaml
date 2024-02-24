@@ -110,10 +110,15 @@ spec:
             {{- else if .Values.etcd.enabled }}
             - --etcd-servers=https://{{ include "etcd.fullname" . }}:2379
             {{- end }}
-            {{- if ne .Values.kcp.etcd.serverAddress "embedded" }}
+            {{- if ne .Values.kcp.etcd.type "embedded" }}
             - --etcd-keyfile=/etc/kcp/tls/etcd-client/tls.key
             - --etcd-certfile=/etc/kcp/tls/etcd-client/tls.crt
             - --etcd-cafile=/etc/etcd/tls/client-ca/tls.crt
+            {{- end }}
+            {{- if eq .Values.kcp.etcd.type "external" }}
+            - --etcd-keyfile=/etc/ext-etcd/tls.key
+            - --etcd-certfile=/etc/ext-etcd/tls.crt
+            - --etcd-cafile=/etc/ext-etcd-ca/tls.crt
             {{- end }}
             - --client-ca-file=/etc/kcp/tls/client-ca/tls.crt
             - --tls-private-key-file=/etc/kcp/tls/server/tls.key
@@ -210,11 +215,17 @@ spec:
             {{- toYaml . | nindent 12 }}
           {{- end }}
           volumeMounts:
-            {{- if ne .Values.kcp.etcd.serverAddress "embedded" }}
+            {{- if eq .Values.kcp.etcd.type "" }}
             - name: kcp-etcd-client-cert
               mountPath: /etc/kcp/tls/etcd-client
             - name: etcd-client-ca
               mountPath: /etc/etcd/tls/client-ca
+            {{- end }}
+            {{- if eq .Values.kcp.etcd.type "external" }}
+            - name: kcp-etcd-client-cert
+              mountPath: /etc/ext-etcd/
+            - name: etcd-client-ca
+              mountPath: /etc/ext-etcd-ca/
             {{- end }}
             - name: kcp-ca
               mountPath: /etc/kcp/tls/ca
@@ -255,13 +266,21 @@ spec:
             - name: kcp-config
               mountPath: /etc/kcp/config
       volumes:
-        {{- if ne .Values.kcp.etcd.serverAddress "embedded" }}
+        {{- if eq .Values.kcp.etcd.type "" }}
         - name: kcp-etcd-client-cert
           secret:
             secretName: {{ include "kcp.fullname" . }}-etcd-client-cert
         - name: etcd-client-ca
           secret:
             secretName: {{ include "etcd.fullname" . }}-client-ca
+        {{- end }}
+        {{- if eq .Values.kcp.etcd.type "external" }}
+        - name: kcp-etcd-client-cert
+          secret:
+            secretName: {{ .Values.kcp.etcd.clientCertificateSecret }}
+        - name: etcd-client-ca
+          secret:
+            secretName: {{ .Values.kcp.etcd.clientCASecret }}
         {{- end }}
         - name: kcp-ca
           secret:

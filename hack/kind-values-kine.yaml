@@ -1,16 +1,21 @@
 externalHostname: "kcp.dev.local"
 etcd:
+  enabled: false
+kine:
   enabled: true
 kcp:
   # tag is set via --set flag to make it more dynamic for testing purposes
   volumeClassName: "standard"
-  tag: main
   tokenAuth:
     enabled: true
-  #etcd:
-  #  serverAddress: embedded
-  batteries:
-    - workspace-types
+  etcd:
+    # set to embedded to use the embedded etcd
+    # set to external to use an external etcd. Certificates must be set too
+    type: external
+     # set this if you are using external or embedded etcds.
+    serverAddress: "https://kine-kcp-kine:2379"
+    clientCertificateSecret: "kcp-etcd-client-cert"
+    clientCASecret: "kine-kcp-kine-pki-ca"
 kcpFrontProxy:
   # tag is set via --set flag to make it more dynamic for testing purposes
   openshiftRoute:
@@ -20,14 +25,3 @@ kcpFrontProxy:
     annotations:
       kubernetes.io/ingress.class: "nginx"
       nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
-certificates:
-  privateKeys:
-    algorithm: RSA
-    size: 2048
-  subject: {}
-  # add additional dns names that should be embedded into the kcp server certificate.
-  dnsNames:
-  - localhost
-  - kcp.dev.local
-  - kcp
-  - kcp-internal.kcp.svc.cluster.local

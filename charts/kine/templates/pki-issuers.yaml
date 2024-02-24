@@ -1,0 +1,42 @@
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: {{ include "kine.fullname" . }}-pki-bootstrap
+  labels:
+    {{- include "common.labels" . | nindent 4 }}
+    app.kubernetes.io/component: "pki"
+spec:
+  selfSigned: {}
+
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: {{ include "kine.fullname" . }}-pki-ca
+  labels:
+    {{- include "common.labels" . | nindent 4 }}
+    app.kubernetes.io/component: "pki"
+spec:
+  isCA: true
+  commonName: {{ include "kine.fullname" . }}-pki-ca
+  secretName: {{ include "kine.fullname" . }}-pki-ca
+  duration: 87600h # 3650d = 10y
+  renewBefore: 360h # 15d
+  privateKey:
+    {{- toYaml .Values.certificates.privateKeys | nindent 4 }}
+  issuerRef:
+    name: {{ include "kine.fullname" . }}-pki-bootstrap
+    kind: Issuer
+    group: cert-manager.io
+
+---
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: {{ include "kine.fullname" . }}-pki
+  labels:
+    {{- include "common.labels" . | nindent 4 }}
+    app.kubernetes.io/component: "pki"
+spec:
+  ca:
+    secretName: {{ include "kine.fullname" . }}-pki-ca
