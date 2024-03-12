@@ -1,0 +1,122 @@
+{{- if .Values.cache.enabled }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "cache.fullname" . }}
+  labels:
+    {{- include "common.labels" . | nindent 4 }}
+    app.kubernetes.io/component: "cache"
+spec:
+  ports:
+    - protocol: TCP
+      name: cache
+      port: 8012
+      targetPort: 8012
+  selector:
+    {{- include "common.labels.selector" . | nindent 4 }}
+    app.kubernetes.io/component: "cache"
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "cache.fullname" . }}
+  labels:
+    {{- include "common.labels" . | nindent 4 }}
+    app.kubernetes.io/component: "cache"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "common.labels.selector" . | nindent 6 }}
+      app.kubernetes.io/component: "cache"
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        {{- include "common.labels" . | nindent 8 }}
+        app.kubernetes.io/component: "cache"
+    spec:
+      {{- with .Values.cache.securityContext }}
+      securityContext:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- if .Values.cache.hostAliases.enabled }}
+      hostAliases:
+        {{- toYaml .Values.cache.hostAliases.values | nindent 6 }}
+      {{- end }}
+      containers:
+        - name: cache
+          image: {{ .Values.cache.image }}:{{- include "kcp.version" . }}
+          imagePullPolicy: {{ .Values.cache.pullPolicy }}
+          ports:
+            - containerPort: 8012
+            {{- if .Values.cache.profiling.enabled }}
+            - containerPort: {{ .Values.cache.profiling.port }}
+              name: profiler
+            {{- end }}
+          command: ["/cache-server"]
+          args:
+            - --embedded-etcd-client-port=8010
+            - --embedded-etcd-peer-port=8011
+            - --secure-port=8012
+            - --synthetic-delay=0s
+            - --tls-private-key-file=/etc/cache/tls/server/tls.key
+            - --tls-cert-file=/etc/cache/tls/server/tls.crt
+            - --v={{ .Values.cache.v }}
+            {{- if .Values.cache.profiling.enabled }}
+            - --profiler-address=0.0.0.0:{{- .Values.cache.profiling.port -}}
+            {{- end }}
+            {{- range .Values.cache.extraFlags }}
+            - {{ . }}
+            {{- end }}
+          env:
+            - name: GOMEMLIMIT
+              valueFrom:
+                resourceFieldRef:
+                  resource: requests.memory
+          livenessProbe:
+            failureThreshold: 6
+            httpGet:
+              path: livez
+              port: 8012
+              scheme: HTTPS
+            initialDelaySeconds: 45
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 10
+          startupProbe:
+            httpGet:
+              path: readyz
+              port: 8012
+              scheme: HTTPS
+            initialDelaySeconds: 10
+            timeoutSeconds: 1
+            periodSeconds: 10
+            successThreshold: 1
+            failureThreshold: 36
+          readinessProbe:
+            failureThreshold: 6
+            httpGet:
+              path: readyz
+              port: 8012
+              scheme: HTTPS
+          {{- with .Values.cache.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          volumeMounts:
+            - name: kcp-ca
+              mountPath: /etc/cache/tls/ca
+            - name: cache-cert
+              mountPath: /etc/cache/tls/server
+      volumes:
+        - name: kcp-ca
+          secret:
+            secretName: {{ include "certificates.kcp" . }}-ca
+        - name: cache-cert
+          secret:
+            secretName: {{ include "cache.fullname" .}}-cert
+{{- end }}

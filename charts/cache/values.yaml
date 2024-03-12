@@ -1,0 +1,23 @@
+externalHostname: ""
+cache:
+  enabled: false
+  image: {{ .Values.cache.image }}:{{- include "kcp.version" . }}
+  pullPolicy: Always
+  service:
+    annotations: {}
+    type: ClusterIP
+  profiling:
+    enabled: false
+    port: 6060
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      # cpu: 1
+      memory: 1Gi
+  hostAliases:
+    enabled: false
+  securityContext:
+    seccompProfile:
+      type: RuntimeDefault

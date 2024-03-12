@@ -1,0 +1,31 @@
+{{- if .Values.certificates.frontproxy.pki -}}
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: {{ include "certificates.frontproxy" . }}-client-ca
+  labels:
+    {{- include "common.labels" . | nindent 4 }}
+    app.kubernetes.io/component: "front-proxy"
+spec:
+  isCA: true
+  duration: 87600h # 3650d = 10y
+  commonName: {{ include "certificates.frontproxy" . }}-client-ca
+  secretName: {{ include "certificates.frontproxy" . }}-client-ca
+  privateKey:
+    {{- toYaml .Values.certificates.privateKeys | nindent 4 }}
+  issuerRef:
+    name: {{ include "certificates.kcp" . }}-pki
+    kind: Issuer
+    group: cert-manager.io
+{{- if .Values.certificates.secretTemplate.enabled }}
+  secretTemplate:
+{{- if .Values.certificates.secretTemplate.annotations }}
+    annotations:
+    {{- toYaml .Values.certificates.secretTemplate.annotations | nindent 6 }}
+{{- end }}
+{{- if .Values.certificates.secretTemplate.labels }}
+    labels:
+    {{- toYaml .Values.certificates.secretTemplate.labels | nindent 6 }}
+{{- end }}
+{{- end }}
+{{- end }}

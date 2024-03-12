@@ -1,0 +1,89 @@
+
+{{- if .Values.certificates.etcd.certs -}}
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: {{ include "etcd.fullname" . }}
+  labels:
+    {{- include "common.labels" . | nindent 4 }}
+    app.kubernetes.io/component: "etcd"
+spec:
+  secretName: {{ include "etcd.fullname" . }}-cert
+  duration: 8760h # 365d
+  renewBefore: 360h # 15d
+  {{- with .Values.certificates.subject }}
+  subject:
+    {{- toYaml . | nindent 4 }}
+  {{- end}}
+  privateKey:
+    {{- toYaml .Values.certificates.privateKeys | nindent 4 }}
+  usages:
+    - server auth
+    - client auth  # required because etcd uses this cert for calls to itself
+  dnsNames:
+    - {{ include "etcd.fullname" . }}
+    - {{ include "etcd.fullname" . }}-0
+    - {{ include "etcd.fullname" . }}-1
+    - {{ include "etcd.fullname" . }}-2
+    - {{ include "etcd.fullname" . }}-0.{{ include "etcd.fullname" . }}
+    - {{ include "etcd.fullname" . }}-1.{{ include "etcd.fullname" . }}
+    - {{ include "etcd.fullname" . }}-2.{{ include "etcd.fullname" . }}
+  ipAddresses:
+    - 0.0.0.0
+  issuerRef:
+    name: {{ include "certificates.etcd" . }}-client-issuer
+{{- if .Values.certificates.secretTemplate.enabled }}
+  secretTemplate:
+{{- if .Values.certificates.secretTemplate.annotations }}
+    annotations:
+    {{- toYaml .Values.certificates.secretTemplate.annotations | nindent 6 }}
+{{- end }}
+{{- if .Values.certificates.secretTemplate.labels }}
+    labels:
+    {{- toYaml .Values.certificates.secretTemplate.labels | nindent 6 }}
+{{- end }}
+{{- end }}
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: {{ include "etcd.fullname" . }}-peer
+  labels:
+    {{- include "common.labels" . | nindent 4 }}
+    app.kubernetes.io/component: "etcd"
+spec:
+  secretName: {{ include "etcd.fullname" . }}-peer-cert
+  duration: 8760h # 365d
+  renewBefore: 360h # 15d
+  {{- with .Values.certificates.subject }}
+  subject:
+    {{- toYaml . | nindent 4 }}
+  {{- end}}
+  privateKey:
+    {{- toYaml .Values.certificates.privateKeys | nindent 4 }}
+  usages:
+    - server auth
+    - client auth
+  dnsNames:
+    - {{ include "etcd.fullname" . }}-0
+    - {{ include "etcd.fullname" . }}-1
+    - {{ include "etcd.fullname" . }}-2
+    - {{ include "etcd.fullname" . }}-0.{{ include "etcd.fullname" . }}
+    - {{ include "etcd.fullname" . }}-1.{{ include "etcd.fullname" . }}
+    - {{ include "etcd.fullname" . }}-2.{{ include "etcd.fullname" . }}
+  ipAddresses:
+    - 0.0.0.0
+  issuerRef:
+    name: {{ include "certificates.etcd" . }}-peer-issuer
+{{- if .Values.certificates.secretTemplate.enabled }}
+  secretTemplate:
+{{- if .Values.certificates.secretTemplate.annotations }}
+    annotations:
+    {{- toYaml .Values.certificates.secretTemplate.annotations | nindent 6 }}
+{{- end }}
+{{- if .Values.certificates.secretTemplate.labels }}
+    labels:
+    {{- toYaml .Values.certificates.secretTemplate.labels | nindent 6 }}
+{{- end }}
+{{- end }}
+{{- end }}

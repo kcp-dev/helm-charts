@@ -1,0 +1,40 @@
+{{ if .Values.letsEncrypt.enabled }}
+apiVersion: trust.cert-manager.io/v1alpha1
+kind: Bundle
+metadata:
+  name: faros.sh
+spec:
+  sources:
+  # Include a bundle of publicly trusted certificates which can be
+  # used to validate most TLS certificates on the internet, such as
+  # those issued by Let's Encrypt, Google, Amazon and others.
+  - useDefaultCAs: true
+
+  # A Secret in the "trust" namespace; see "Trust Namespace" below for further details
+  - secret:
+      name: "certs-kcp-ca"
+      key: "ca.crt"
+
+{{ if .Values.letsEncrypt.staging.enabled }}
+  - secret:
+      name: "kcp-letsencrypt-staging-ca"
+      key: "letsencrypt-stg-int-r3.pem"
+  - secret:
+      name: "kcp-letsencrypt-staging-ca"
+      key: "letsencrypt-stg-int-e1.pem"
+{{ end }}
+
+  target:
+    # Sync the bundle to a ConfigMap called `my-org.com` in every namespace which
+    # has the label "linkerd.io/inject=enabled"
+    # All ConfigMaps will include a PEM-formatted bundle, here named "root-certs.pem"
+    # and in this case we also request binary formatted bundles in JKS and PKCS#12 formats,
+    # here named "bundle.jks" and "bundle.p12".
+    configMap:
+      key: "root-certs.pem"
+    additionalFormats:
+      jks:
+        key: "bundle.jks"
+      pkcs12:
+        key: "bundle.p12"
+{{ end }}
