@@ -25,6 +25,7 @@ metadata:
   labels:
     {{- include "common.labels" . | nindent 4 }}
     app.kubernetes.io/component: "server"
+    kcp.io/service-monitor: kcp
 spec:
   ports:
     - protocol: TCP
@@ -164,9 +165,7 @@ spec:
             {{- if .Values.kcp.profiling.enabled }}
             - --profiler-address=0.0.0.0:{{- .Values.kcp.profiling.port -}}
             {{- end }}
-            {{- with .Values.kcp.batteries }}
-            - --batteries-included={{ join "," . }}
-            {{- end }}
+            - --batteries-included={{- include "kcp.batteries" . }}
             {{- range .Values.kcp.extraFlags }}
             - {{ . }}
             {{- end }}

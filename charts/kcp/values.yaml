@@ -13,6 +13,9 @@ etcd:
   volumeSize: 8Gi
   profiling:
     enabled: false
+  monitoring:
+    serviceMonitor:
+      enabled: false
 kcp:
   replicas: 1
   strategy:
@@ -65,6 +68,9 @@ kcp:
     fsGroup: 65532
     seccompProfile:
       type: RuntimeDefault
+  monitoring:
+    serviceMonitor:
+      enabled: false
 kcpFrontProxy:
   replicas: 1
   strategy:
@@ -150,6 +156,9 @@ oidc:
   # certs in the tls.crt chain. As you cannot say "use this Secret, but the
   # second cert in the tls.crt key", it's easier to mount the CA cert secret.
   caSecretKeyName: "tls.crt"
+  monitoring:
+    serviceMonitor:
+      enabled: false
 audit:
   enabled: false
   volumeSize: 1Gi

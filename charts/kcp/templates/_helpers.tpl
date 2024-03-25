@@ -27,6 +27,14 @@ v{{- .Chart.AppVersion -}}
 {{- end -}}
 {{- end -}}
 
+{{- define "kcp.batteries" -}}
+{{- $batteries := .Values.kcp.batteries -}}
+{{- if .Values.kcp.monitoring.serviceMonitor.enabled -}}
+{{- $batteries = append $batteries "metrics-viewer" -}}
+{{- end -}}
+{{- $batteries | uniq | join "," -}}
+{{- end -}}
+
 {{- define "frontproxy.fullname" -}}
 {{- $trimmedName := printf "%s" (include "kcp.fullname" .) | trunc 52 | trimSuffix "-" -}}
 {{- printf "%s-front-proxy" $trimmedName | trunc 63 | trimSuffix "-" -}}
