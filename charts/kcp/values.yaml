@@ -13,6 +13,26 @@ etcd:
   volumeSize: 8Gi
   profiling:
     enabled: false
+kine:
+  enabled: true
+  image: ghcr.io/faroshq/kine
+  tag: v0.11.4-1
+  resources:
+    requests:
+      cpu: 500m
+      memory: 2Gi
+    limits:
+      # cpu: 1
+     memory: 20Gi
+  profiling:
+    enabled: false
+  postgres:
+    enabled: false
+    user: postgres
+    password: postgres
+    host: postgres.svc.cluster.local
+    port: 5432
+    database: kine
 kcp:
   replicas: 1
   strategy:
@@ -36,14 +56,15 @@ kcp:
       memory: 20Gi
   volumeClassName: ""
   etcd:
-    # set this if you are using external or embedded etcds.
+    # set to embedded to use the embedded etcd
+    # set to external to use an external etcd. Certificates must be set
+    # set to empty to use chart managed etcd
+    type: external
+     # set this if you are using external or embedded etcds.
     serverAddress: ""
-    clientCertificate:
-      # set this to a cert-manager Issuer that knows how to
-      # issue client certificates for your external etcd if
-      # you are not using the etcd provided by this chart.
-      issuer: ""
-      commonName: root
+     # set this if you are using external or embedded etcds.
+    clientCertificateSecret: ""
+    clientCASecret: ""
   volumeSize: 1Gi
   extraFlags: []
   profiling:

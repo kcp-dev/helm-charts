@@ -1,0 +1,68 @@
+{{- if .Values.kine.enabled -}}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "kine.fullname" . }}
+  labels:
+    {{- include "common.labels" . | nindent 4 }}
+    app.kubernetes.io/component: "kine"
+spec:
+  clusterIP: None
+  ports:
+    - port: 2379
+      name: client
+  selector:
+    {{- include "common.labels.selector" . | nindent 4 }}
+    app.kubernetes.io/component: "kine"
+
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ include "kine.fullname" . }}
+  labels:
+    {{- include "common.labels" . | nindent 4 }}
+    app.kubernetes.io/component: "kine"
+spec:
+  serviceName: {{ include "kine.fullname" . }}
+  selector:
+    matchLabels:
+      {{- include "common.labels.selector" . | nindent 6 }}
+      app.kubernetes.io/component: "kine"
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        {{- include "common.labels" . | nindent 8 }}
+        app.kubernetes.io/component: "kine"
+    spec:
+      containers:
+        - name: kine
+          image: {{ .Values.kine.image }}:{{- include "kine.version" . }}
+          command:
+            - /bin/kine
+            - --server-cert-file=/etc/kine/tls/server/tls.crt
+            - --server-key-file=/etc/kine/tls/server/tls.key
+            {{- if .Values.kine.profiling.enabled }}
+            - --metrics-enable-profiling=true \
+            {{- end }}
+            {{- if .Values.kine.postgres.enabled }}
+            --endpoint=postgres://{{ .Values.kine.postgres.user }}:{{ .Values.kine.postgres.password }}@{{ .Values.kine.postgres.host }}:{{ .Values.kine.postgres.port }}/{{ .Values.kine.postgres.database }} \
+            {{- end }}
+          ports:
+            - containerPort: 2379
+              name: client
+            - containerPort: 8080
+              name: metrics
+          {{- with .Values.kine.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          volumeMounts:
+            - name: server-cert
+              mountPath: /etc/kine/tls/server
+      volumes:
+        - name: server-cert
+          secret:
+            secretName: {{ include "kine.fullname" . }}-cert
+{{- end }}
