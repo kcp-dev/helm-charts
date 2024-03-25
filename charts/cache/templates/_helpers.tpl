@@ -42,6 +42,14 @@ v{{- .Chart.AppVersion -}}
 {{- printf "%s-cache" $trimmedName | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
+{{- define "cache.version" -}}
+{{- if .Values.cache.tag -}}
+{{- .Values.cache.tag -}}
+{{- else -}}
+v{{- .Chart.AppVersion -}}
+{{- end -}}
+{{- end -}}
+
 {{- define "frontproxy.fullname" -}}
 {{- $trimmedName := printf "%s" (include "kcp.fullname" .) | trunc 52 | trimSuffix "-" -}}
 {{- printf "%s-front-proxy" $trimmedName | trunc 63 | trimSuffix "-" -}}

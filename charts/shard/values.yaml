@@ -114,6 +114,13 @@ caBundle:
 
 cache:
   enabled: false
+externalCache:
+  enabled: false
 
 certificates:
   name: certs
+
+sharding:
+  enabled: false
+  isRoot: true # set this to true for the first (root) shard, false for all other shards.
+  rootShardInternalHostname: "" # set this to the internal hostname of the root shard.

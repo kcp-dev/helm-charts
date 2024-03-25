@@ -1,7 +1,9 @@
 externalHostname: ""
 cache:
-  enabled: false
-  image: {{ .Values.cache.image }}:{{- include "kcp.version" . }}
+  enabled: true
+  image: ghcr.io/kcp-dev/kcp
+  # set this to override the image tag used for kcp (determined by chart appVersion by default).
+  tag: ""
   pullPolicy: Always
   service:
     annotations: {}
@@ -21,3 +23,15 @@ cache:
   securityContext:
     seccompProfile:
       type: RuntimeDefault
+
+certificates:
+  name: certs
+  kcp:
+    pki: true
+    certs: false
+  etcd:
+    pki: true
+    certs: false
+  cache:
+    pki: true
+    certs: false
