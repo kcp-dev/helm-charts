@@ -74,7 +74,7 @@ spec:
       {{- end }}
       containers:
         - name: kcp-front-proxy
-          image: "{{ .Values.kcpFrontProxy.image }}:{{- include "kcp.version" . }}"
+          image: "{{ .Values.kcpFrontProxy.image }}:{{- include "frontproxy.version" . }}"
           imagePullPolicy: {{ .Values.kcpFrontProxy.pullPolicy }}
           command: ["/kcp-front-proxy"]
           args:

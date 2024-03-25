@@ -2,6 +2,7 @@ fullnameOverride: alpha
 externalHostname: "kcp.dev.local"
 
 certificates:
+  name: certs
   kcp:
     pki: true
     certs: true
