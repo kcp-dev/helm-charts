@@ -1,5 +1,49 @@
 apiVersion: v1
 entries:
+  cache:
+  - apiVersion: v2
+    appVersion: 0.22.0
+    created: "2024-03-25T16:13:19.909011963Z"
+    description: A cache server for prototype of a multi-tenant Kubernetes control
+      plane for workloads on many clusters
+    digest: fa4d64051604a519aa36b384c85a82defec7efa18f02f643410352c7713b7a5b
+    home: https://www.kcp.io/
+    icon: https://raw.githubusercontent.com/kcp-dev/kcp/main/contrib/logo/blue-green.svg
+    keywords:
+    - kcp
+    - kubernetes
+    - multitenancy
+    - controlplane
+    name: cache
+    sources:
+    - https://github.com/kcp-dev/helm-charts
+    - https://github.com/kcp-dev/kcp
+    type: application
+    urls:
+    - https://github.com/kcp-dev/helm-charts/releases/download/cache-0.0.2/cache-0.0.2.tgz
+    version: 0.0.2
+  certificates:
+  - apiVersion: v2
+    appVersion: 0.22.0
+    created: "2024-03-25T16:13:20.025207795Z"
+    description: A prototype of a multi-tenant Kubernetes control plane for workloads
+      on many clusters
+    digest: 7a65eb0524261c28178c2a9b36d37c7c98e3a61a18096bd5c3ab3518fbdbeece
+    home: https://www.kcp.io/
+    icon: https://raw.githubusercontent.com/kcp-dev/kcp/main/contrib/logo/blue-green.svg
+    keywords:
+    - kcp
+    - kubernetes
+    - multitenancy
+    - controlplane
+    name: certificates
+    sources:
+    - https://github.com/kcp-dev/helm-charts
+    - https://github.com/kcp-dev/kcp
+    type: application
+    urls:
+    - https://github.com/kcp-dev/helm-charts/releases/download/certificates-0.0.2/certificates-0.0.2.tgz
+    version: 0.0.2
   kcp:
   - apiVersion: v2
     appVersion: 0.22.0
@@ -225,4 +269,48 @@ entries:
     urls:
     - https://github.com/kcp-dev/helm-charts/releases/download/kcp-0.1.1/kcp-0.1.1.tgz
     version: 0.1.1
-generated: "2024-01-26T14:32:33.811814484Z"
+  proxy:
+  - apiVersion: v2
+    appVersion: 0.22.0
+    created: "2024-03-25T16:13:20.145497553Z"
+    description: A prototype of a multi-tenant Kubernetes control plane for workloads
+      on many clusters
+    digest: 76b33dd97604bf0b957a86c68a4eff67d6d08204784f0e092cca4918951be8cd
+    home: https://www.kcp.io/
+    icon: https://raw.githubusercontent.com/kcp-dev/kcp/main/contrib/logo/blue-green.svg
+    keywords:
+    - kcp
+    - kubernetes
+    - multitenancy
+    - controlplane
+    name: proxy
+    sources:
+    - https://github.com/kcp-dev/helm-charts
+    - https://github.com/kcp-dev/kcp
+    type: application
+    urls:
+    - https://github.com/kcp-dev/helm-charts/releases/download/proxy-0.0.2/proxy-0.0.2.tgz
+    version: 0.0.2
+  shard:
+  - apiVersion: v2
+    appVersion: 0.22.0
+    created: "2024-03-25T16:13:20.248332929Z"
+    description: A prototype of a multi-tenant Kubernetes control plane for workloads
+      on many clusters
+    digest: 3a6466bd93783cc904354774d062ca281f612ed59a97eec5d58fdd32ddac7593
+    home: https://www.kcp.io/
+    icon: https://raw.githubusercontent.com/kcp-dev/kcp/main/contrib/logo/blue-green.svg
+    keywords:
+    - kcp
+    - kubernetes
+    - multitenancy
+    - controlplane
+    name: shard
+    sources:
+    - https://github.com/kcp-dev/helm-charts
+    - https://github.com/kcp-dev/kcp
+    type: application
+    urls:
+    - https://github.com/kcp-dev/helm-charts/releases/download/shard-0.0.2/shard-0.0.2.tgz
+    version: 0.0.2
+generated: "2024-03-25T16:13:20.248391048Z"
