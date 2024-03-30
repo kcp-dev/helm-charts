@@ -46,6 +46,27 @@ entries:
     version: 0.0.2
   kcp:
   - apiVersion: v2
+    appVersion: 0.23.0
+    created: "2024-03-30T08:58:11.592278483Z"
+    description: A prototype of a multi-tenant Kubernetes control plane for workloads
+      on many clusters
+    digest: 49da98a41d6e9c4593a775d7595449690deea3dc5b73f14975fb3eae1653cead
+    home: https://www.kcp.io/
+    icon: https://raw.githubusercontent.com/kcp-dev/kcp/main/contrib/logo/blue-green.svg
+    keywords:
+    - kcp
+    - kubernetes
+    - multitenancy
+    - controlplane
+    name: kcp
+    sources:
+    - https://github.com/kcp-dev/helm-charts
+    - https://github.com/kcp-dev/kcp
+    type: application
+    urls:
+    - https://github.com/kcp-dev/helm-charts/releases/download/kcp-0.6.0/kcp-0.6.0.tgz
+    version: 0.6.0
+  - apiVersion: v2
     appVersion: 0.22.0
     created: "2024-01-26T14:32:33.811710229Z"
     description: A prototype of a multi-tenant Kubernetes control plane for workloads
@@ -313,4 +334,4 @@ entries:
     urls:
     - https://github.com/kcp-dev/helm-charts/releases/download/shard-0.0.2/shard-0.0.2.tgz
     version: 0.0.2
-generated: "2024-03-25T16:13:20.248391048Z"
+generated: "2024-03-30T08:58:11.592386824Z"
