@@ -36,6 +36,6 @@ certificates:
     enabled: true
     annotations:
       reflector.v1.k8s.emberstack.com/reflection-allowed: "true"
-      reflector.v1.k8s.emberstack.com/reflection-allowed-namespaces: "kcp-alpha,kcp-beta,kcp-proxy,kcp-cache,cluster-proxy,idp"
+      reflector.v1.k8s.emberstack.com/reflection-allowed-namespaces: "kcp-alpha,kcp-beta,kcp-proxy,kcp-cache,idp"
       reflector.v1.k8s.emberstack.com/reflection-auto-enabled: "true"
-      reflector.v1.k8s.emberstack.com/reflection-auto-namespaces: "kcp-alpha,kcp-beta,kcp-proxy,kcp-cache,cluster-proxy,idp"
+      reflector.v1.k8s.emberstack.com/reflection-auto-namespaces: "kcp-alpha,kcp-beta,kcp-proxy,kcp-cache,idp"
