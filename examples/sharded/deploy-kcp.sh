@@ -17,6 +17,5 @@ helm upgrade --install --values kind-values-phase3-alpha.yaml --namespace kcp-al
 echo "Deploy frontend proxy"
 helm upgrade --install --values kind-values-phase3-proxy.yaml --namespace kcp-proxy --create-namespace kcp-proxy ../../charts/proxy
 
-
 echo "Deploy beta shard"
 helm upgrade --install --values kind-values-phase3-beta.yaml --namespace kcp-beta --create-namespace kcp-beta ../../charts/shard

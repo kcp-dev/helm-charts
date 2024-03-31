@@ -10,5 +10,6 @@ fullnameOverride: cache
 externalHostname: "kcp.dev.local"
 cache:
   enabled: true
+  v: 8
 certificates:
   name: certs

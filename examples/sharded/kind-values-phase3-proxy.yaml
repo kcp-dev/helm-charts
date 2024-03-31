@@ -37,3 +37,14 @@ sharding:
   rootShardInternalHostname: "alpha.kcp-alpha.svc.cluster.local"
 caBundle:
   enabled: false
+  configMapName: kcp.dev.local
+  configMapKey: root-certs.pem
+oidc:
+  enabled: true
+  issuerUrl: https://idp.dev.local:6443
+  clientId: kcp-dev
+  groupClaim: groups
+  usernameClaim: email
+  usernamePrefix: kcp-dev-idp-
+  groupsPrefix: kcp-dev-idp-
+  caSecretName: dex-pki-ca
