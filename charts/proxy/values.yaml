@@ -4,6 +4,7 @@ kcpFrontProxy:
   image: ghcr.io/kcp-dev/kcp
   # set this to override the image tag used for kcp-front-proxy (determined by chart appVersion by default).
   tag: ""
+  v: "3"
   pullPolicy: IfNotPresent
   tokenAuth:
     enabled: false
