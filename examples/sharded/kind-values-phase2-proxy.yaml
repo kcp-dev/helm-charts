@@ -18,7 +18,7 @@ certificates:
 #     kind: ClusterIssuer
   dnsNames:
   - localhost
-  - kcp.faros.sh
+  - kcp.dev.local
   name: certs
   kcp:
     pki: false
@@ -36,6 +36,6 @@ certificates:
     enabled: true
     annotations:
       reflector.v1.k8s.emberstack.com/reflection-allowed: "true"
-      reflector.v1.k8s.emberstack.com/reflection-allowed-namespaces: "kcp-alpha,kcp-beta,kcp-proxy,kcp-cache"
+      reflector.v1.k8s.emberstack.com/reflection-allowed-namespaces: "kcp-alpha,kcp-beta,kcp-proxy,kcp-cache,idp"
       reflector.v1.k8s.emberstack.com/reflection-auto-enabled: "true"
-      reflector.v1.k8s.emberstack.com/reflection-auto-namespaces: "kcp-alpha,kcp-beta,kcp-proxy,kcp-cache"
+      reflector.v1.k8s.emberstack.com/reflection-auto-namespaces: "kcp-alpha,kcp-beta,kcp-proxy,kcp-cache,idp"

@@ -76,6 +76,17 @@ kcpFrontProxy:
   # certificateIssuer:
   #   name: ""
   #   kind: Issuer
+oidc:
+  enabled: false
+  caSecretName: ""
+  # assuming you're using cert-manager, you want to mount the CA certificate
+  # directly and use its tls.crt key; if you instead mount a certificate that
+  # is _signed by_ the OIDC CA, then do not use its ca.crt key, as it is the
+  # absolute top root CA, the CA that actually signed the cert is one of the
+  # certs in the tls.crt chain. As you cannot say "use this Secret, but the
+  # second cert in the tls.crt key", it's easier to mount the CA cert secret.
+  caSecretKeyName: "tls.crt"
+
 audit:
   enabled: false
   volumeSize: 1Gi
@@ -94,16 +105,6 @@ audit:
     maxSize: "250"
     maxBackup: "1"
     dir: /var/audit
-oidc:
-  enabled: false
-  caSecretName: ""
-  # assuming you're using cert-manager, you want to mount the CA certificate
-  # directly and use its tls.crt key; if you instead mount a certificate that
-  # is _signed by_ the OIDC CA, then do not use its ca.crt key, as it is the
-  # absolute top root CA, the CA that actually signed the cert is one of the
-  # certs in the tls.crt chain. As you cannot say "use this Secret, but the
-  # second cert in the tls.crt key", it's easier to mount the CA cert secret.
-  caSecretKeyName: "tls.crt"
 
 # caBundle is a CA bundle that will be used to verify connections.
 # see https://cert-manager.io/docs/trust/trust-manager/#installation
@@ -114,6 +115,7 @@ caBundle:
 
 cache:
   enabled: false
+
 externalCache:
   enabled: false
 

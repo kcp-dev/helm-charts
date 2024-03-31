@@ -15,11 +15,16 @@ kcp:
   externalLogicalClusterAdminFlag: true
   tag: main
   enabled: true
+  v: 8
   tokenAuth:
     enabled: true
   batteries:
     - workspace-types
     - metrics-viewer
+  extraFlags:
+  - --feature-gates=WorkspaceMounts=true
+  homeWorkspaces:
+    enabled: true
 externalCache:
   enabled: true
   cacheInternalHostname: "cache-cache.kcp-cache.svc"
@@ -28,3 +33,14 @@ sharding:
   isRoot: true
 caBundle:
   enabled: false
+  configMapName: kcp.dev.local
+  configMapKey: root-certs.pem
+oidc:
+  enabled: true
+  issuerUrl: https://idp.dev.local:6443
+  clientId: kcp-dev
+  groupClaim: groups
+  usernameClaim: email
+  usernamePrefix: kcp-dev-idp-
+  groupsPrefix: kcp-dev-idp-
+  caSecretName: dex-pki-ca

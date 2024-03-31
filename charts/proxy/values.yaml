@@ -4,6 +4,7 @@ kcpFrontProxy:
   image: ghcr.io/kcp-dev/kcp
   # set this to override the image tag used for kcp-front-proxy (determined by chart appVersion by default).
   tag: ""
+  v: "3"
   pullPolicy: IfNotPresent
   tokenAuth:
     enabled: false
@@ -86,6 +87,26 @@ oidc:
   # certs in the tls.crt chain. As you cannot say "use this Secret, but the
   # second cert in the tls.crt key", it's easier to mount the CA cert secret.
   caSecretKeyName: "tls.crt"
+
+audit:
+  enabled: false
+  volumeSize: 1Gi
+  volumeClassName: ""
+  policy:
+    dir: /etc/kcp/audit
+    fileName: audit-policy.yml
+    config: |
+      # Log all requests at the Metadata level.
+      apiVersion: audit.k8s.io/v1
+      kind: Policy
+      rules:
+      - level: Metadata
+  log:
+    maxAge: "10"
+    maxSize: "250"
+    maxBackup: "1"
+    dir: /var/audit
+
 certificates:
   name: certs
   kcp:

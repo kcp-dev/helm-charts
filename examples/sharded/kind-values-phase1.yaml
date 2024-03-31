@@ -25,9 +25,10 @@ certificates:
     enabled: true
     annotations:
       reflector.v1.k8s.emberstack.com/reflection-allowed: "true"
-      reflector.v1.k8s.emberstack.com/reflection-allowed-namespaces: "kcp-alpha,kcp-beta,kcp-proxy,kcp-cache,cert-manager"
+      reflector.v1.k8s.emberstack.com/reflection-allowed-namespaces: "kcp-alpha,kcp-beta,kcp-proxy,kcp-cache,cert-manager,idp"
       reflector.v1.k8s.emberstack.com/reflection-auto-enabled: "true"
-      reflector.v1.k8s.emberstack.com/reflection-auto-namespaces: "kcp-alpha,kcp-beta,kcp-proxy,kcp-cache,cert-manager"
+      reflector.v1.k8s.emberstack.com/reflection-auto-namespaces: "kcp-alpha,kcp-beta,kcp-proxy,kcp-cache,cert-manager,idp"
+
 letsEncrypt:
   enabled: false
   staging:
@@ -36,6 +37,7 @@ letsEncrypt:
     # Let's Encrypt will use this to contact you about expiring
     # certificates, and issues related to your account.
     email: <your-email-address>
+
   production:
     enabled: true
     # You must replace this email address with your own.

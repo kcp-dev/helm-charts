@@ -14,12 +14,16 @@ etcd:
 kcp:
   tag: main
   enabled: true
-  v: 12
+  v: 8
   tokenAuth:
     enabled: true
   batteries:
     - workspace-types
     - metrics-viewer
+  extraFlags:
+  - --feature-gates=WorkspaceMounts=true
+  homeWorkspaces:
+    enabled: true
 externalCache:
   enabled: true
   cacheInternalHostname: "cache-cache.kcp-cache.svc"
@@ -29,5 +33,14 @@ sharding:
   rootShardInternalHostname: "alpha.kcp-alpha.svc.cluster.local"
 caBundle:
   enabled: false
-  configMapName: faros.sh
+  configMapName: kcp.dev.local
   configMapKey: root-certs.pem
+oidc:
+  enabled: true
+  issuerUrl: https://idp.dev.local:6443
+  clientId: kcp-dev
+  groupClaim: groups
+  usernameClaim: email
+  usernamePrefix: kcp-dev-idp-
+  groupsPrefix: kcp-dev-idp-
+  caSecretName: dex-pki-ca
