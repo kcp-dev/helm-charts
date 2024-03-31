@@ -87,6 +87,25 @@ oidc:
   # second cert in the tls.crt key", it's easier to mount the CA cert secret.
   caSecretKeyName: "tls.crt"
 
+audit:
+  enabled: false
+  volumeSize: 1Gi
+  volumeClassName: ""
+  policy:
+    dir: /etc/kcp/audit
+    fileName: audit-policy.yml
+    config: |
+      # Log all requests at the Metadata level.
+      apiVersion: audit.k8s.io/v1
+      kind: Policy
+      rules:
+      - level: Metadata
+  log:
+    maxAge: "10"
+    maxSize: "250"
+    maxBackup: "1"
+    dir: /var/audit
+
 # caBundle is a CA bundle that will be used to verify connections.
 # see https://cert-manager.io/docs/trust/trust-manager/#installation
 caBundle:
