@@ -1,0 +1,32 @@
+{{- if and .Values.etcd.enabled .Values.etcd.monitoring.serviceMonitor.enabled -}}
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ include "etcd.fullname" . }}
+  labels:
+    {{- include "common.labels" . | nindent 4 }}
+    app.kubernetes.io/component: "etcd"
+spec:
+  endpoints:
+  - interval: 30s
+    port: client
+    path: /metrics
+    scheme: https
+    tlsConfig:
+      serverName: {{ include "etcd.fullname" . }}
+      ca:
+        secret:
+          name: {{ include "etcd.fullname" . -}}-client-ca
+          key: tls.crt
+      cert:
+        secret:
+          name: {{ include "kcp.fullname" . -}}-etcd-client-cert
+          key: tls.crt
+      keySecret:
+        name: {{ include "kcp.fullname" . -}}-etcd-client-cert
+        key: tls.key
+  selector:
+    matchLabels:
+      {{- include "common.labels.selector" . | nindent 6 }}
+      app.kubernetes.io/component: "etcd"
+{{- end }}

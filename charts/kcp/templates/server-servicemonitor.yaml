@@ -1,0 +1,51 @@
+{{- if .Values.kcp.monitoring.serviceMonitor.enabled }}
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: {{ include "kcp.fullname" . }}-metrics
+  labels:
+    {{- include "common.labels" . | nindent 4 }}
+    app.kubernetes.io/component: "server"
+spec:
+  commonName: metrics-viewer
+  issuerRef:
+    name: {{ include "kcp.fullname" . }}-client-issuer
+  privateKey:
+    algorithm: RSA
+    size: 2048
+  secretName: {{ include "kcp.fullname" . }}-metrics-cert
+  usages:
+  - client auth
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ include "kcp.fullname" . }}
+  labels:
+    {{- include "common.labels" . | nindent 4 }}
+    app.kubernetes.io/component: "server"
+spec:
+  endpoints:
+  - interval: 30s
+    port: "kcp"
+    path: /clusters/root/metrics
+    scheme: https
+    tlsConfig:
+      serverName: {{ include "kcp.fullname" . }}
+      ca:
+        secret:
+          name: {{ include "kcp.fullname" . }}-ca
+          key: tls.crt
+      cert:
+        secret:
+          name: {{ include "kcp.fullname" . }}-metrics-cert
+          key: tls.crt
+      keySecret:
+        name: {{ include "kcp.fullname" . }}-metrics-cert
+        key: tls.key
+  selector:
+    matchLabels:
+      {{- include "common.labels.selector" . | nindent 6 }}
+      app.kubernetes.io/component: "server"
+      kcp.io/service-monitor: kcp
+{{- end }}

@@ -1,0 +1,50 @@
+{{- if .Values.kcpFrontProxy.monitoring.serviceMonitor.enabled }}
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: {{ include "frontproxy.fullname" . }}-metrics
+  labels:
+    {{- include "common.labels" . | nindent 4 }}
+    app.kubernetes.io/component: "front-proxy"
+spec:
+  commonName: metrics-viewer
+  issuerRef:
+    name: {{ include "frontproxy.fullname" . }}-client-issuer
+  privateKey:
+    algorithm: RSA
+    size: 2048
+  secretName: {{ include "frontproxy.fullname" . }}-metrics-cert
+  usages:
+  - client auth
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ include "frontproxy.fullname" . }}
+  labels:
+    {{- include "common.labels" . | nindent 4 }}
+    app.kubernetes.io/component: "front-proxy"
+spec:
+  endpoints:
+  - interval: 30s
+    port: "kcp-front-proxy"
+    path: /metrics
+    scheme: https
+    tlsConfig:
+      serverName: {{ .Values.externalHostname }}
+      ca:
+        secret:
+          name: {{ include "kcp.fullname" . }}-ca
+          key: tls.crt
+      cert:
+        secret:
+          name: {{ include "frontproxy.fullname" . }}-metrics-cert
+          key: tls.crt
+      keySecret:
+        name: {{ include "frontproxy.fullname" . }}-metrics-cert
+        key: tls.key
+  selector:
+    matchLabels:
+      {{- include "common.labels.selector" . | nindent 6 }}
+      app.kubernetes.io/component: "front-proxy"
+{{- end }}
