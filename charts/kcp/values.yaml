@@ -1,4 +1,5 @@
 externalHostname: ""
+externalPort: "" # defaults to 8443 for .Values.kcpFrontProxy.service.type "LoadBalancer", 443 otherwise.
 etcd:
   enabled: true
   image: quay.io/coreos/etcd
