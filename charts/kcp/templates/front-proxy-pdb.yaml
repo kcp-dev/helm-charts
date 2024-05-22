@@ -1,0 +1,15 @@
+{{- if .Values.kcpFrontProxy.podDisruptionBudget.enabled }}
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ include "frontproxy.fullname" . }}
+  labels:
+    {{- include "common.labels" . | nindent 4 }}
+    app.kubernetes.io/component: "front-proxy"
+spec:
+  minAvailable: {{ .Values.kcpFrontProxy.podDisruptionBudget.minAvailable | default 1 }}
+  selector:
+    matchLabels:
+      {{- include "common.labels" . | nindent 6 }}
+      app.kubernetes.io/component: "front-proxy"
+{{- end }}
