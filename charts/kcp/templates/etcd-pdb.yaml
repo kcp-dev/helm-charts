@@ -1,0 +1,15 @@
+{{- if .Values.etcd.podDisruptionBudget.enabled }}
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ include "etcd.fullname" . }}
+  labels:
+    {{- include "common.labels.selector" . | nindent 4 }}
+    app.kubernetes.io/component: "etcd"
+spec:
+  maxUnavailable: {{ .Values.etcd.podDisruptionBudget.maxUnavailable | default 1 }}
+  selector:
+    matchLabels:
+      {{- include "common.labels.selector" . | nindent 6 }}
+      app.kubernetes.io/component: "etcd"
+{{- end }}

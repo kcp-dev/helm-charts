@@ -56,7 +56,7 @@ kubectl --context "$KUBECTL_CONTEXT" --namespace ingress-nginx rollout status de
 # among the things that the kcp helm chart will do.
 
 export KCP_TAG="${KCP_TAG:-latest}"
-echo "Installing KCP version $KCP_TAG…"
+echo "Installing KCP version ${KCP_TAG}…"
 
 helm upgrade \
   --install \
@@ -72,7 +72,7 @@ echo "Generating KCP admin kubeconfig…"
 
 hostname="$(yq '.externalHostname' hack/kind-values.yaml)"
 
-echo "Checking /etc/hosts for $hostname…"
+echo "Checking /etc/hosts for ${hostname}…"
 if ! grep -q "$hostname" /etc/hosts; then
   echo "127.0.0.1 $hostname" | sudo tee -a /etc/hosts
 else

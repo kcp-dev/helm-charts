@@ -17,6 +17,9 @@ etcd:
   monitoring:
     serviceMonitor:
       enabled: false
+  podDisruptionBudget:
+    enabled: false
+    maxUnavailable: 1
 kcp:
   replicas: 1
   strategy:
@@ -72,6 +75,9 @@ kcp:
   monitoring:
     serviceMonitor:
       enabled: false
+  podDisruptionBudget:
+    enabled: false
+    minAvailable: 1
 kcpFrontProxy:
   replicas: 1
   strategy:
@@ -124,7 +130,9 @@ kcpFrontProxy:
   monitoring:
     serviceMonitor:
       enabled: false
-
+  podDisruptionBudget:
+    enabled: false
+    minAvailable: 1
   # The default virtual workspaces run in-process, but you can
   # extend the path mapping to include custom virtual workspaces
   # in the front-proxy's routing.
