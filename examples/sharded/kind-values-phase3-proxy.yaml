@@ -16,22 +16,6 @@ kcp:
 kcpFrontProxy:
   tag: main
   enabled: true
-  additionalPathMappings:
-    - path: /services/edge-proxy
-      backend: https://clusters-virtualworkspaces.cluster-proxy.svc:8443
-      backend_server_ca: /etc/kcp/tls/ca/tls.crt
-      proxy_client_cert: /etc/kcp-front-proxy/requestheader-client/tls.crt
-      proxy_client_key: /etc/kcp-front-proxy/requestheader-client/tls.key
-    - path: /services/cluster-proxy
-      backend: https://clusters-virtualworkspaces.cluster-proxy.svc:8443
-      backend_server_ca: /etc/kcp/tls/ca/tls.crt
-      proxy_client_cert: /etc/kcp-front-proxy/requestheader-client/tls.crt
-      proxy_client_key: /etc/kcp-front-proxy/requestheader-client/tls.key
-    - path: /services/namespace-proxy
-      backend: https://namespaces-virtualworkspaces.cluster-proxy.svc:8443
-      backend_server_ca: /etc/kcp/tls/ca/tls.crt
-      proxy_client_cert: /etc/kcp-front-proxy/requestheader-client/tls.crt
-      proxy_client_key: /etc/kcp-front-proxy/requestheader-client/tls.key
   ingress:
     secret: proxy-front-proxy-cert
     enabled: true
@@ -43,11 +27,6 @@ kcpFrontProxy:
       nginx.ingress.kubernetes.io/backend-protocol: HTTPS
   tokenAuth:
     enabled: true
-    fileName: auth-token.csv
-    config: |
-        external-logical-cluster-admin-token,external-logical-cluster-admin,1111-1111-1111-1111,"system:kcp:external-logical-cluster-admin"
-        system-kcp-admin-token,system-kcp-admin,5555-5555-5555-5555,"system:kcp:admin"
-        system-master-token,system-masters,6666-6666-6666-6666,"system:masters"
 cache:
   enabled: false
 certificates:
