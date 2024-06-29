@@ -15,9 +15,14 @@ kcp:
   externalLogicalClusterAdminFlag: true
   tag: main
   enabled: true
-  v: 8
+  v: 2
   tokenAuth:
     enabled: true
+    fileName: auth-token.csv
+    config: |
+        external-logical-cluster-admin-token,external-logical-cluster-admin,1111-1111-1111-1111,"system:kcp:external-logical-cluster-admin"
+        system-kcp-admin-token,system-kcp-admin,5555-5555-5555-5555,"system:kcp:admin"
+        system-master-token,system-masters,6666-6666-6666-6666,"system:masters"
   batteries:
     - workspace-types
     - metrics-viewer
