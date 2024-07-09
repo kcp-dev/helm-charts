@@ -12,7 +12,7 @@ kind: Config
 clusters:
   - cluster:
       insecure-skip-tls-verify: true
-      server: "https://$hostname:6443/clusters/root"
+      server: "https://${hostname}:8443/clusters/root"
     name: kind-kcp
 contexts:
   - context:
