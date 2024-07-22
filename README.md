@@ -183,47 +183,26 @@ We can now add these credentials to the `admin.kubeconfig` and access kcp:
 ## Install to kind cluster (for development)
 
 There is a helper script to install kcp to a [kind](https://github.com/kubernetes-sigs/kind) cluster.
-It will install cert-manager, nginx-ingress and kcp. Kind cluster binds to host ports 6440 (for kind container port 80)
-and 6443 (for kind container port 443) for ingress. Ingress is emulated using host entries in `/etc/hosts`.
-This particular configuration is useful for development and testing, but will not work with LetsEncrypt.
+It will install cert-manager and kcp. The `kind` cluster binds to host port 8443 for exposing kcp.
+This particular configuration is useful for development and testing, but will not work with Let's Encrypt.
 
     ./hack/kind-setup.sh
 
 Pre-requisites established by that script:
 
 * `kind` executable installed at `/usr/local/bin/kind`
-* Kind cluster named `kcp`
-* Cert-manager installer and running
-* Ingress installed
-* `/etc/hosts entry` for `kcp.dev.local` pointing to `127.0.0.1`
+* kind cluster named `kcp`
+* [cert-manager](https://cert-manager.io/) installed on the cluster
+* `/etc/hosts` entry for `kcp.dev.local` pointing to `127.0.0.1`
 
-That script will do this helm install:
+The script will then install kcp the following way:
 
     helm upgrade --install my-kcp ./charts/kcp/ \
       --values ./hack/kind-values.yaml \
       --namespace kcp \
       --create-namespace
 
-Where `hack/kind-values.yaml` is:
-
-```yaml
-externalHostname: "kcp.dev.local"
-kcp:
-  volumeClassName: "standard"
-  tokenAuth:
-    enabled: true
-kcpFrontProxy:
-  openshiftRoute:
-    enabled: false
-  ingress:
-    enabled: true
-    annotations:
-      kubernetes.io/ingress.class: "nginx"
-      nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
-  certificate:
-    issuerSpec:
-      selfSigned: {}
-```
+See [hack/kind-values.yaml](./hack/kind-values.yaml) for the values passed to the Helm chart.
 
 # Known issues
 

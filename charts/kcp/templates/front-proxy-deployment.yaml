@@ -10,12 +10,18 @@ metadata:
     {{- toYaml . | nindent 4 }}
   {{- end }}
 spec:
+  {{- with .Values.kcpFrontProxy.service.clusterIP }}
+  clusterIP: {{ . }}
+  {{- end }}
   type: {{ .Values.kcpFrontProxy.service.type }}
   ports:
     - protocol: TCP
       name: kcp-front-proxy
       port: 8443
       targetPort: 8443
+      {{- with .Values.kcpFrontProxy.service.nodePort }}
+      nodePort: {{ . }}
+      {{- end }}
   selector:
     {{- include "common.labels.selector" . | nindent 4 }}
     app.kubernetes.io/component: "front-proxy"
