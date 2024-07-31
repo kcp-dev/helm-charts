@@ -5,7 +5,7 @@ presubmits:
     clone_uri: "https://github.com/kcp-dev/helm-charts"
     spec:
       containers:
-        - image: ghcr.io/kcp-dev/infra/build:1.20.9-3
+        - image: ghcr.io/kcp-dev/infra/build:1.22.5-1
           command:
             - hack/ci/render-helm-charts.sh
           resources:
