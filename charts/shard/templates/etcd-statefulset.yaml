@@ -42,33 +42,37 @@ spec:
         - name: etcd
           image: {{ .Values.etcd.image }}:{{ .Values.etcd.tag }}
           command:
-            - /bin/sh
-            - -c
-            - |
-              PEERS="{{ include "etcd.fullname" . }}-0=https://{{ include "etcd.fullname" . }}-0.{{ include "etcd.fullname" . }}:2380,{{ include "etcd.fullname" . }}-1=https://{{ include "etcd.fullname" . }}-1.{{ include "etcd.fullname" . }}:2380,{{ include "etcd.fullname" . }}-2=https://{{ include "etcd.fullname" . }}-2.{{ include "etcd.fullname" . }}:2380"
-              exec etcd --name ${HOSTNAME} \
-                --listen-peer-urls https://0.0.0.0:2380 \
-                --initial-advertise-peer-urls https://${HOSTNAME}:2380 \
-                --listen-client-urls https://0.0.0.0:2379 \
-                --advertise-client-urls https://${HOSTNAME}:2379 \
-                --initial-cluster-token etcd-cluster-1 \
-                --initial-cluster ${PEERS} \
-                --initial-cluster-state new \
-                --auto-compaction-mode=periodic \
-                --auto-compaction-retention=5m \
-                --data-dir /var/run/etcd/default.etcd \
-                --peer-client-cert-auth=true \
-                --peer-cert-file=/etc/etcd/tls/peer/tls.crt \
-                --peer-key-file=/etc/etcd/tls/peer/tls.key \
-                --peer-trusted-ca-file=/etc/etcd/tls/peer-ca/tls.crt \
-                --client-cert-auth=true \
-                --cert-file=/etc/etcd/tls/server/tls.crt \
-                --key-file=/etc/etcd/tls/server/tls.key \
-                --trusted-ca-file=/etc/etcd/tls/client-ca/tls.crt \
-                {{- if .Values.etcd.profiling.enabled }}
-                --enable-pprof=true \
-                {{- end }}
-                --snapshot-count=5000
+          - etcd
+          - --name=$(HOSTNAME)
+          - --listen-peer-urls=https://0.0.0.0:2380
+          - --initial-advertise-peer-urls=https://$(HOSTNAME):2380
+          - --listen-client-urls=https://0.0.0.0:2379
+          - --advertise-client-urls=https://$(HOSTNAME):2379
+          - --initial-cluster-token=etcd-cluster-1
+          - --initial-cluster=$(PEERS)
+          - --initial-cluster-state=new
+          - --auto-compaction-mode=periodic
+          - --auto-compaction-retention=5m
+          - --data-dir=/var/run/etcd/default.etcd
+          - --peer-client-cert-auth=true
+          - --peer-cert-file=/etc/etcd/tls/peer/tls.crt
+          - --peer-key-file=/etc/etcd/tls/peer/tls.key
+          - --peer-trusted-ca-file=/etc/etcd/tls/peer-ca/tls.crt
+          - --client-cert-auth=true
+          - --cert-file=/etc/etcd/tls/server/tls.crt
+          - --key-file=/etc/etcd/tls/server/tls.key
+          - --trusted-ca-file=/etc/etcd/tls/client-ca/tls.crt
+          {{- if .Values.etcd.profiling.enabled }}
+          - --enable-pprof=true
+          {{- end }}
+          - --snapshot-count=5000
+          env:
+          - name: PEERS
+            value: "{{ include "etcd.fullname" . }}-0=https://{{ include "etcd.fullname" . }}-0.{{ include "etcd.fullname" . }}:2380,{{ include "etcd.fullname" . }}-1=https://{{ include "etcd.fullname" . }}-1.{{ include "etcd.fullname" . }}:2380,{{ include "etcd.fullname" . }}-2=https://{{ include "etcd.fullname" . }}-2.{{ include "etcd.fullname" . }}:2380"
+          - name: HOSTNAME
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.name
           ports:
             - containerPort: 2379
               name: client
