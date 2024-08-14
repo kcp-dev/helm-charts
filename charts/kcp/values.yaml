@@ -3,7 +3,7 @@ externalPort: "" # defaults to 8443 for .Values.kcpFrontProxy.service.type "Load
 etcd:
   enabled: true
   image: quay.io/coreos/etcd
-  tag: v3.5.4
+  tag: v3.5.15
   resources:
     requests:
       cpu: 500m
