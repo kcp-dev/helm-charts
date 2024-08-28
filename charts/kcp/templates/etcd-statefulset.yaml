@@ -114,4 +114,7 @@ spec:
         resources:
           requests:
             storage: {{ .Values.etcd.volumeSize }}
+        {{- if .Values.etcd.storageClassName }}
+        storageClassName: {{ .Values.etcd.storageClassName }}
+        {{- end }}
 {{- end }}

@@ -20,6 +20,10 @@ etcd:
   podDisruptionBudget:
     enabled: false
     maxUnavailable: 1
+  # Uncomment the below line in order to specify the name of the storageClass
+  # that the etcd PVC should target. If left commented out, the storageClassName
+  # will be left unset and the default for the cluster will be used.
+  # storageClassName: standard
 kcp:
   replicas: 1
   strategy:
