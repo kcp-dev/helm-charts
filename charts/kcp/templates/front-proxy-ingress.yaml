@@ -46,7 +46,7 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: kcp-front-proxy
+                name: {{ include "frontproxy.fullname" . }}
                 port:
                   number: 8443
 {{- end }}
