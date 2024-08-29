@@ -20,6 +20,7 @@ etcd:
   podDisruptionBudget:
     enabled: false
     maxUnavailable: 1
+  storageClassName: ""
 kcp:
   replicas: 1
   strategy:
