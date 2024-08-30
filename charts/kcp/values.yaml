@@ -44,7 +44,7 @@ kcp:
       memory: 20Gi
   volumeClassName: ""
   etcd:
-    # set this if you are using external or embedded etcds.
+    # set this if you are using external etcds. Do not set this to "embedded", it is not supported.
     serverAddress: ""
     clientCertificate:
       # set this to a cert-manager Issuer that knows how to
