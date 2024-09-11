@@ -21,6 +21,7 @@ etcd:
     enabled: false
     maxUnavailable: 1
   storageClassName: ""
+  affinity: {}
 kcp:
   replicas: 1
   strategy:
@@ -79,6 +80,7 @@ kcp:
   podDisruptionBudget:
     enabled: false
     minAvailable: 1
+  affinity: {}
 kcpFrontProxy:
   replicas: 1
   strategy:
