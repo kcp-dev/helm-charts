@@ -136,6 +136,7 @@ spec:
             - --requestheader-client-ca-file=/etc/kcp/tls/requestheader-client-ca/tls.crt
             - --requestheader-username-headers=X-Remote-User
             - --requestheader-group-headers=X-Remote-Group
+            - --requestheader-extra-headers-prefix=X-Remote-Extra-
             - --root-directory=/etc/kcp/config
             - --shard-virtual-workspace-ca-file=/etc/kcp/tls/ca/tls.crt
             - --shard-base-url=https://{{ include "kcp.fullname" . }}:6443
