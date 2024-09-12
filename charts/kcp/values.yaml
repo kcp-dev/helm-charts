@@ -119,6 +119,9 @@ kcpFrontProxy:
   # certificateIssuer:
   #   name: ""
   #   kind: Issuer
+  #   secret: # must be a Secret in the same namespace as KCP, containing the CA cert for the issuer
+  #     name: "" # the name of the Secret
+  #     key: "" # the key in the Secret's data that contains the CA cert
   profiling:
     enabled: false
     port: 6060

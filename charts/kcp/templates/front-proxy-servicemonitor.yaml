@@ -32,10 +32,17 @@ spec:
     scheme: https
     tlsConfig:
       serverName: {{ .Values.externalHostname }}
+      {{- if not .Values.kcpFrontProxy.certificateIssuer }}
       ca:
         secret:
           name: {{ include "kcp.fullname" . }}-ca
           key: tls.crt
+      {{- else if .Values.kcpFrontProxy.certificateIssuer.secret }}
+      ca:
+        secret:
+          name: {{ required "kcpFrontProxy.certificateIssuer.secret.name is required" .Values.kcpFrontProxy.certificateIssuer.secret.name }}
+          key: {{ required "kcpFrontProxy.certificateIssuer.secret.key is required" .Values.kcpFrontProxy.certificateIssuer.secret.key }}
+      {{- end }}
       cert:
         secret:
           name: {{ include "frontproxy.fullname" . }}-metrics-cert
