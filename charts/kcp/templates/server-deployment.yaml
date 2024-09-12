@@ -183,6 +183,10 @@ spec:
               valueFrom:
                 resourceFieldRef:
                   resource: requests.memory
+            - name: GOMAXPROCS
+              valueFrom:
+                resourceFieldRef:
+                  resource: requests.cpu
           livenessProbe:
             failureThreshold: 6
             httpGet:
