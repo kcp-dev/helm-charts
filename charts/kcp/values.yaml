@@ -21,6 +21,18 @@ etcd:
     enabled: false
     maxUnavailable: 1
   storageClassName: ""
+  affinity:
+    podAntiAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 1
+          podAffinityTerm:
+            labelSelector:
+              matchExpressions:
+                - key: "app.kubernetes.io/component"
+                  operator: In
+                  values:
+                    - etcd
+            topologyKey: "kubernetes.io/hostname"
 kcp:
   replicas: 1
   strategy:
@@ -79,6 +91,18 @@ kcp:
   podDisruptionBudget:
     enabled: false
     minAvailable: 1
+  affinity:
+    podAntiAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 1
+          podAffinityTerm:
+            labelSelector:
+              matchExpressions:
+                - key: "app.kubernetes.io/component"
+                  operator: In
+                  values:
+                    - server
+            topologyKey: "kubernetes.io/hostname"
 kcpFrontProxy:
   replicas: 1
   strategy:
@@ -168,6 +192,18 @@ kcpFrontProxy:
   # - name: example-vw-serving-cert
   #   mountPath: /etc/example-vw-serving-cert
   extraFlags: []
+  affinity:
+    podAntiAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 1
+          podAffinityTerm:
+            labelSelector:
+              matchExpressions:
+                - key: "app.kubernetes.io/component"
+                  operator: In
+                  values:
+                    - front-proxy
+            topologyKey: "kubernetes.io/hostname"
 oidc:
   enabled: false
   caSecretName: ""

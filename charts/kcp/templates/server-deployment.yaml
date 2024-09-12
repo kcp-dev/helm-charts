@@ -94,6 +94,10 @@ spec:
       hostAliases:
         {{- toYaml .Values.kcp.hostAliases.values | nindent 6 }}
       {{- end }}
+      {{- with .Values.kcp.affinity}}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       containers:
         - name: kcp
           image: {{ .Values.kcp.image }}:{{- include "kcp.version" . }}

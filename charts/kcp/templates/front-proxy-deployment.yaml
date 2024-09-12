@@ -58,6 +58,10 @@ spec:
       hostAliases:
         {{- toYaml .Values.kcpFrontProxy.hostAliases.values | nindent 6 }}
       {{- end }}
+      {{- with .Values.kcpFrontProxy.affinity}}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       containers:
         - name: kcp-front-proxy
           image: "{{ .Values.kcpFrontProxy.image }}:{{- include "frontproxy.version" . }}"

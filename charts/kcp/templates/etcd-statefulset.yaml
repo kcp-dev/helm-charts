@@ -38,6 +38,10 @@ spec:
         {{- include "common.labels" . | nindent 8 }}
         app.kubernetes.io/component: "etcd"
     spec:
+      {{- with .Values.etcd.affinity}}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       containers:
         - name: etcd
           image: {{ .Values.etcd.image }}:{{ .Values.etcd.tag }}
