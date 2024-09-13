@@ -32,6 +32,9 @@ metadata:
   annotations:
     {{- toYaml .Values.kcpFrontProxy.ingress.annotations | nindent 4 }}
 spec:
+  {{- if .Values.kcpFrontProxy.ingress.ingressClassName }}
+  ingressClassName: {{ .Values.kcpFrontProxy.ingress.ingressClassName }}
+  {{- end }}
   tls:
     - hosts:
         - {{ .Values.externalHostname }}
