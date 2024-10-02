@@ -240,6 +240,8 @@ certificates:
   # add additional dns names that should be embedded into the kcp server certificate.
   dnsNames:
   - localhost
+  # additional ip addresses to be embedded in the etcd server and peer certs. Can be useful e.g. when using Istio you can pass "127.0.0.6" so the sidecar IP is included.
+  ipAddresses: []
 letsEncrypt:
   enabled: false
   staging:

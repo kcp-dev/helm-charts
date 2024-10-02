@@ -29,6 +29,11 @@ spec:
     - {{ include "etcd.fullname" . }}-2.{{ include "etcd.fullname" . }}
   ipAddresses:
     - 0.0.0.0
+    {{- with .Values.certificates.ipAddresses }}
+    {{- range $ip := . }}
+    - {{ $ip }}
+    {{- end }}
+    {{- end }}
   issuerRef:
     name: {{ include "etcd.fullname" . }}-client-issuer
 
@@ -62,6 +67,11 @@ spec:
     - {{ include "etcd.fullname" . }}-2.{{ include "etcd.fullname" . }}
   ipAddresses:
     - 0.0.0.0
+    {{- with .Values.certificates.ipAddresses }}
+    {{- range $ip := . }}
+    - {{ $ip }}
+    {{- end }}
+    {{- end }}
   issuerRef:
     name: {{ include "etcd.fullname" . }}-peer-issuer
 {{- end }}
