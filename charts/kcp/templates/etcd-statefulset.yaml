@@ -11,8 +11,10 @@ spec:
   ports:
     - port: 2379
       name: client
+      appProtocol: https
     - port: 2380
       name: peer
+      appProtocol: https
   selector:
     {{- include "common.labels.selector" . | nindent 4 }}
     app.kubernetes.io/component: "etcd"
