@@ -102,6 +102,8 @@ spec:
         - name: kcp
           image: {{ .Values.kcp.image }}:{{- include "kcp.version" . }}
           imagePullPolicy: {{ .Values.kcp.pullPolicy }}
+          securityContext:
+            readOnlyRootFilesystem: true
           ports:
             - containerPort: 6443
             {{- if .Values.kcp.profiling.enabled }}
@@ -135,7 +137,7 @@ spec:
             - --requestheader-username-headers=X-Remote-User
             - --requestheader-group-headers=X-Remote-Group
             - --requestheader-extra-headers-prefix=X-Remote-Extra-
-            - --root-directory=/etc/kcp/config
+            - --root-directory=''
             - --shard-virtual-workspace-ca-file=/etc/kcp/tls/ca/tls.crt
             - --shard-base-url=https://{{ include "kcp.fullname" . }}:6443
             - --shard-external-url=https://$(EXTERNAL_HOSTNAME):$(EXTERNAL_PORT)
@@ -260,8 +262,6 @@ spec:
               mountPath: /etc/kcp/external-logical-cluster-admin/kubeconfig
             - name: external-logical-cluster-admin-kubeconfig-cert
               mountPath: /etc/kcp/external-logical-cluster-admin/kubeconfig-client-cert
-            - name: kcp-config
-              mountPath: /etc/kcp/config
       volumes:
         - name: kcp-etcd-client-cert
           secret:
@@ -324,9 +324,6 @@ spec:
         - name: external-logical-cluster-admin-kubeconfig-cert
           secret:
             secretName: {{ include "kcp.fullname" . }}-external-admin-kubeconfig-cert
-        - name: kcp-config
-          emptyDir:
-            sizeLimit: 50Mi
 
 ---
 apiVersion: v1
