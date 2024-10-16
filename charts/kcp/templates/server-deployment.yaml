@@ -123,7 +123,7 @@ spec:
             - --tls-cert-file=/etc/kcp/tls/server/tls.crt
             - --service-account-key-file=/etc/kcp/tls/service-account/tls.key
             - --service-account-private-key-file=/etc/kcp/tls/service-account/tls.key
-            - --root-ca-file=/etc/kcp/tls/service-account-ca/tls.crt
+            - --root-ca-file=/etc/kcp/tls/ca/tls.crt
             - --enable-home-workspaces={{ .Values.kcp.homeWorkspaces.enabled }}
             {{- if .Values.kcp.logicalClusterAdminFlag }}
             - --logical-cluster-admin-kubeconfig=/etc/kcp/logical-cluster-admin/kubeconfig/kubeconfig
