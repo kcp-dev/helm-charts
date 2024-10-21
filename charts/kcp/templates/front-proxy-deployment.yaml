@@ -26,6 +26,7 @@ spec:
     {{- include "common.labels.selector" . | nindent 4 }}
     app.kubernetes.io/component: "front-proxy"
 
+
 ---
 apiVersion: apps/v1
 kind: Deployment
