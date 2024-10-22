@@ -184,7 +184,7 @@ spec:
         {{- if .Values.kcp.tokenAuth.enabled }}
         - name: kcp-token-auth-file
           secret:
-            secretName: kcp-token-auth-file
+            secretName: {{ include "kcp.fullname" . }}-token-auth-file
         {{- end }}
         # these volumes are necessary for the path-mapping.yaml
         - name: kcp-ca
