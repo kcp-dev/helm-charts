@@ -7,7 +7,7 @@ progress and are not ready for production use.
 
 ## Pre-requisites
 
-- Cert-manager installed and running
+- [Cert-manager](https://cert-manager.io/docs/installation) installed and running
 - Ingress installed (e.g. nginx-ingress or OpenShift router)
 
 ## Usage
