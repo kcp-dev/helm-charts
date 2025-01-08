@@ -171,6 +171,9 @@ spec:
             - --profiler-address=0.0.0.0:{{- .Values.kcp.profiling.port -}}
             {{- end }}
             - --batteries-included={{- include "kcp.batteries" . }}
+            {{- if .Values.kcp.authorization.webhook.secretName }}
+            - --authorization-webhook-config-file=/etc/kcp/authorization/webhook/kubeconfig
+            {{- end }}
             {{- range .Values.kcp.extraFlags }}
             - {{ . }}
             {{- end }}
@@ -254,6 +257,10 @@ spec:
             - name: audit-policy
               mountPath: {{ .Values.audit.policy.dir }}
             {{- end }}
+            {{- if .Values.kcp.authorization.webhook.secretName }}
+            - name: kcp-webhook-authorization
+              mountPath: /etc/kcp/authorization/webhook
+            {{- end }}
             - name: logical-cluster-admin-kubeconfig
               mountPath: /etc/kcp/logical-cluster-admin/kubeconfig
             - name: logical-cluster-admin-kubeconfig-cert
@@ -311,6 +318,11 @@ spec:
         - name: audit-log
           persistentVolumeClaim:
             claimName: {{ include "kcp.fullname" . }}-audit-logs
+        {{- end }}
+        {{- with .Values.kcp.authorization.webhook.secretName }}
+        - name: kcp-webhook-authorization
+          secret:
+            secretName: {{ . }}
         {{- end }}
         - name: logical-cluster-admin-kubeconfig
           secret:

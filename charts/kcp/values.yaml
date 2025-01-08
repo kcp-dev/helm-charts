@@ -76,6 +76,13 @@ kcp:
         user-1-token,user-1,1111-1111-1111-1111,"team-1"
         admin-token,admin,5555-5555-5555-5555,"system:kcp:admin"
         system-token,system,6666-6666-6666-6666,"system:masters"
+  authorization:
+    webhook:
+      # When configured, this Secret must contain a single key, "kubeconfig", containing
+      # a kubeconfig-style YAML file that configures kcp's authorization webhook.
+      # See https://docs.kcp.io/kcp/main/concepts/authorization/authorizers/#webhook-authorizer
+      # for more information.
+      secretName: ""
   hostAliases:
     enabled: false
   homeWorkspaces:
