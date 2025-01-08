@@ -29,6 +29,7 @@ Currently configurable options:
 * OIDC
 * Github user access to project
 * External hostname
+* Authorization Webhook
 
 ### Monitoring
 
