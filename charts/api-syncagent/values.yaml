@@ -1,0 +1,47 @@
+# Required: the name of the APIExport in kcp that this Sync Agent is supposed to serve.
+apiExportName: ""
+
+# This Agent's public name, purely for informational purposes. If not set, defaults
+# to the Helm release name.
+agentName: ""
+
+# Required: Name of the Kubernetes Secret that contains a "kubeconfig" key,
+# with the kubeconfig provided by kcp to access it.
+platformKubeconfig: ""
+
+# Optional: Name of a Kubernetes Secret that contains a "kubeconfig" key,
+# with a kubeconfig to access the service cluster (in case the agent is
+# running on a cluster that is not the target cluster for the API sync).
+kubeconfig: ""
+
+# Optional: If two or more SyncAgents are installed into the same namespace,
+# each one must have a Kubernetes label selector to scope down which
+# PublishedResources (PRs) they process, as no two agents must process the same.
+# If just one Sync Agent is installed in the cluster, this can be left blank, but
+# still be used to ignore certain PRs if desired.
+publishedResourceSelector: ""
+
+# The container image to use for the Sync Agent.
+image:
+  repository: "ghcr.io/kcp-dev/api-syncagent"
+  # set this to override the image tag used (determined by chart appVersion by default).
+  tag: ""
+
+replicas: 2
+
+rbac:
+  # When set to false, no RBAC will be created.
+  create: true
+  # When set to true, will create a ClusterRole named "<releasename>:<namespace>"
+  # and assign it the configured rules; use this to provide additional permissions
+  # for the Sync Agent.
+  createClusterRole: false
+  rules: []
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 64Mi
+  limits:
+    cpu: 1
+    memory: 512Mi

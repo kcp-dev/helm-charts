@@ -1,0 +1,80 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: '{{ template "name" . }}'
+  labels:
+    app.kubernetes.io/name: kcp-sync-agent
+    app.kubernetes.io/instance: '{{ template "agentname" . }}'
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: '{{ template "name" . }}'
+spec:
+  replicas: {{ .Values.replicas | default 1 }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: kcp-sync-agent
+      app.kubernetes.io/instance: '{{ template "agentname" . }}'
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: kcp-sync-agent
+        app.kubernetes.io/instance: '{{ template "agentname" . }}'
+        app.kubernetes.io/version: '{{ .Values.image.tag | default .Chart.AppVersion }}'
+    spec:
+      containers:
+        - name: agent
+          args:
+            - --namespace=$(POD_NAMESPACE)
+            - --enable-leader-election
+            - --apiexport-ref=$(APIEXPORT_REF)
+            - --agent-name=$(AGENT_NAME)
+            - --platform-kubeconfig=/etc/api-syncagent/platform/kubeconfig
+            {{- with .Values.kubeconfig }}
+            - --kubeconfig=/etc/api-syncagent/cluster/kubeconfig
+            {{- end }}
+            {{- with .Values.publishedResourceSelector }}
+            - "--published-resource-selector={{ . }}"
+            {{- end }}
+          env:
+            - name: POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: metadata.namespace
+            - name: APIEXPORT_REF
+              value: '{{ required "APIExport name must be configured" .Values.apiExportName }}'
+            - name: AGENT_NAME
+              value: '{{ template "agentname" . }}'
+          image: '{{ template "image" (list $ .Values.image) }}'
+          resources: {{ .Values.resources | toYaml | nindent 12 }}
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+          volumeMounts:
+            - name: platform-kubeconfig
+              mountPath: /etc/api-syncagent/platform
+          {{- with .Values.kubeconfig }}
+            - name: cluster-kubeconfig
+              mountPath: /etc/api-syncagent/cluster
+          {{- end }}
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65534
+        seccompProfile:
+          type: RuntimeDefault
+      serviceAccountName: '{{ template "name" . }}'
+      volumes:
+        - name: platform-kubeconfig
+          secret:
+            secretName: '{{ required "Kubernetes Secret for the platform kubeconfig must be configured" .Values.platformKubeconfig }}'
+        {{- with .Values.kubeconfig }}
+        - name: cluster-kubeconfig
+          secret:
+            secretName: "{{ . }}"
+        {{- end }}
+
