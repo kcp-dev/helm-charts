@@ -29,15 +29,6 @@ image:
 
 replicas: 2
 
-rbac:
-  # When set to false, no RBAC will be created.
-  create: true
-  # When set to true, will create a ClusterRole named "<releasename>:<namespace>"
-  # and assign it the configured rules; use this to provide additional permissions
-  # for the Sync Agent.
-  createClusterRole: false
-  rules: []
-
 resources:
   requests:
     cpu: 100m
