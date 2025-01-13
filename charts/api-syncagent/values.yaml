@@ -14,6 +14,12 @@ kcpKubeconfig: ""
 # running on a cluster that is not the target cluster for the API sync).
 kubeconfig: ""
 
+# Optional: Override the host configured in the local kubeconfig.
+kubeconfigHostOverride: ""
+
+# Optional: Override the server CA file configured in the local kubeconfig
+kubeconfigCAFileOverride: ""
+
 # Optional: If two or more SyncAgents are installed into the same namespace,
 # each one must have a Kubernetes label selector to scope down which
 # PublishedResources (PRs) they process, as no two agents must process the same.

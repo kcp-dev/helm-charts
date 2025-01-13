@@ -35,6 +35,12 @@ spec:
             {{- with .Values.kubeconfig }}
             - --kubeconfig=/etc/api-syncagent/cluster/kubeconfig
             {{- end }}
+            {{- with .Values.kubeconfigHostOverride }}
+            - "--kubeconfig-host-override={{ . }}"
+            {{- end }}
+            {{- with .Values.kubeconfigCAFileOverride }}
+            - "--kubeconfig-ca-file-override={{ . }}"
+            {{- end }}
             {{- with .Values.publishedResourceSelector }}
             - "--published-resource-selector={{ . }}"
             {{- end }}
