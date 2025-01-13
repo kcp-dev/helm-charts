@@ -31,7 +31,7 @@ spec:
             - --enable-leader-election={{ .Values.enableLeaderElection }}
             - --apiexport-ref=$(APIEXPORT_REF)
             - --agent-name=$(AGENT_NAME)
-            - --platform-kubeconfig=/etc/api-syncagent/platform/kubeconfig
+            - --kcp-kubeconfig=/etc/api-syncagent/kcp/kubeconfig
             {{- with .Values.kubeconfig }}
             - --kubeconfig=/etc/api-syncagent/cluster/kubeconfig
             {{- end }}
@@ -56,8 +56,8 @@ spec:
               drop:
                 - ALL
           volumeMounts:
-            - name: platform-kubeconfig
-              mountPath: /etc/api-syncagent/platform
+            - name: kcp-kubeconfig
+              mountPath: /etc/api-syncagent/kcp
           {{- with .Values.kubeconfig }}
             - name: cluster-kubeconfig
               mountPath: /etc/api-syncagent/cluster
@@ -69,12 +69,11 @@ spec:
           type: RuntimeDefault
       serviceAccountName: '{{ template "name" . }}'
       volumes:
-        - name: platform-kubeconfig
+        - name: kcp-kubeconfig
           secret:
-            secretName: '{{ required "Kubernetes Secret for the platform kubeconfig must be configured" .Values.platformKubeconfig }}'
+            secretName: '{{ required "Kubernetes Secret for the kcp kubeconfig must be configured" .Values.kcpKubeconfig }}'
         {{- with .Values.kubeconfig }}
         - name: cluster-kubeconfig
           secret:
             secretName: "{{ . }}"
         {{- end }}
-

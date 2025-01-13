@@ -7,7 +7,7 @@ agentName: ""
 
 # Required: Name of the Kubernetes Secret that contains a "kubeconfig" key,
 # with the kubeconfig provided by kcp to access it.
-platformKubeconfig: ""
+kcpKubeconfig: ""
 
 # Optional: Name of a Kubernetes Secret that contains a "kubeconfig" key,
 # with a kubeconfig to access the service cluster (in case the agent is

@@ -22,7 +22,7 @@ for dir in ./charts/*/; do
     --debug \
     --set=externalHostname=ci.kcp.io \
     --set=apiExportName=my-api \
-    --set=platformKubeconfig=kcp-kubeconfig \
+    --set=kcpKubeconfig=kcp-kubeconfig \
     kcp ./charts/${chart}/ | tee ${chart}-templated.yaml
 
   echo "---"
