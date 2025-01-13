@@ -28,7 +28,7 @@ spec:
         - name: agent
           args:
             - --namespace=$(POD_NAMESPACE)
-            - --enable-leader-election
+            - --enable-leader-election={{ .Values.enableLeaderElection }}
             - --apiexport-ref=$(APIEXPORT_REF)
             - --agent-name=$(AGENT_NAME)
             - --platform-kubeconfig=/etc/api-syncagent/platform/kubeconfig

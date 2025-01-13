@@ -28,6 +28,7 @@ image:
   tag: ""
 
 replicas: 2
+enableLeaderElection: true
 
 resources:
   requests:
