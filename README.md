@@ -144,7 +144,8 @@ Now we create a new kubeconfig which references the `ca.crt`
 
 Now we must add credentials to the kubeconfig, so requests to the front-proxy may be authenticated.
 
-One way to do this is to create a client certificate with a cert-manager `Certificate`:
+One way to do this is to create a client certificate with a cert-manager `Certificate`
+
     cat <<EOF | kubectl apply -f -
     apiVersion: cert-manager.io/v1
     kind: Certificate
