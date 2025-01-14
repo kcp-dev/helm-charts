@@ -5,13 +5,13 @@ set -euo pipefail
 cd "$(dirname "$0")/../.."
 
 if ! [ -x "$(command -v helm)" ]; then
-    echo "missing helm command in PATH"
-    exit 1
+  echo "missing helm command in PATH"
+  exit 1
 fi
 
 if ! [ -x "$(command -v kubeconform)" ]; then
-    echo "missing kubeconform command in PATH"
-    exit 1
+  echo "missing kubeconform command in PATH"
+  exit 1
 fi
 
 for dir in ./charts/*/; do
@@ -21,6 +21,8 @@ for dir in ./charts/*/; do
   helm template \
     --debug \
     --set=externalHostname=ci.kcp.io \
+    --set=apiExportName=my-api \
+    --set=kcpKubeconfig=kcp-kubeconfig \
     kcp ./charts/${chart}/ | tee ${chart}-templated.yaml
 
   echo "---"
