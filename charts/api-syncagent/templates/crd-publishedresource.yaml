@@ -1,0 +1,329 @@
+{{- if .Values.crds.enabled }}
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.16.5
+  name: publishedresources.syncagent.kcp.io
+spec:
+  group: syncagent.kcp.io
+  names:
+    kind: PublishedResource
+    listKind: PublishedResourceList
+    plural: publishedresources
+    singular: publishedresource
+  scope: Cluster
+  versions:
+    - name: v1alpha1
+      schema:
+        openAPIV3Schema:
+          description: |-
+            PublishedResource describes how an API type (usually defined by a CRD)
+            on the service cluster should be exposed in kcp workspaces. Besides
+            controlling how namespaced and cluster-wide resources should be mapped,
+            the GVK can also be transformed to provide a uniform, implementation-independent
+            access to the APIs inside kcp.
+          properties:
+            apiVersion:
+              description: |-
+                APIVersion defines the versioned schema of this representation of an object.
+                Servers should convert recognized schemas to the latest internal value, and
+                may reject unrecognized values.
+                More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+              type: string
+            kind:
+              description: |-
+                Kind is a string value representing the REST resource this object represents.
+                Servers may infer this from the endpoint the client submits requests to.
+                Cannot be updated.
+                In CamelCase.
+                More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+              type: string
+            metadata:
+              type: object
+            spec:
+              description: |-
+                PublishedResourceSpec describes the desired resource publication from a service
+                cluster to kcp.
+              properties:
+                filter:
+                  description: |-
+                    If specified, the filter will be applied to the resources in a workspace
+                    and allow restricting which of them will be handled by the Sync Agent.
+                  properties:
+                    namespace:
+                      description: When given, the namespace filter will be applied to a resource's namespace.
+                      properties:
+                        matchExpressions:
+                          description: matchExpressions is a list of label selector requirements. The requirements are ANDed.
+                          items:
+                            description: |-
+                              A label selector requirement is a selector that contains values, a key, and an operator that
+                              relates the key and values.
+                            properties:
+                              key:
+                                description: key is the label key that the selector applies to.
+                                type: string
+                              operator:
+                                description: |-
+                                  operator represents a key's relationship to a set of values.
+                                  Valid operators are In, NotIn, Exists and DoesNotExist.
+                                type: string
+                              values:
+                                description: |-
+                                  values is an array of string values. If the operator is In or NotIn,
+                                  the values array must be non-empty. If the operator is Exists or DoesNotExist,
+                                  the values array must be empty. This array is replaced during a strategic
+                                  merge patch.
+                                items:
+                                  type: string
+                                type: array
+                                x-kubernetes-list-type: atomic
+                            required:
+                              - key
+                              - operator
+                            type: object
+                          type: array
+                          x-kubernetes-list-type: atomic
+                        matchLabels:
+                          additionalProperties:
+                            type: string
+                          description: |-
+                            matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels
+                            map is equivalent to an element of matchExpressions, whose key field is "key", the
+                            operator is "In", and the values array contains only "value". The requirements are ANDed.
+                          type: object
+                      type: object
+                      x-kubernetes-map-type: atomic
+                    resource:
+                      description: When given, the resource filter will be applied to a resource itself.
+                      properties:
+                        matchExpressions:
+                          description: matchExpressions is a list of label selector requirements. The requirements are ANDed.
+                          items:
+                            description: |-
+                              A label selector requirement is a selector that contains values, a key, and an operator that
+                              relates the key and values.
+                            properties:
+                              key:
+                                description: key is the label key that the selector applies to.
+                                type: string
+                              operator:
+                                description: |-
+                                  operator represents a key's relationship to a set of values.
+                                  Valid operators are In, NotIn, Exists and DoesNotExist.
+                                type: string
+                              values:
+                                description: |-
+                                  values is an array of string values. If the operator is In or NotIn,
+                                  the values array must be non-empty. If the operator is Exists or DoesNotExist,
+                                  the values array must be empty. This array is replaced during a strategic
+                                  merge patch.
+                                items:
+                                  type: string
+                                type: array
+                                x-kubernetes-list-type: atomic
+                            required:
+                              - key
+                              - operator
+                            type: object
+                          type: array
+                          x-kubernetes-list-type: atomic
+                        matchLabels:
+                          additionalProperties:
+                            type: string
+                          description: |-
+                            matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels
+                            map is equivalent to an element of matchExpressions, whose key field is "key", the
+                            operator is "In", and the values array contains only "value". The requirements are ANDed.
+                          type: object
+                      type: object
+                      x-kubernetes-map-type: atomic
+                  type: object
+                naming:
+                  description: |-
+                    Naming can be used to control how the namespace and names for local objects
+                    are formed. If not specified, the Sync Agent will use defensive defaults to
+                    prevent naming collisions in the service cluster.
+                    When configuring this, great care must be taken to not allow for naming
+                    collisions to happen; keep in mind that the same name/namespace can exists in
+                    many different kcp workspaces.
+                  properties:
+                    name:
+                      description: |-
+                        The name field allows to control the name the local objects created by the Sync Agent.
+                        If left empty, "$remoteNamespaceHash-$remoteNameHash" is assumed. This guarantees unique
+                        names as long as the cluster name ($remoteClusterName) is used for the local namespace
+                        (the default unless configured otherwise).
+                        This is a string with placeholders. The following placeholders can be used:
+
+                          - $remoteClusterName   -- the kcp workspace's cluster name (e.g. "1084s8ceexsehjm2")
+                          - $remoteNamespace     -- the original namespace used by the consumer inside the kcp
+                                                    workspace (if targetNamespace is left empty, it's equivalent
+                                                    to setting "$remote_ns")
+                          - $remoteNamespaceHash -- first 20 hex characters of the SHA-1 hash of $remoteNamespace
+                          - $remoteName          -- the original name of the object inside the kcp workspace
+                                                    (rarely used to construct local namespace names)
+                          - $remoteNameHash      -- first 20 hex characters of the SHA-1 hash of $remoteName
+                      type: string
+                    namespace:
+                      description: |-
+                        For namespaced resources, the this field allows to control where the local objects will
+                        be created. If left empty, "$remoteClusterName" is assumed.
+                        This is a string with placeholders. The following placeholders can be used:
+
+                          - $remoteClusterName   -- the kcp workspace's cluster name (e.g. "1084s8ceexsehjm2")
+                          - $remoteNamespace     -- the original namespace used by the consumer inside the kcp
+                                                    workspace (if targetNamespace is left empty, it's equivalent
+                                                    to setting "$remote_ns")
+                          - $remoteNamespaceHash -- first 20 hex characters of the SHA-1 hash of $remoteNamespace
+                          - $remoteName          -- the original name of the object inside the kcp workspace
+                                                    (rarely used to construct local namespace names)
+                          - $remoteNameHash      -- first 20 hex characters of the SHA-1 hash of $remoteName
+                      type: string
+                  type: object
+                projection:
+                  description: |-
+                    Projection is used to change the GVK of a published resource within kcp.
+                    This can be used to hide implementation details and provide a customized API
+                    experience to the user.
+                    All fields in the projection are optional. If a field is set, it will overwrite
+                    that field in the GVK. The namespaced field can be set to turn a cluster-wide
+                    resource namespaced or vice-versa.
+                  properties:
+                    categories:
+                      description: |-
+                        Categories can be used to overwrite the original categories a resource was in. Set
+                        this to an empty list to remove all categories.
+                      items:
+                        type: string
+                      type: array
+                    kind:
+                      description: |-
+                        The resource Kind, for example "Database". Setting this field will also overwrite
+                        the singular name by lowercasing the resource kind. In addition, if this is set,
+                        the plural name will also be updated by taking the lowercased kind name and appending
+                        an "s". If this would yield an undesirable name, use the plural field to explicitly
+                        give the plural name.
+                      type: string
+                    plural:
+                      description: |-
+                        When overwriting the Kind, it can be necessary to also override the plural name in
+                        case of more complex pluralization rules.
+                      type: string
+                    scope:
+                      description: Whether or not the resource is namespaced.
+                      enum:
+                        - Cluster
+                        - Namespaced
+                      type: string
+                    shortNames:
+                      description: |-
+                        ShortNames can be used to overwrite the original short names for a resource, usually
+                        when the Kind is remapped, new short names are also in order. Set this to an empty
+                        list to remove all short names.
+                      items:
+                        type: string
+                      type: array
+                    version:
+                      description: The API version, for example "v1beta1".
+                      type: string
+                  type: object
+                related:
+                  items:
+                    properties:
+                      identifier:
+                        description: |-
+                          Identifier is a unique name for this related resource. The name must be unique within one
+                          PublishedResource and is the key by which consumers (end users) can identify and consume the
+                          related resource. Common names are "connection-details" or "credentials".
+                          The identifier must be an alphanumeric string.
+                        type: string
+                      kind:
+                        description: ConfigMap or Secret
+                        type: string
+                      origin:
+                        description: '"service" or "kcp"'
+                        type: string
+                      reference:
+                        properties:
+                          name:
+                            properties:
+                              path:
+                                type: string
+                              regex:
+                                properties:
+                                  pattern:
+                                    description: |-
+                                      Pattern can be left empty to simply replace the entire value with the
+                                      replacement.
+                                    type: string
+                                  replacement:
+                                    type: string
+                                type: object
+                            required:
+                              - path
+                            type: object
+                          namespace:
+                            properties:
+                              path:
+                                type: string
+                              regex:
+                                properties:
+                                  pattern:
+                                    description: |-
+                                      Pattern can be left empty to simply replace the entire value with the
+                                      replacement.
+                                    type: string
+                                  replacement:
+                                    type: string
+                                type: object
+                            required:
+                              - path
+                            type: object
+                        required:
+                          - name
+                        type: object
+                    required:
+                      - identifier
+                      - kind
+                      - origin
+                      - reference
+                    type: object
+                  type: array
+                resource:
+                  description: |-
+                    Describes the "source" Resource that exists on this, the service cluster,
+                    that should be exposed in kcp workspaces. All fields have to be specified.
+                  properties:
+                    apiGroup:
+                      description: The API group of a resource, for example "storage.initroid.com".
+                      type: string
+                    kind:
+                      description: The resource Kind, for example "Database".
+                      type: string
+                    version:
+                      description: The API version, for example "v1beta1".
+                      type: string
+                  required:
+                    - apiGroup
+                    - kind
+                    - version
+                  type: object
+              required:
+                - resource
+              type: object
+            status:
+              description: Status contains reconciliation information for the published resource.
+              properties:
+                resourceSchemaName:
+                  type: string
+              type: object
+          required:
+            - spec
+          type: object
+      served: true
+      storage: true
+      subresources:
+        status: {}
+{{- end }}

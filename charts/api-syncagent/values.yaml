@@ -43,3 +43,7 @@ resources:
   limits:
     cpu: 1
     memory: 512Mi
+
+crds:
+  # Whether to install the PublishedResource CRD.
+  enabled: true
