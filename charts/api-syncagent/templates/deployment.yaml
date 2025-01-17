@@ -44,6 +44,9 @@ spec:
             {{- with .Values.publishedResourceSelector }}
             - "--published-resource-selector={{ . }}"
             {{- end }}
+            {{- range .Values.extraFlags }}
+            - {{ . | quote }}
+            {{- end }}
           env:
             - name: POD_NAMESPACE
               valueFrom:
@@ -68,6 +71,9 @@ spec:
             - name: cluster-kubeconfig
               mountPath: /etc/api-syncagent/cluster
           {{- end }}
+{{- if .Values.extraVolumeMounts }}
+{{ toYaml .Values.extraVolumeMounts | indent 12 }}
+{{- end }}
       securityContext:
         runAsNonRoot: true
         runAsUser: 65534
@@ -83,3 +89,7 @@ spec:
           secret:
             secretName: "{{ . }}"
         {{- end }}
+{{- if .Values.extraVolumes }}
+{{ toYaml .Values.extraVolumes | indent 8 }}
+{{- end }}
+
