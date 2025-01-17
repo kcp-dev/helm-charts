@@ -1,0 +1,160 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: {{ .Release.Namespace }}:{{ include "kcp-operator.fullname" . }}
+  labels:
+    {{- include "kcp-operator.labels" . | nindent 4 }}
+rules:
+- apiGroups:
+  - apps
+  resources:
+  - deployments
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - cert-manager.io
+  resources:
+  - certificates
+  - issuers
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - ""
+  resources:
+  - secrets
+  - services
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - operator.kcp.io
+  resources:
+  - cacheservers
+  - frontproxies
+  - shards
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - operator.kcp.io
+  resources:
+  - cacheservers/finalizers
+  - frontproxies/finalizers
+  - kubeconfigs/finalizers
+  - rootshards/finalizers
+  - shards/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - operator.kcp.io
+  resources:
+  - cacheservers/status
+  - frontproxies/status
+  - kubeconfigs/status
+  - rootshards/status
+  - shards/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - operator.kcp.io
+  resources:
+  - kubeconfigs
+  - rootshards
+  verbs:
+  - get
+  - list
+  - patch
+  - update
+  - watch
+{{- if .Values.serviceAccount.create }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: {{ .Release.Namespace}}:{{ include "kcp-operator.fullname" . }}:{{ include "kcp-operator.serviceAccountName" . }}
+  labels:
+    {{- include "kcp-operator.labels" . | nindent 4 }}
+  annotations:
+    {{- .Values.annotations | toYaml | nindent 4 }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: {{ .Release.Namespace }}:{{ include "kcp-operator.fullname" . }}
+subjects:
+  - apiGroup: ""
+    kind: ServiceAccount
+    name: {{ include "kcp-operator.serviceAccountName" . }}
+    namespace: {{ .Release.Namespace }}
+{{- end }}
+{{- if .Values.leaderElection.enabled }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: {{ include "kcp-operator.fullname" . }}:leaderelection
+  labels:
+    {{- include "kcp-operator.labels" . | nindent 4 }}
+  annotations: 
+    {{- .Values.annotations | toYaml | nindent 4 }}
+rules:
+- apiGroups:
+  - coordination.k8s.io
+  resources:
+  - leases
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - ""
+  resources:
+  - events
+  verbs:
+  - create
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: {{ include "kcp-operator.fullname" . }}:{{ include "kcp-operator.serviceAccountName" . }}:leaderelection
+  labels:
+    {{- include "kcp-operator.labels" . | nindent 4 }}
+  annotations: 
+    {{- .Values.annotations | toYaml | nindent 4 }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: {{ include "kcp-operator.fullname" . }}:leaderelection
+subjects:
+  - apiGroup: ""
+    kind: ServiceAccount
+    name: {{ include "kcp-operator.serviceAccountName" . }}
+    namespace: {{ .Release.Namespace }}
+{{- end }}
