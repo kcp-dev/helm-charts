@@ -1,0 +1,797 @@
+{{- if .Values.crds.create }}
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.16.1
+  name: cacheservers.operator.kcp.io
+spec:
+  group: operator.kcp.io
+  names:
+    kind: CacheServer
+    listKind: CacheServerList
+    plural: cacheservers
+    singular: cacheserver
+  scope: Namespaced
+  versions:
+  - name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        description: CacheServer is the Schema for the cacheservers API
+        properties:
+          apiVersion:
+            description: |-
+              APIVersion defines the versioned schema of this representation of an object.
+              Servers should convert recognized schemas to the latest internal value, and
+              may reject unrecognized values.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+            type: string
+          kind:
+            description: |-
+              Kind is a string value representing the REST resource this object represents.
+              Servers may infer this from the endpoint the client submits requests to.
+              Cannot be updated.
+              In CamelCase.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: CacheServerSpec defines the desired state of CacheServer.
+            properties:
+              etcd:
+                description: Etcd configures the etcd cluster that this cache server
+                  should be using.
+                properties:
+                  endpoints:
+                    description: Endpoints is a list of http urls at which etcd nodes
+                      are available. The expected format is "https://etcd-hostname:2379".
+                    items:
+                      type: string
+                    type: array
+                  tlsConfig:
+                    description: ClientCert configures the client certificate used
+                      to access etcd.
+                    properties:
+                      secretRef:
+                        description: SecretRef is the reference to a v1.Secret object
+                          that contains the TLS certificate.
+                        properties:
+                          name:
+                            default: ""
+                            description: |-
+                              Name of the referent.
+                              This field is effectively required, but due to backwards compatibility is
+                              allowed to be empty. Instances of this type with an empty value here are
+                              almost certainly wrong.
+                              More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+                            type: string
+                        type: object
+                        x-kubernetes-map-type: atomic
+                    required:
+                    - secretRef
+                    type: object
+                required:
+                - endpoints
+                type: object
+              image:
+                description: 'Optional: Image overwrites the container image used
+                  to deploy the cache server.'
+                properties:
+                  imagePullSecrets:
+                    description: 'Optional: ImagePullSecrets is a list of secret references
+                      that should be used as image pull secrets (e.g. when a private
+                      registry is used).'
+                    items:
+                      description: |-
+                        LocalObjectReference contains enough information to let you locate the
+                        referenced object inside the same namespace.
+                      properties:
+                        name:
+                          default: ""
+                          description: |-
+                            Name of the referent.
+                            This field is effectively required, but due to backwards compatibility is
+                            allowed to be empty. Instances of this type with an empty value here are
+                            almost certainly wrong.
+                            More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+                          type: string
+                      type: object
+                      x-kubernetes-map-type: atomic
+                    type: array
+                  repository:
+                    description: Repository is the container image repository to use
+                      for KCP containers. Defaults to `ghcr.io/kcp-dev/kcp`.
+                    type: string
+                  tag:
+                    description: Tag is the container image tag to use for KCP containers.
+                      Defaults to the latest kcp release that the operator supports.
+                    type: string
+                type: object
+            required:
+            - etcd
+            type: object
+          status:
+            description: CacheServerStatus defines the observed state of CacheServer
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.16.1
+  name: frontproxies.operator.kcp.io
+spec:
+  group: operator.kcp.io
+  names:
+    kind: FrontProxy
+    listKind: FrontProxyList
+    plural: frontproxies
+    singular: frontproxy
+  scope: Namespaced
+  versions:
+  - name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        description: FrontProxy is the Schema for the frontproxies API
+        properties:
+          apiVersion:
+            description: |-
+              APIVersion defines the versioned schema of this representation of an object.
+              Servers should convert recognized schemas to the latest internal value, and
+              may reject unrecognized values.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+            type: string
+          kind:
+            description: |-
+              Kind is a string value representing the REST resource this object represents.
+              Servers may infer this from the endpoint the client submits requests to.
+              Cannot be updated.
+              In CamelCase.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: FrontProxySpec defines the desired state of FrontProxy.
+            properties:
+              auth:
+                description: 'Optional: Auth configures various aspects of Authentication
+                  and Authorization for this front-proxy instance.'
+                properties:
+                  oidc:
+                    description: 'Optional: OIDC configures OpenID Connect Authentication'
+                    properties:
+                      clientID:
+                        description: ClientID is the OIDC client ID configured on
+                          the issuer side for this KCP instance.
+                        type: string
+                      clientSecret:
+                        description: |-
+                          Optionally provide the client secret for the OIDC client. This is not used by KCP itself, but is used to generate
+                          a OIDC kubeconfig that can be shared with users to log in via the OIDC provider.
+                        type: string
+                      enabled:
+                        type: boolean
+                      groupsClaim:
+                        description: 'Experimental: Optionally provides a custom claim
+                          for fetching groups. The claim must be a string or an array
+                          of strings.'
+                        type: string
+                      groupsPrefix:
+                        description: |-
+                          Optionally sets a custom groups prefix. This defaults to "oidc:" if unset, which means a group called "group1"
+                          on the OIDC side will be recognised as "oidc:group1" in KCP.
+                        type: string
+                      issuerURL:
+                        description: IssuerURL is used for the OIDC issuer URL. Only
+                          https URLs will be accepted.
+                        type: string
+                      usernameClaim:
+                        description: Optionally uses a custom claim for fetching the
+                          username. This defaults to "sub" if unset.
+                        type: string
+                      usernamePrefix:
+                        description: |-
+                          Optionally sets a custom username prefix. This defaults to "oidc:" if unset, which means a user called "user@example.com"
+                          on the OIDC side will be recognised as "oidc:user@example.com" in KCP.
+                        type: string
+                    required:
+                    - clientID
+                    - enabled
+                    - issuerURL
+                    type: object
+                type: object
+              replicas:
+                description: 'Optional: Replicas configures the replica count for
+                  the front-proxy Deployment.'
+                format: int32
+                type: integer
+              rootShard:
+                description: RootShard configures the kcp root shard that this front-proxy
+                  instance should connect to.
+                properties:
+                  ref:
+                    description: Reference references a local RootShard object.
+                    properties:
+                      name:
+                        default: ""
+                        description: |-
+                          Name of the referent.
+                          This field is effectively required, but due to backwards compatibility is
+                          allowed to be empty. Instances of this type with an empty value here are
+                          almost certainly wrong.
+                          More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+                        type: string
+                    type: object
+                    x-kubernetes-map-type: atomic
+                type: object
+            required:
+            - rootShard
+            type: object
+          status:
+            description: FrontProxyStatus defines the observed state of FrontProxy
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.16.1
+  name: kubeconfigs.operator.kcp.io
+spec:
+  group: operator.kcp.io
+  names:
+    kind: Kubeconfig
+    listKind: KubeconfigList
+    plural: kubeconfigs
+    singular: kubeconfig
+  scope: Namespaced
+  versions:
+  - name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        description: Kubeconfig is the Schema for the kubeconfigs API
+        properties:
+          apiVersion:
+            description: |-
+              APIVersion defines the versioned schema of this representation of an object.
+              Servers should convert recognized schemas to the latest internal value, and
+              may reject unrecognized values.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+            type: string
+          kind:
+            description: |-
+              Kind is a string value representing the REST resource this object represents.
+              Servers may infer this from the endpoint the client submits requests to.
+              Cannot be updated.
+              In CamelCase.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: KubeconfigSpec defines the desired state of Kubeconfig.
+            properties:
+              groups:
+                description: Username defines the groups embedded in the TLS certificate
+                  generated for this kubeconfig.
+                items:
+                  type: string
+                type: array
+              secretRef:
+                description: SecretRef defines the v1.Secret object that the resulting
+                  kubeconfig should be written to.
+                properties:
+                  name:
+                    default: ""
+                    description: |-
+                      Name of the referent.
+                      This field is effectively required, but due to backwards compatibility is
+                      allowed to be empty. Instances of this type with an empty value here are
+                      almost certainly wrong.
+                      More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+                    type: string
+                type: object
+                x-kubernetes-map-type: atomic
+              target:
+                description: Target configures which kcp-operator object this kubeconfig
+                  should be generated for (shard or front-proxy).
+                properties:
+                  frontProxyRef:
+                    description: |-
+                      LocalObjectReference contains enough information to let you locate the
+                      referenced object inside the same namespace.
+                    properties:
+                      name:
+                        default: ""
+                        description: |-
+                          Name of the referent.
+                          This field is effectively required, but due to backwards compatibility is
+                          allowed to be empty. Instances of this type with an empty value here are
+                          almost certainly wrong.
+                          More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+                        type: string
+                    type: object
+                    x-kubernetes-map-type: atomic
+                  rootShardRef:
+                    description: |-
+                      LocalObjectReference contains enough information to let you locate the
+                      referenced object inside the same namespace.
+                    properties:
+                      name:
+                        default: ""
+                        description: |-
+                          Name of the referent.
+                          This field is effectively required, but due to backwards compatibility is
+                          allowed to be empty. Instances of this type with an empty value here are
+                          almost certainly wrong.
+                          More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+                        type: string
+                    type: object
+                    x-kubernetes-map-type: atomic
+                  shardRef:
+                    description: |-
+                      LocalObjectReference contains enough information to let you locate the
+                      referenced object inside the same namespace.
+                    properties:
+                      name:
+                        default: ""
+                        description: |-
+                          Name of the referent.
+                          This field is effectively required, but due to backwards compatibility is
+                          allowed to be empty. Instances of this type with an empty value here are
+                          almost certainly wrong.
+                          More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+                        type: string
+                    type: object
+                    x-kubernetes-map-type: atomic
+                type: object
+              username:
+                description: Username defines the username embedded in the TLS certificate
+                  generated for this kubeconfig.
+                type: string
+              validity:
+                description: Validity configures the lifetime of the embedded TLS
+                  certificate. The kubeconfig secret will be automatically regenerated
+                  when the certificate expires.
+                type: string
+            required:
+            - secretRef
+            - target
+            - username
+            - validity
+            type: object
+          status:
+            description: KubeconfigStatus defines the observed state of Kubeconfig
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.16.1
+  name: rootshards.operator.kcp.io
+spec:
+  group: operator.kcp.io
+  names:
+    kind: RootShard
+    listKind: RootShardList
+    plural: rootshards
+    singular: rootshard
+  scope: Namespaced
+  versions:
+  - additionalPrinterColumns:
+    - jsonPath: .spec.external.hostname
+      name: Hostname
+      type: string
+    - jsonPath: .status.phase
+      name: Phase
+      type: string
+    - jsonPath: .metadata.creationTimestamp
+      name: Age
+      type: date
+    name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        description: RootShard is the Schema for the kcpinstances API
+        properties:
+          apiVersion:
+            description: |-
+              APIVersion defines the versioned schema of this representation of an object.
+              Servers should convert recognized schemas to the latest internal value, and
+              may reject unrecognized values.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+            type: string
+          kind:
+            description: |-
+              Kind is a string value representing the REST resource this object represents.
+              Servers may infer this from the endpoint the client submits requests to.
+              Cannot be updated.
+              In CamelCase.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: RootShardSpec defines the desired state of RootShard.
+            properties:
+              cache:
+                description: Cache configures the cache server (with a Kubernetes-like
+                  API) used by a sharded kcp instance.
+                properties:
+                  embedded:
+                    description: Embedded configures settings for starting the cache
+                      server embedded in the root shard.
+                    properties:
+                      enabled:
+                        description: Enabled enables or disables running the cache
+                          server as embedded.
+                        type: boolean
+                    required:
+                    - enabled
+                    type: object
+                type: object
+              certificates:
+                properties:
+                  caSecretRef:
+                    description: |-
+                      LocalObjectReference contains enough information to let you locate the
+                      referenced object inside the same namespace.
+                    properties:
+                      name:
+                        default: ""
+                        description: |-
+                          Name of the referent.
+                          This field is effectively required, but due to backwards compatibility is
+                          allowed to be empty. Instances of this type with an empty value here are
+                          almost certainly wrong.
+                          More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+                        type: string
+                    type: object
+                    x-kubernetes-map-type: atomic
+                  issuerRef:
+                    description: ObjectReference is a reference to an object with
+                      a given name, kind and group.
+                    properties:
+                      group:
+                        description: Group of the object being referred to.
+                        type: string
+                      kind:
+                        description: Kind of the object being referred to.
+                        type: string
+                      name:
+                        description: Name of the object being referred to.
+                        type: string
+                    required:
+                    - name
+                    type: object
+                type: object
+              clusterDomain:
+                type: string
+              etcd:
+                description: Etcd configures the etcd cluster that this shard should
+                  be using.
+                properties:
+                  endpoints:
+                    description: Endpoints is a list of http urls at which etcd nodes
+                      are available. The expected format is "https://etcd-hostname:2379".
+                    items:
+                      type: string
+                    type: array
+                  tlsConfig:
+                    description: ClientCert configures the client certificate used
+                      to access etcd.
+                    properties:
+                      secretRef:
+                        description: SecretRef is the reference to a v1.Secret object
+                          that contains the TLS certificate.
+                        properties:
+                          name:
+                            default: ""
+                            description: |-
+                              Name of the referent.
+                              This field is effectively required, but due to backwards compatibility is
+                              allowed to be empty. Instances of this type with an empty value here are
+                              almost certainly wrong.
+                              More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+                            type: string
+                        type: object
+                        x-kubernetes-map-type: atomic
+                    required:
+                    - secretRef
+                    type: object
+                required:
+                - endpoints
+                type: object
+              external:
+                properties:
+                  hostname:
+                    description: |-
+                      Hostname is the external name of the kcp instance. This should be matched by a DNS
+                      record pointing to the kcp-front-proxy Service's external IP address.
+                    type: string
+                  port:
+                    format: int32
+                    type: integer
+                required:
+                - hostname
+                - port
+                type: object
+              image:
+                description: ImageSpec defines settings for using a specific image
+                  and overwriting the default images used.
+                properties:
+                  imagePullSecrets:
+                    description: 'Optional: ImagePullSecrets is a list of secret references
+                      that should be used as image pull secrets (e.g. when a private
+                      registry is used).'
+                    items:
+                      description: |-
+                        LocalObjectReference contains enough information to let you locate the
+                        referenced object inside the same namespace.
+                      properties:
+                        name:
+                          default: ""
+                          description: |-
+                            Name of the referent.
+                            This field is effectively required, but due to backwards compatibility is
+                            allowed to be empty. Instances of this type with an empty value here are
+                            almost certainly wrong.
+                            More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+                          type: string
+                      type: object
+                      x-kubernetes-map-type: atomic
+                    type: array
+                  repository:
+                    description: Repository is the container image repository to use
+                      for KCP containers. Defaults to `ghcr.io/kcp-dev/kcp`.
+                    type: string
+                  tag:
+                    description: Tag is the container image tag to use for KCP containers.
+                      Defaults to the latest kcp release that the operator supports.
+                    type: string
+                type: object
+              replicas:
+                description: Replicas configures how many instances of this shard
+                  run in parallel. Defaults to 2 if not set.
+                format: int32
+                type: integer
+            required:
+            - cache
+            - certificates
+            - etcd
+            - external
+            type: object
+          status:
+            description: RootShardStatus defines the observed state of RootShard
+            properties:
+              conditions:
+                items:
+                  description: Condition contains details for one aspect of the current
+                    state of this API Resource.
+                  properties:
+                    lastTransitionTime:
+                      description: |-
+                        lastTransitionTime is the last time the condition transitioned from one status to another.
+                        This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
+                      format: date-time
+                      type: string
+                    message:
+                      description: |-
+                        message is a human readable message indicating details about the transition.
+                        This may be an empty string.
+                      maxLength: 32768
+                      type: string
+                    observedGeneration:
+                      description: |-
+                        observedGeneration represents the .metadata.generation that the condition was set based upon.
+                        For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date
+                        with respect to the current state of the instance.
+                      format: int64
+                      minimum: 0
+                      type: integer
+                    reason:
+                      description: |-
+                        reason contains a programmatic identifier indicating the reason for the condition's last transition.
+                        Producers of specific condition types may define expected values and meanings for this field,
+                        and whether the values are considered a guaranteed API.
+                        The value should be a CamelCase string.
+                        This field may not be empty.
+                      maxLength: 1024
+                      minLength: 1
+                      pattern: ^[A-Za-z]([A-Za-z0-9_,:]*[A-Za-z0-9_])?$
+                      type: string
+                    status:
+                      description: status of the condition, one of True, False, Unknown.
+                      enum:
+                      - "True"
+                      - "False"
+                      - Unknown
+                      type: string
+                    type:
+                      description: type of condition in CamelCase or in foo.example.com/CamelCase.
+                      maxLength: 316
+                      pattern: ^([a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*/)?(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])$
+                      type: string
+                  required:
+                  - lastTransitionTime
+                  - message
+                  - reason
+                  - status
+                  - type
+                  type: object
+                type: array
+                x-kubernetes-list-map-keys:
+                - type
+                x-kubernetes-list-type: map
+              phase:
+                type: string
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.16.1
+  name: shards.operator.kcp.io
+spec:
+  group: operator.kcp.io
+  names:
+    kind: Shard
+    listKind: ShardList
+    plural: shards
+    singular: shard
+  scope: Namespaced
+  versions:
+  - name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        description: Shard is the Schema for the shards API
+        properties:
+          apiVersion:
+            description: |-
+              APIVersion defines the versioned schema of this representation of an object.
+              Servers should convert recognized schemas to the latest internal value, and
+              may reject unrecognized values.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+            type: string
+          kind:
+            description: |-
+              Kind is a string value representing the REST resource this object represents.
+              Servers may infer this from the endpoint the client submits requests to.
+              Cannot be updated.
+              In CamelCase.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: ShardSpec defines the desired state of Shard
+            properties:
+              clusterDomain:
+                type: string
+              etcd:
+                description: Etcd configures the etcd cluster that this shard should
+                  be using.
+                properties:
+                  endpoints:
+                    description: Endpoints is a list of http urls at which etcd nodes
+                      are available. The expected format is "https://etcd-hostname:2379".
+                    items:
+                      type: string
+                    type: array
+                  tlsConfig:
+                    description: ClientCert configures the client certificate used
+                      to access etcd.
+                    properties:
+                      secretRef:
+                        description: SecretRef is the reference to a v1.Secret object
+                          that contains the TLS certificate.
+                        properties:
+                          name:
+                            default: ""
+                            description: |-
+                              Name of the referent.
+                              This field is effectively required, but due to backwards compatibility is
+                              allowed to be empty. Instances of this type with an empty value here are
+                              almost certainly wrong.
+                              More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+                            type: string
+                        type: object
+                        x-kubernetes-map-type: atomic
+                    required:
+                    - secretRef
+                    type: object
+                required:
+                - endpoints
+                type: object
+              image:
+                description: ImageSpec defines settings for using a specific image
+                  and overwriting the default images used.
+                properties:
+                  imagePullSecrets:
+                    description: 'Optional: ImagePullSecrets is a list of secret references
+                      that should be used as image pull secrets (e.g. when a private
+                      registry is used).'
+                    items:
+                      description: |-
+                        LocalObjectReference contains enough information to let you locate the
+                        referenced object inside the same namespace.
+                      properties:
+                        name:
+                          default: ""
+                          description: |-
+                            Name of the referent.
+                            This field is effectively required, but due to backwards compatibility is
+                            allowed to be empty. Instances of this type with an empty value here are
+                            almost certainly wrong.
+                            More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+                          type: string
+                      type: object
+                      x-kubernetes-map-type: atomic
+                    type: array
+                  repository:
+                    description: Repository is the container image repository to use
+                      for KCP containers. Defaults to `ghcr.io/kcp-dev/kcp`.
+                    type: string
+                  tag:
+                    description: Tag is the container image tag to use for KCP containers.
+                      Defaults to the latest kcp release that the operator supports.
+                    type: string
+                type: object
+              replicas:
+                description: Replicas configures how many instances of this shard
+                  run in parallel. Defaults to 2 if not set.
+                format: int32
+                type: integer
+              rootShard:
+                properties:
+                  ref:
+                    description: Reference references a local RootShard object.
+                    properties:
+                      name:
+                        default: ""
+                        description: |-
+                          Name of the referent.
+                          This field is effectively required, but due to backwards compatibility is
+                          allowed to be empty. Instances of this type with an empty value here are
+                          almost certainly wrong.
+                          More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+                        type: string
+                    type: object
+                    x-kubernetes-map-type: atomic
+                type: object
+            required:
+            - etcd
+            - rootShard
+            type: object
+          status:
+            description: ShardStatus defines the observed state of Shard
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
+{{- end }}

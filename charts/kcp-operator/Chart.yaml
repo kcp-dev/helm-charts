@@ -1,0 +1,20 @@
+apiVersion: v2
+name: kcp-operator
+description: A Helm chart for kcp-operator, a Kubernetes operator to deploy and manage kcp instances.
+
+# version information
+version: 0.0.1
+appVersion: "0.0.0"
+
+# optional metadata
+type: application
+home: https://kcp.io
+keywords:
+  - kcp
+  - kubernetes
+  - multitenancy
+  - operator
+sources:
+  - https://github.com/kcp-dev/helm-charts
+  - https://github.com/kcp-dev/kcp-operator
+icon: https://raw.githubusercontent.com/kcp-dev/kcp/main/contrib/logo/blue-green.svg
