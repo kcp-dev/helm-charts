@@ -3,8 +3,8 @@ name: api-syncagent
 description: A Kubernetes agent to synchronize APIs and their objects between Kubernetes clusters and kcp.
 
 # version information
-version: 0.0.1
-appVersion: "0.0.0"
+version: 0.1.0
+appVersion: "v0.1.0"
 
 # optional metadata
 type: application
