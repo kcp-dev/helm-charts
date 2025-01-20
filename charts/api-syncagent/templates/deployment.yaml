@@ -57,7 +57,7 @@ spec:
               value: '{{ required "APIExport name must be configured" .Values.apiExportName }}'
             - name: AGENT_NAME
               value: '{{ template "agentname" . }}'
-          image: '{{ template "image" (list $ .Values.image) }}'
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           resources: {{ .Values.resources | toYaml | nindent 12 }}
           securityContext:
             allowPrivilegeEscalation: false
