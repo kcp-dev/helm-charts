@@ -1,0 +1,103 @@
+# Default values for kcp-operator.
+# Declare variables to be passed into your templates.
+
+# This is to override the chart name.
+nameOverride: ""
+fullnameOverride: ""
+
+crds:
+  # This configures whether kcp-operator CRDs should be deployed.
+  create: true
+
+# This will set the replica count of the kcp-operator Deployment. More information can be found here: https://kubernetes.io/docs/concepts/workloads/controllers/replicaset/.
+replicaCount: 1
+
+# This contains various configuration options to tune the image used by kcp-operator.
+image:
+  # This configures the repository used for the container image.
+  repository: ghcr.io/kcp-dev/kcp-operator
+  # Overrides the image tag. By default, this is the chart's appVersion.
+  tag: ""
+  # This sets the pull policy for images.
+  pullPolicy: IfNotPresent
+
+# This is for the secretes for pulling an image from a private repository. More information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/.
+imagePullSecrets: []
+
+# This section builds out the service account. More information can be found here: https://kubernetes.io/docs/concepts/security/service-accounts/.
+serviceAccount:
+  # Specifies whether a service account should be created.
+  create: true
+  # Automatically mount a ServiceAccount's API credentials?
+  automount: true
+  # Annotations to add to the service account.
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template.
+  name: ""
+
+# This configures the operator's leader election to determine the Pod that is actively reconciling objects.
+leaderElection:
+  enabled: true
+
+# This is for setting Kubernetes Labels to the kcp-operator Deployment.
+labels: {}
+# This is for setting Kubernetes Annotations to the kcp-operator Deployment.
+annotations: {}
+
+# This is for setting Kubernetes Annotations to a Pod.
+# For more information check out: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/
+podAnnotations: {}
+# This is for setting Kubernetes Labels to a Pod.
+# For more information check out: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/
+podLabels: {}
+
+podSecurityContext:
+  fsGroup: 65532
+
+securityContext:
+  capabilities:
+    drop:
+    - ALL
+  readOnlyRootFilesystem: true
+  runAsNonRoot: true
+  runAsUser: 65532
+
+# This is for setting up a service. More information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/.
+service:
+  # This sets the service type. More information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types.
+  type: ClusterIP
+
+resources: {}
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  # limits:
+  #   cpu: 100m
+  #   memory: 128Mi
+  # requests:
+  #   cpu: 100m
+  #   memory: 128Mi
+
+# Additional volumes to be added to the kcp-operator Deployment.
+volumes: []
+# - name: foo
+#   secret:
+#     secretName: mysecret
+#     optional: false
+
+# Additional volumeMounts to be added to the kcp-operator Deployment.
+volumeMounts: []
+# - name: foo
+#   mountPath: "/etc/foo"
+#   readOnly: true
+
+# This configures the node selector for scheduling kcp-operator to specifc nodes. For more information see https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#nodeselector.
+nodeSelector: {}
+
+# This configures tolerations to allow kcp-operator to be scheduled to Nodes with taints. For more information see https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/.
+tolerations: []
+
+# This configures advanced scheduling affinity settings to fine-tune where kcp-operator runs. For more information see https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#affinity-and-anti-affinity.
+affinity: {}
