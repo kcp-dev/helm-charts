@@ -85,6 +85,10 @@ spec:
       labels:
         {{- include "common.labels" . | nindent 8 }}
         app.kubernetes.io/component: "server"
+      annotations:
+      {{- with .Values.kcp.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
     spec:
       {{- with .Values.kcp.securityContext }}
       securityContext:

@@ -55,6 +55,7 @@ kcp:
       # cpu: 1
       memory: 20Gi
   volumeClassName: ""
+  podAnnotations: {}
   etcd:
     # set this if you are using external etcds. Do not set this to "embedded", it is not supported.
     serverAddress: ""
