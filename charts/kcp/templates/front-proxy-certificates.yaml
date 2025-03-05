@@ -19,6 +19,9 @@ spec:
     - server auth
   dnsNames:
     - "{{ .Values.externalHostname }}"
+    {{- range .Values.kcpFrontProxy.extraDNSNames }}
+    - "{{ . }}"
+    {{- end }}
   issuerRef:
     {{- if .Values.kcpFrontProxy.certificateIssuer }}
     {{ .Values.kcpFrontProxy.certificateIssuer | toYaml | nindent 4 }}

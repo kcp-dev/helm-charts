@@ -185,6 +185,9 @@ kcpFrontProxy:
   #  proxy_client_cert: /etc/kcp-front-proxy/requestheader-client/tls/kcp/tls.crt
   #  proxy_client_key: /etc/kcp-front-proxy/requestheader-client/tls/kcp/tls.key
 
+  # Set this to add additional dnsNames to the Front Proxy certificate.
+  extraDNSNames: []
+
   # When running external virtual workspaces, kcp-front-proxy needs
   # access to the CA that signed the VW's serving cert. Unless your
   # VWs all use the kcp-server-issuer, you must mount all additional
