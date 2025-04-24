@@ -217,7 +217,7 @@ kcpFrontProxy:
             topologyKey: "kubernetes.io/hostname"
 oidc:
   enabled: false
-  # For details refer to https://kubernetes.io/docs/reference/access-authn-authz/authentication/#configuring-the-api-server
+  # For details refer to https://docs.kcp.io/kcp/main/concepts/authentication/oidc/
   # issuerUrl: "https://..." # Same as --oidc-issuer-url
   # clientId: "" # Same as --oidc-client-id
   # groupClaim: "groups" # Same as --oidc-groups-claim
