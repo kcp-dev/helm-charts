@@ -44,6 +44,10 @@ spec:
       affinity:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+      {{- with .Values.etcd.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       containers:
         - name: etcd
           image: {{ .Values.etcd.image }}:{{ .Values.etcd.tag }}
