@@ -102,6 +102,10 @@ spec:
       affinity:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+      {{- with .Values.kcp.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       containers:
         - name: kcp
           image: {{ .Values.kcp.image }}:{{- include "kcp.version" . }}
