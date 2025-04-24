@@ -238,6 +238,13 @@ kcpFrontProxy:
             topologyKey: "kubernetes.io/hostname"
 oidc:
   enabled: false
+  # For details refer to https://docs.kcp.io/kcp/main/concepts/authentication/oidc/
+  # issuerUrl: "https://..." # Same as --oidc-issuer-url
+  # clientId: "" # Same as --oidc-client-id
+  # groupClaim: "groups" # Same as --oidc-groups-claim
+  # groupsPrefix: "oidc:" # Same as --oidc-groups-prefix
+  # usernameClaim: "sub" # Same as --oidc-username-claim
+  # usernamePrefix: "oidc:" # Same as --oidc-username-prefix
   caSecretName: ""
   # assuming you're using cert-manager, you want to mount the CA certificate
   # directly and use its tls.crt key; if you instead mount a certificate that
