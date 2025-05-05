@@ -6,6 +6,8 @@ This Helm chart deploys kcp, including the following components:
 * etcd
 * kcp-front-proxy
 
+There is a [helper script](#install-to-kind-cluster-for-development) that you can use to setup a local development environment that runs kcp on a kind cluster.
+
 ## Requirements
 
 * [cert-manager](https://cert-manager.io/docs/installation)
@@ -181,7 +183,8 @@ We can now add these credentials to the `admin.kubeconfig` and access kcp:
 
 There is a helper script to install kcp to a [kind](https://github.com/kubernetes-sigs/kind) cluster.
 It will install cert-manager and kcp. The `kind` cluster binds to host port 8443 for exposing kcp.
-This particular configuration is useful for development and testing, but will not work with Let's Encrypt.
+This particular configuration is useful for development and testing, but will not work with Let's Encrypt. You will need to have `yq` installed to run this script.
+
 From the root directory of this repository, run:
 
     ./hack/kind-setup.sh
