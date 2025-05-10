@@ -48,6 +48,10 @@ spec:
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+      {{- if .Values.global.imagePullSecrets }}
+      imagePullSecrets:
+        {{- include "kcp.imagePullSecrets" . | trim | nindent 8 }}
+      {{- end }}
       containers:
         - name: etcd
           image: {{ .Values.etcd.image }}:{{ .Values.etcd.tag }}
