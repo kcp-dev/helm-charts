@@ -30,6 +30,10 @@ spec:
       serviceAccountName: {{ include "kcp-operator.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      {{- if .Values.global.imagePullSecrets }}
+      imagePullSecrets:
+        {{- include "kcp-operator.imagePullSecrets" . | trim | nindent 8 }}
+      {{- end }}
       containers:
         - name: {{ .Chart.Name }}
           securityContext:

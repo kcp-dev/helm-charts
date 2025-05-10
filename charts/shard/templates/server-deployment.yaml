@@ -108,6 +108,10 @@ spec:
       hostAliases:
         {{- toYaml .Values.kcp.hostAliases.values | nindent 6 }}
       {{- end }}
+      {{- if .Values.global.imagePullSecrets }}
+      imagePullSecrets:
+        {{- include "kcp.imagePullSecrets" . | trim | nindent 8 }}
+      {{- end }}
       containers:
         - name: kcp
           image: {{ .Values.kcp.image }}:{{- include "kcp.version" . }}

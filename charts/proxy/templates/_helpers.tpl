@@ -19,6 +19,16 @@
 {{- end -}}
 {{- end -}}
 
+{{- define "kcp.imagePullSecrets" -}}
+{{- range .Values.global.imagePullSecrets }}
+{{- if eq (typeOf .) "map[string]interface {}" }}
+{{ toYaml . | trim }}
+{{- else }}
+- name: {{ . }}
+{{- end }}
+{{- end }}
+{{- end -}}
+
 {{- define "certificates.kcp" -}}
 {{- if not (eq .Values.certificates.name "") -}}
 {{- $trimmedName := printf "%s" .Values.certificates.name | trunc 58 | trimSuffix "-" -}}

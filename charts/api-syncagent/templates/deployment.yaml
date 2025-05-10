@@ -24,6 +24,10 @@ spec:
         app.kubernetes.io/instance: '{{ template "agentname" . }}'
         app.kubernetes.io/version: '{{ .Values.image.tag | default .Chart.AppVersion }}'
     spec:
+      {{- if .Values.global.imagePullSecrets }}
+      imagePullSecrets:
+        {{- include "imagePullSecrets" . | trim | nindent 8 }}
+      {{- end }}
       containers:
         - name: agent
           args:
