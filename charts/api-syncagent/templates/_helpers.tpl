@@ -4,7 +4,7 @@
 {{- define "imagePullSecrets" -}}
 {{- range .Values.global.imagePullSecrets }}
 {{- if eq (typeOf .) "map[string]interface {}" }}
-{{ toYaml . | trim }}
+- {{ toYaml . | trim }}
 {{- else }}
 - name: {{ . }}
 {{- end }}

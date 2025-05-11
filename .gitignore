@@ -2,3 +2,7 @@
 
 # output of hack/ci/validate-helm-resources.sh
 *-templated.yaml
+
+# remove local development nix configs
+*.nix
+*.lock
