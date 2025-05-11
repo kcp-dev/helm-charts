@@ -5,7 +5,7 @@ global:
   imagePullSecrets: []
   # - name: "image-pull-secret"
   # or
-  # - "image-pull-secret"externalHostname: ""
+  # - "image-pull-secret"
 externalHostname: ""
 kcpFrontProxy:
   enabled: true
