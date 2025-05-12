@@ -35,6 +35,16 @@ v{{- .Chart.AppVersion -}}
 {{- $batteries | uniq | join "," -}}
 {{- end -}}
 
+{{- define "kcp.imagePullSecrets" -}}
+{{- range .Values.global.imagePullSecrets }}
+{{- if eq (typeOf .) "map[string]interface {}" }}
+- {{ toYaml . | trim }}
+{{- else }}
+- name: {{ . }}
+{{- end }}
+{{- end }}
+{{- end -}}
+
 {{- define "frontproxy.fullname" -}}
 {{- $trimmedName := printf "%s" (include "kcp.fullname" .) | trunc 52 | trimSuffix "-" -}}
 {{- printf "%s-front-proxy" $trimmedName | trunc 63 | trimSuffix "-" -}}

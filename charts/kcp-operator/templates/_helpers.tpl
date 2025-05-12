@@ -6,6 +6,19 @@ Expand the name of the chart.
 {{- end }}
 
 {{/*
+Define imagePullSecrets for the chart.
+*/}}
+{{- define "kcp-operator.imagePullSecrets" -}}
+{{- range .Values.global.imagePullSecrets }}
+{{- if eq (typeOf .) "map[string]interface {}" }}
+- {{ toYaml . | trim }}
+{{- else }}
+- name: {{ . }}
+{{- end }}
+{{- end }}
+{{- end -}}
+
+{{/*
 Create a default fully qualified app name.
 We truncate at 63 chars because some Kubernetes name fields are limited to this (by the DNS naming spec).
 If release name contains chart name it will be used as a full name.
