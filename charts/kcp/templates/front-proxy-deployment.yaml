@@ -13,6 +13,9 @@ spec:
   {{- with .Values.kcpFrontProxy.service.clusterIP }}
   clusterIP: {{ . }}
   {{- end }}
+  {{- if and (.Values.kcpFrontProxy.service.type == "LoadBalancer") (.Values.kcpFrontProxy.service.loadBalancerIP) }}
+  loadBalancerIP: {{ . }}
+  {{- end }}
   type: {{ .Values.kcpFrontProxy.service.type }}
   ports:
     - protocol: TCP
