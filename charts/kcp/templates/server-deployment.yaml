@@ -149,7 +149,7 @@ spec:
             - --requestheader-username-headers=X-Remote-User
             - --requestheader-group-headers=X-Remote-Group
             - --requestheader-extra-headers-prefix=X-Remote-Extra-
-            - --root-directory=''
+            - --root-directory=
             - --shard-virtual-workspace-ca-file=/etc/kcp/tls/ca/tls.crt
             - --shard-base-url=https://{{ include "kcp.fullname" . }}:6443
             - --shard-external-url=https://$(EXTERNAL_HOSTNAME):$(EXTERNAL_PORT)
