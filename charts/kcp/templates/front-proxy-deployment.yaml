@@ -14,7 +14,7 @@ spec:
   clusterIP: {{ . }}
   {{- end }}
   {{- if and (.Values.kcpFrontProxy.service.type == "LoadBalancer") (.Values.kcpFrontProxy.service.loadBalancerIP) }}
-  loadBalancerIP: {{ . }}
+  loadBalancerIP: {{ .Values.kcpFrontProxy.service.loadBalancerIP }}
   {{- end }}
   type: {{ .Values.kcpFrontProxy.service.type }}
   ports:
