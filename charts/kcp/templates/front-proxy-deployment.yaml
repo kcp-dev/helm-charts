@@ -13,7 +13,7 @@ spec:
   {{- with .Values.kcpFrontProxy.service.clusterIP }}
   clusterIP: {{ . }}
   {{- end }}
-  {{- if and (.Values.kcpFrontProxy.service.type == "LoadBalancer") (.Values.kcpFrontProxy.service.loadBalancerIP) }}
+  {{- if and (eq .Values.kcpFrontProxy.service.type "LoadBalancer") (.Values.kcpFrontProxy.service.loadBalancerIP) }}
   loadBalancerIP: {{ .Values.kcpFrontProxy.service.loadBalancerIP }}
   {{- end }}
   type: {{ .Values.kcpFrontProxy.service.type }}
