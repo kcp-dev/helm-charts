@@ -3,7 +3,7 @@ name: kcp-operator
 description: A Helm chart for kcp-operator, a Kubernetes operator to deploy and manage kcp instances.
 
 # version information
-version: 0.1.0
+version: 0.1.1
 appVersion: "v0.1.0"
 
 # optional metadata
