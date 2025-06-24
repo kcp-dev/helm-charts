@@ -6,6 +6,7 @@ global:
   # - name: "image-pull-secret"
   # or
   # - "image-pull-secret"
+
 # Required: the name of the APIExport in kcp that this Sync Agent is supposed to serve.
 apiExportName: ""
 
@@ -43,6 +44,13 @@ image:
 
 replicas: 2
 enableLeaderElection: true
+
+# A list of internal controllers to disable in the agent; this can be used to set up
+# one standalone agent responsible solely for managing the APIExport, and another to
+# only sync, for example.
+#
+# Possible controllers to disable are: sync, apiexport, apiresourceschema
+disabledControllers: []
 
 resources:
   requests:
