@@ -48,6 +48,9 @@ spec:
             {{- with .Values.publishedResourceSelector }}
             - "--published-resource-selector={{ . }}"
             {{- end }}
+            {{- with .Values.disabledControllers }}
+            - "--disabled-controllers={{ . | join ',' }}"
+            {{- end }}
             {{- range .Values.extraFlags }}
             - {{ . | quote }}
             {{- end }}
