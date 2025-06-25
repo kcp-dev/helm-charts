@@ -8,6 +8,7 @@ The following charts are currently available from this repository:
 
 - [kcp](./charts/kcp/)
 - [api-syncagent](./charts/api-syncagent/)
+- [kcp-operator](./charts/kcp-operator/)
 
 > [!CAUTION]
 > The charts below are work-in-progress and currently not ready for production use.
@@ -19,7 +20,6 @@ that are meant to be used together:
 - [shard](./charts/shard/)
 - [proxy](./charts/proxy/)
 - [cache](./charts/cache/)
-
 
 ## Usage
 
