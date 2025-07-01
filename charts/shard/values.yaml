@@ -84,6 +84,17 @@ kcpFrontProxy:
   # certificateIssuer:
   #   name: ""
   #   kind: Issuer
+
+authentication:
+  # configMapRef can be set to reference a ConfigMap containing an
+  # authentication config. The configMap is mounted to
+  # /etc/kcp/authentication. The config is expected to be mounted as
+  # `config.yaml`.
+  # https://kubernetes.io/docs/reference/access-authn-authz/authentication/#configuring-the-api-server
+  # If this is set oidc settings will be ignored.
+  configMapRef:
+    name: ""
+
 oidc:
   enabled: false
   caSecretName: ""
