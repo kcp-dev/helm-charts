@@ -167,7 +167,9 @@ spec:
             - --shard-external-url=https://$(EXTERNAL_HOSTNAME):$(EXTERNAL_PORT)
             {{- end }}
             {{- end }}
-            {{- if .Values.oidc.enabled }}
+            {{- if .Values.authentication.configMapRef.name }}
+            - --authentication-config=/etc/kcp/authentication/config.yaml
+            {{- else if .Values.oidc.enabled }}
             - --oidc-issuer-url={{ .Values.oidc.issuerUrl }}
             - --oidc-client-id={{ .Values.oidc.clientId }}
             - --oidc-groups-claim={{ .Values.oidc.groupClaim }}
@@ -264,7 +266,10 @@ spec:
               mountPath: /etc/kcp/tls/service-account
             - name: kcp-requestheader-client-ca
               mountPath: /etc/kcp/tls/requestheader-client-ca
-            {{- if .Values.oidc.enabled }}
+            {{- if .Values.authentication.configMapRef.name }}
+            - name: kcp-authentication-config
+              mountPath: /etc/kcp/authentication
+            {{- else if .Values.oidc.enabled }}
             {{- if .Values.oidc.caSecretName }}
             - name: oidc-ca
               mountPath: /etc/kcp/tls/oidc
@@ -329,7 +334,11 @@ spec:
         - name: kcp-requestheader-client-ca
           secret:
             secretName: {{ include "certificates.kcp" . }}-requestheader-client-ca
-        {{- if .Values.oidc.enabled }}
+        {{- if .Values.authentication.configMapRef.name }}
+        - name: kcp-authentication-config
+          configMap:
+            {{ .Values.authentication.configMapRef | toYaml | nindent 12 }}
+        {{- else if .Values.oidc.enabled }}
         {{- if .Values.oidc.caSecretName }}
         - name: oidc-ca
           secret:
