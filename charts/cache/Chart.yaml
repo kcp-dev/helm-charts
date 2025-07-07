@@ -3,7 +3,7 @@ name: cache
 description: A cache server for prototype of a multi-tenant Kubernetes control plane for workloads on many clusters
 
 # version information
-version: 0.0.2
+version: 0.0.3
 appVersion: "0.22.0"
 
 # optional metadata
