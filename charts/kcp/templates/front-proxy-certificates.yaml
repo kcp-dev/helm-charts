@@ -23,8 +23,9 @@ spec:
     - "{{ . }}"
     {{- end }}
   issuerRef:
-    {{- if .Values.kcpFrontProxy.certificateIssuer }}
-    {{ .Values.kcpFrontProxy.certificateIssuer | toYaml | nindent 4 }}
+    {{- if .Values.kcpFrontProxy.certificateIssuer.name }}
+    name: {{ .Values.kcpFrontProxy.certificateIssuer.name }}
+    kind: {{ .Values.kcpFrontProxy.certificateIssuer.kind | default "ClusterIssuer" }}
     {{- else }}
     name: {{ include "kcp.fullname" . }}-server-issuer
     kind: Issuer

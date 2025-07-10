@@ -149,10 +149,15 @@ kcpFrontProxy:
     enabled: false
     ingressClassName: ""
     annotations:
-      acme.cert-manager.io/http01-edit-in-place: "true"
       # this is ingress-controller-specific and might need configuration
       # depending on the ingress-controller in use.
       nginx.ingress.kubernetes.io/backend-protocol: HTTPS
+      # kcp-front-proxy requires TLS passthrough from the ingress-controller
+      # so TLS client certificates are passed along. Note that this feature
+      # is disabled by default in nginx-ingress-controller and needs to be
+      # enabled: https://kubernetes.github.io/ingress-nginx/user-guide/tls/
+      # This will be different depending on the ingress-controller in use.
+      nginx.ingress.kubernetes.io/ssl-passthrough: "true"
     secret: ""
   gateway:
     enabled: false
@@ -173,10 +178,10 @@ kcpFrontProxy:
     loadBalancerIP: ""
   # set this if you want kcp-front-proxy to use a specific certificate issuer
   # (e.g. the Let's Encrypt ones in this chart).
-  # certificateIssuer:
+  certificateIssuer: {}
   #   name: ""
   #   kind: Issuer
-  #   secret: # must be a Secret in the same namespace as KCP, containing the CA cert for the issuer
+  #   secret: # must be a Secret in the same namespace as KCP, containing the CA cert for the issuer.
   #     name: "" # the name of the Secret
   #     key: "" # the key in the Secret's data that contains the CA cert
   profiling:
