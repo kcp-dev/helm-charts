@@ -241,7 +241,7 @@ spec:
               mountPath: /etc/etcd/tls/client-ca
             - name: kcp-ca
               mountPath: /etc/kcp/tls/ca
-            {{- if and .Values.kcpFrontProxy.certificateIssuer .Values.kcpFrontProxy.certificateIssuer.secret }}
+            {{- if .Values.kcpFrontProxy.certificateIssuer.secret }}
             - name: kcp-front-proxy-ca
               mountPath: /etc/kcp-front-proxy/tls/ca
             {{- end}}
@@ -296,7 +296,7 @@ spec:
         - name: kcp-ca
           secret:
             secretName: {{ include "kcp.fullname" . }}-ca
-        {{- if and .Values.kcpFrontProxy.certificateIssuer .Values.kcpFrontProxy.certificateIssuer.secret }}
+        {{- if .Values.kcpFrontProxy.certificateIssuer.secret }}
         - name: kcp-front-proxy-ca
           secret:
             secretName: {{ required "kcpFrontProxy.certificateIssuer.secret.name is required" .Values.kcpFrontProxy.certificateIssuer.secret.name }}
