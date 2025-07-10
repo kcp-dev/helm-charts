@@ -12,7 +12,7 @@ There is a [helper script](#install-to-kind-cluster-for-development) that you ca
 
 * [cert-manager](https://cert-manager.io/docs/installation)
 * Openshift route support (optional)
-* Ingress Controller (optional)
+* Ingress Controller with TLS passthrough support (optional)
 * Prometheus Operator (optional, see [Monitoring](#monitoring))
 
 ## Usage
@@ -29,26 +29,110 @@ of the packages. You can then run `helm search repo kcp` to see the charts.
 
 To install the kcp chart:
 
-    helm install my-kcp kcp/kcp --values ./myvalues.yaml
+    helm upgrade --install my-kcp kcp/kcp --values ./myvalues.yaml
 
 To uninstall the chart:
 
     helm delete my-kcp
 
-Note that `myvalues.yaml` will depend on your environment (you must specify which ingress method
-is used to expose the front-proxy endpoint), a minimal example:
+## Configuration
+
+For configuration options for this Helm chart, please see [values.yaml](./values.yaml).
+
+### External Hostname
+
+`externalHostname` is a required value in your `values.yaml`. It is a FQDN pointing to a DNS record that resolves both from external systems and from within the cluster to the kcp-front-proxy. The kcp-front-proxy endpoint needs to be accessible. See [Traffic Ingress](#traffic-ingress) for differences between methods of exposing kcp-front-proxy to the outside world.
+
+Your `values.yaml` should therefore contain the following:
 
 ```yaml
-externalHostname: "<external hostname as exposed by ingress method below>"
+externalHostname: my-kcp-instance.example.com
+```
+
+Some steps below require this external hostname, so consider exporting it on your shell:
+
+```sh
+export KCP_EXTERNAL_HOSTNAME=my-kcp-instance.example.com
+```
+
+### Ingress Method
+
+To allow access to kcp from outside the cluster it is running in (which you usally want to set up), you will need to choose from the options below.
+
+#### 1. LoadBalancer Service (recommended)
+
+> [!NOTE]
+> This method requires your Kubernetes cluster to support `LoadBalancer` services.
+
+The easiest way to expose kcp is by making the kcp-front-proxy component available via a `Service` of type `LoadBalancer`.
+
+To do so, use the following snippet in your `values.yaml`:
+
+```yaml
+kcpFrontProxy:
+  service:
+    type: LoadBalancer
+``` 
+
+This will create a `Service` called `kcp-front-proxy` with an external IP (or hostname).
+
+After installing the chart with this option, make sure to create a DNS record for your external hostname that points to the external IP or hostname assigned to the `kcp-front-proxy` `Service`.
+
+#### 2. Ingress
+
+> [!NOTE]
+> This method requires your Kubernetes cluster to have an ingress controller installed that has **TLS passthrough** support enabled.
+
+It is also possible to expose kcp via an `Ingress` resource. However, only TLS passthrough is currently supported due to the way client certificates are handled. Make sure that your ingress controller supports TLS passthrough (e.g. [nginx-ingress-controller has it disabled by default](https://kubernetes.github.io/ingress-nginx/user-guide/tls/#ssl-passthrough)).
+
+```yaml
 kcpFrontProxy:
   ingress:
     enabled: true
+    ingressClassName: "nginx" # use the ingress class of your ingress controller
 ```
 
-Export the externalHostname variable, that will be used later to interact with kcp setup:
+To facilitate tls passthrough, the default `values.yaml` include suitable annotations on the `Ingress` object for nginx-ingress-controller. If you are using another ingress controller, you might have to add additional annotations to enable TLS passthrough.
 
-    export KCP_EXTERNAL_HOSTNAME=kcp.dev.local
+#### 3. OpenShift Route
 
+> [!CAUTION]
+> This options is in the Helm chart for historical reasons, but it is not actively maintained and might be broken. Use at your own risk and consider using one of the alternatives above.
+
+
+### Monitoring
+
+Each component (etcd, kcp-front-proxy and kcp-server) has a `.monitoring` key that allows configuring monitoring for those components. At the moment, only Prometheus Operator is supported and is required as a pre-requisite on the cluster.
+
+For all three, a `ServiceMonitor` resource can be created by setting `.[component].monitoring.serviceMonitor.enabled` to true. Monitoring for all components would therefore look like this:
+
+```yaml
+# enable ServiceMonitor for kcp-server.
+kcp:
+  monitoring:
+    serviceMonitor:
+      enabled: true
+
+# enable ServiceMonitor for kcp-front-proxy.
+kcpFrontProxy:
+  monitoring:
+    serviceMonitor:
+      enabled: true
+
+# enable ServiceMonitor for etcd.
+etcd:
+  monitoring:
+    serviceMonitor:
+      enabled: true
+```
+
+To collect metrics from these targets, a `Prometheus` instance targetting those `ServiceMonitors` is needed. A possible selector in the `Prometheus` spec is:
+
+```yaml
+serviceMonitorSelector:
+    matchLabels:
+      app.kubernetes.io/name: kcp
+```
 
 ## PKI
 
@@ -93,19 +177,39 @@ graph TB
     classDef cert color:orange
 ```
 
-Note that by default all certificates are signed by the Helm chart's own PKI and so will not be
-trusted by browsers. You can however change the `kcp-front-proxy`'s certificate to be issued
-by, for example, Let's Encrypt. For this you have to enable the creation of the Let's Encrypt
-issuer like so:
+### Public TLS Certificate
+
+Note that by default all certificates are signed by the Helm chart's own PKI and therefore will not be trusted by browsers. This is typical for Kubernetes(-like) APIs.
+
+You can however change the `kcp-front-proxy`'s serving certificate to be issued by, for example, Let's Encrypt (LE).
+
+A big caveat to changing the front-proxy's serving certificate to a third-party issuer (like Let's Encrypt) is that you will have to pass the Certificate Authority (CA) for the resulting serving certificate manually. To do so, create a `Secret` that contains a `ca.crt` (or similarly named) which can then be referenced in `kcpFrontProxy.certificateIssuer.secret`.
+
+For Let's Encrypt, such a `Secret` can be created by downloading [isrgrootx1.pem](https://letsencrypt.org/certs/isrgrootx1.pem) from the Let's Encrypt website and passing it to `kubectl`:
+
+```sh
+kubectl create secret generic letsencrypt-prod-ca --from-file=ca.crt=./isrgrootx1.pem
+```
+
+Below is a more or less complete `values.yaml` for exposing kcp-front-proxy via Ingress and using LE certificates:
 
 ```yaml
-externalHostname: "<external hostname as exposed by ingress method below>"
+externalHostname: "<external hostname as exposed by ingress method above>"
+
 kcpFrontProxy:
   ingress:
     enabled: true
+    ingressClassName: "nginx"
+
   certificateIssuer:
     name: kcp-letsencrypt-prod
     kind: ClusterIssuer
+    # this references a secret containing the CA for the issuer above.
+    # it has to be created manually and is not part of this chart.
+    secret:
+        name: "letsencrypt-prod-ca"
+        key: "ca.crt"
+
 letsEncrypt:
   enabled: true
   production:
@@ -113,7 +217,7 @@ letsEncrypt:
     email: lets-encrypt-notifications@example.com
 ```
 
-## Access
+## Initial Access
 
 To access the deployed kcp, it will be necessary to create a kubeconfig which connects via the
 front-proxy external endpoint (specified via `externalHostname` above).
@@ -121,15 +225,19 @@ front-proxy external endpoint (specified via `externalHostname` above).
 The content of the kubeconfig will depend on the kcp authentication configuration, below we describe
 one option which uses client-cert auth to enable a kcp-admin user.
 
-:warning: this example allows global admin permissions across all workspaces, you may also want to
-consider using more restricted groups for example `system:kcp:workspace:access` to provide a
-user `system:authenticated` access to a workspace.
+> [!WARNING]
+> This example allows global admin permissions across all workspaces, you may also want to
+> consider using more restricted groups, for example `system:kcp:workspace:access`, to provide a
+> user `system:authenticated` access to a workspace.
 
 ### Create kubeconfig and add CA cert
 
-First we get the CA cert for the front proxy, saving it to a file `ca.crt`
+First we get the CA cert for the front-proxy, saving it to a file `ca.crt`
 
     kubectl get secret kcp-front-proxy-cert -o=jsonpath='{.data.tls\.crt}' | base64 -d > ca.crt
+
+> [!IMPORTANT]
+> If you are using a third-party certificate issuer (see [Public TLS Certificate](#public-tls-certificate)), your `ca.crt` has to be the issuer CA instead.
 
 Now we create a new kubeconfig which references the `ca.crt`
 
@@ -174,10 +282,9 @@ We can now add these credentials to the `admin.kubeconfig` and access kcp:
     kubectl --kubeconfig=admin.kubeconfig config set-context base --cluster=base --user=kcp-admin
     kubectl --kubeconfig=admin.kubeconfig config set-context root --cluster=root --user=kcp-admin
     kubectl --kubeconfig=admin.kubeconfig config use-context root
-    kubectl --kubeconfig=admin.kubeconfig workspace
     export KUBECONFIG=$PWD/admin.kubeconfig
-    kubectl workspace
-    Current workspace is "1gnrr0twy6c3o".
+    kubectl ws .
+    Current workspace is 'root'.
 
 ## Install to kind cluster (for development)
 
@@ -204,55 +311,3 @@ The script will then install kcp the following way:
       --create-namespace
 
 See [hack/kind-values.yaml](./hack/kind-values.yaml) for the values passed to the Helm chart.
-
-## Options
-
-Currently configurable options:
-
-* Etcd image and tag
-* Etcd memory/cpu limit
-* Etcd volume size
-* KCP image and tag
-* KCP memory/cpu limit
-* KCP logging verbosity
-* Virtual workspace memory/cpu limit
-* Virtual workspace logging verbosity
-* Audit logging
-* OIDC
-* Github user access to project
-* External hostname
-* Authorization Webhook
-
-### Monitoring
-
-Each component (etcd, kcp-front-proxy and kcp-server) has a `.monitoring` key that allows configuring monitoring for those components. At the moment, only Prometheus Operator is supported and is required as a pre-requisite on the cluster.
-
-For all three, a `ServiceMonitor` resource can be created by setting `.[component].monitoring.serviceMonitor.enabled` to true. Monitoring for all components would therefore look like this:
-
-```yaml
-# enable ServiceMonitor for kcp-server.
-kcp:
-  monitoring:
-    serviceMonitor:
-      enabled: true
-
-# enable ServiceMonitor for kcp-front-proxy.
-kcpFrontProxy:
-  monitoring:
-    serviceMonitor:
-      enabled: true
-
-# enable ServiceMonitor for etcd.
-etcd:
-  monitoring:
-    serviceMonitor:
-      enabled: true
-```
-
-To collect metrics from these targets, a `Prometheus` instance targetting those `ServiceMonitors` is needed. A possible selector in the `Prometheus` spec is:
-
-```yaml
-serviceMonitorSelector:
-    matchLabels:
-      app.kubernetes.io/name: kcp
-```
