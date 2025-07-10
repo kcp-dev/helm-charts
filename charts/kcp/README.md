@@ -92,7 +92,7 @@ kcpFrontProxy:
     ingressClassName: "nginx" # use the ingress class of your ingress controller
 ```
 
-To facilitate tls passthrough, the default `values.yaml` include suitable annotations on the `Ingress` object for nginx-ingress-controller. If you are using another ingress controller, you might have to add additional annotations to enable TLS passthrough.
+To facilitate TLS passthrough, the default `values.yaml` includes suitable annotations on the `Ingress` object for nginx-ingress-controller. If you are using another ingress controller, you might have to add additional annotations to enable TLS passthrough.
 
 #### 3. OpenShift Route
 
@@ -130,8 +130,8 @@ To collect metrics from these targets, a `Prometheus` instance targetting those 
 
 ```yaml
 serviceMonitorSelector:
-    matchLabels:
-      app.kubernetes.io/name: kcp
+  matchLabels:
+    app.kubernetes.io/name: kcp
 ```
 
 ## PKI

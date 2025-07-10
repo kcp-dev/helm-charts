@@ -6,12 +6,18 @@ global:
   # - name: "image-pull-secret"
   # or
   # - "image-pull-secret"
+
+# Required: DNS entry that will be mapped to kcp-front-proxy (see chart README for ingress methods).
 externalHostname: ""
-externalPort: "" # defaults to 8443 for .Values.kcpFrontProxy.service.type "LoadBalancer", 443 otherwise.
+# Port under which kcp-front-proxy will be accessible on the external hostname.
+# Defaults to 8443 for .Values.kcpFrontProxy.service.type "LoadBalancer", 443 otherwise.
+externalPort: "" 
+
 etcd:
   enabled: true
   image: quay.io/coreos/etcd
   tag: v3.5.15
+
   resources:
     requests:
       cpu: 500m
@@ -20,22 +26,28 @@ etcd:
       # cpu: 1
       memory: 20Gi
   volumeSize: 8Gi
+  
+  # StorageClass to use for etcd data volumes.
+  storageClassName: ""
+
   profiling:
     enabled: false
+
   monitoring:
     serviceMonitor:
       enabled: false
+
   podDisruptionBudget:
     enabled: false
     maxUnavailable: 1
-  storageClassName: ""
+
+  # When configured, this will add tolerations to the pods.
   tolerations: []
-   #When configured, this will add tolerations to the pods.
-   #tolerations:
-   #    - key: "kcp"
-   #      operator: "Equal"
-   #      value: "true"
-   #      effect: "NoSchedule"
+  #  - key: "kcp"
+  #    operator: "Equal"
+  #    value: "true"
+  #    effect: "NoSchedule"
+
   affinity:
     podAntiAffinity:
       preferredDuringSchedulingIgnoredDuringExecution:
@@ -48,20 +60,25 @@ etcd:
                   values:
                     - etcd
             topologyKey: "kubernetes.io/hostname"
+
 kcp:
   replicas: 1
   strategy:
     type: Recreate
   image: ghcr.io/kcp-dev/kcp
-  # set this to override the image tag used for kcp (determined by chart appVersion by default).
+  # Set this to override the image tag used for kcp (determined by chart appVersion by default).
   tag: ""
   pullPolicy: IfNotPresent
   v: "3"
+
   logicalClusterAdminFlag: true
   externalLogicalClusterAdminFlag: true
-  # enabled "batteries" (see kcp start --help for available batteries).
+  # Enabled "batteries" (see kcp start --help for available batteries).
   batteries:
     - workspace-types
+  # Additional flags passed to kcp binary.
+  extraFlags: []
+
   resources:
     requests:
       memory: 512Mi
@@ -69,10 +86,15 @@ kcp:
     limits:
       # cpu: 1
       memory: 20Gi
+
+  # StorageClass name used for audit data volume (if audit is set).
   volumeClassName: ""
+  volumeSize: 1Gi
+
   podAnnotations: {}
+
+  # Set this if you are using external etcds. Do not set serverAddress to "embedded", it is not supported.
   etcd:
-    # set this if you are using external etcds. Do not set this to "embedded", it is not supported.
     serverAddress: ""
     clientCertificate:
       # set this to a cert-manager Issuer that knows how to
@@ -80,11 +102,11 @@ kcp:
       # you are not using the etcd provided by this chart.
       issuer: ""
       commonName: root
-  volumeSize: 1Gi
-  extraFlags: []
+
   profiling:
     enabled: false
     port: 6060
+
   tokenAuth:
     enabled: false
     fileName: auth-token.csv
@@ -92,6 +114,7 @@ kcp:
         user-1-token,user-1,1111-1111-1111-1111,"team-1"
         admin-token,admin,5555-5555-5555-5555,"system:kcp:admin"
         system-token,system,6666-6666-6666-6666,"system:masters"
+
   authorization:
     webhook:
       # When configured, this Secret must contain a single key, "kubeconfig", containing
@@ -99,28 +122,34 @@ kcp:
       # See https://docs.kcp.io/kcp/main/concepts/authorization/authorizers/#webhook-authorizer
       # for more information.
       secretName: ""
+
   hostAliases:
     enabled: false
+
   homeWorkspaces:
     enabled: false
+
   securityContext:
-    # this matches the group id as set in the kcp Dockerfile.
+    # This matches the group id as set in the kcp Dockerfile.
     fsGroup: 65532
     seccompProfile:
       type: RuntimeDefault
+
   monitoring:
     serviceMonitor:
       enabled: false
+
   podDisruptionBudget:
     enabled: false
     minAvailable: 1
+
+  # When configured, this will add tolerations to the pods.
   tolerations: []
-   #When configured, this will add tolerations to the pods.
-   #tolerations:
-   #    - key: "kcp"
-   #      operator: "Equal"
-   #      value: "true"
-   #      effect: "NoSchedule"
+  #  - key: "kcp"
+  #    operator: "Equal"
+  #    value: "true"
+  #    effect: "NoSchedule"
+
   affinity:
     podAntiAffinity:
       preferredDuringSchedulingIgnoredDuringExecution:
@@ -133,23 +162,30 @@ kcp:
                   values:
                     - server
             topologyKey: "kubernetes.io/hostname"
+
 kcpFrontProxy:
   replicas: 1
   strategy:
     type: Recreate
   image: ghcr.io/kcp-dev/kcp
-  # set this to override the image tag used for kcp-front-proxy (determined by chart appVersion by default).
+  # Set this to override the image tag used for kcp-front-proxy (determined by chart appVersion by default).
   tag: ""
   pullPolicy: IfNotPresent
   v: "4"
+
   shardsKubeConfigFlag: true
+
+  # Additional flags passed to kcp-front-proxy binary.
+  extraFlags: []
+
   openshiftRoute:
     enabled: false
+
   ingress:
     enabled: false
     ingressClassName: ""
     annotations:
-      # this is ingress-controller-specific and might need configuration
+      # This is ingress-controller-specific and might need configuration
       # depending on the ingress-controller in use.
       nginx.ingress.kubernetes.io/backend-protocol: HTTPS
       # kcp-front-proxy requires TLS passthrough from the ingress-controller
@@ -159,24 +195,26 @@ kcpFrontProxy:
       # This will be different depending on the ingress-controller in use.
       nginx.ingress.kubernetes.io/ssl-passthrough: "true"
     secret: ""
+
   gateway:
     enabled: false
     className: ""
   service:
     annotations: {}
-    # set this to LoadBalancer if you want to publish kcp-front-proxy
+    # Set this to LoadBalancer if you want to publish kcp-front-proxy
     # directly instead of going via Route/Ingress/Gateway resources.
     type: ClusterIP
-    # set this if you want to control the assigned node ports of the
+    # Set this if you want to control the assigned node ports of the
     # kcp-front-proxy Service (only applies if type is "NodePort" or "LoadBalancer")
     nodePort: ""
-    # set this if you want to control the assigned service IP for the kcp-front-proxy
+    # Set this if you want to control the assigned service IP for the kcp-front-proxy
     # service.
     clusterIP: ""
     # Pre-defined IP address of the kcp-front-proxy Service. (only applies if type is "LoadBalancer")
     # Used by cloud providers to connect the resulting load balancer service to a pre-existing static IP.
     loadBalancerIP: ""
-  # set this if you want kcp-front-proxy to use a specific certificate issuer
+
+  # Set this if you want kcp-front-proxy to use a specific certificate issuer
   # (e.g. the Let's Encrypt ones in this chart).
   certificateIssuer: {}
   #   name: ""
@@ -184,9 +222,11 @@ kcpFrontProxy:
   #   secret: # must be a Secret in the same namespace as KCP, containing the CA cert for the issuer.
   #     name: "" # the name of the Secret
   #     key: "" # the key in the Secret's data that contains the CA cert
+ 
   profiling:
     enabled: false
     port: 6060
+
   resources:
     requests:
       cpu: 100m
@@ -194,17 +234,22 @@ kcpFrontProxy:
     limits:
       # cpu: 1
       memory: 1Gi
+
   hostAliases:
     enabled: false
+
   securityContext:
     seccompProfile:
       type: RuntimeDefault
+
   monitoring:
     serviceMonitor:
       enabled: false
+
   podDisruptionBudget:
     enabled: false
     minAvailable: 1
+
   # The default virtual workspaces run in-process, but you can
   # extend the path mapping to include custom virtual workspaces
   # in the front-proxy's routing.
@@ -229,17 +274,18 @@ kcpFrontProxy:
   #     items:
   #       - key: ca.crt
   #         path: ca.crt
+
   extraVolumeMounts: []
   # - name: example-vw-serving-cert
   #   mountPath: /etc/example-vw-serving-cert
-  extraFlags: []
+
+  # When configured, this will add tolerations to the pods.
   tolerations: []
-   #When configured, this will add tolerations to the pods.
-   #tolerations:
-   #    - key: "kcp"
-   #      operator: "Equal"
-   #      value: "true"
-   #      effect: "NoSchedule"
+  #  - key: "kcp"
+  #    operator: "Equal"
+  #    value: "true"
+  #    effect: "NoSchedule"
+
   affinity:
     podAntiAffinity:
       preferredDuringSchedulingIgnoredDuringExecution:
@@ -273,13 +319,14 @@ oidc:
   # usernameClaim: "sub" # Same as --oidc-username-claim
   # usernamePrefix: "oidc:" # Same as --oidc-username-prefix
   caSecretName: ""
-  # assuming you're using cert-manager, you want to mount the CA certificate
+  # Assuming you're using cert-manager, you want to mount the CA certificate
   # directly and use its tls.crt key; if you instead mount a certificate that
   # is _signed by_ the OIDC CA, then do not use its ca.crt key, as it is the
   # absolute top root CA, the CA that actually signed the cert is one of the
   # certs in the tls.crt chain. As you cannot say "use this Secret, but the
   # second cert in the tls.crt key", it's easier to mount the CA cert secret.
   caSecretKeyName: "tls.crt"
+
 audit:
   enabled: false
   volumeSize: 1Gi
@@ -298,16 +345,18 @@ audit:
     maxSize: "250"
     maxBackup: "1"
     dir: /var/audit
+
 certificates:
   privateKeys:
     algorithm: RSA
     size: 2048
   subject: {}
-  # add additional dns names that should be embedded into the kcp server certificate.
+  # Add additional dns names that should be embedded into the kcp server certificate.
   dnsNames:
   - localhost
-  # additional ip addresses to be embedded in the etcd server and peer certs. Can be useful e.g. when using Istio you can pass "127.0.0.6" so the sidecar IP is included.
+  # Additional ip addresses to be embedded in the etcd server and peer certs. Can be useful e.g. when using Istio you can pass "127.0.0.6" so the sidecar IP is included.
   ipAddresses: []
+
 letsEncrypt:
   enabled: false
   staging:
