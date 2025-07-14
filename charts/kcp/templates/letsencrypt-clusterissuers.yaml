@@ -9,7 +9,7 @@ metadata:
     app.kubernetes.io/component: "pki"
 spec:
   acme:
-    email: {{ .Values.letsEncrypt.staging.email }}}
+    email: {{ .Values.letsEncrypt.staging.email }}
     server: https://acme-staging-v02.api.letsencrypt.org/directory
     privateKeySecretRef:
       # Secret resource that will be used to store the account's private key.
