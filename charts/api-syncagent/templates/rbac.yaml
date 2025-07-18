@@ -37,6 +37,42 @@ subjects:
     name: '{{ template "name" . }}'
 
 ---
+# A dedicated role and binding just to allow the agent to publish events on PublishedResources,
+# which are cluster-scoped and so use default (by default) as their events namespace. Even though
+# it might be technically possible to store events for cluster-scoped objects in a different
+# namespace, `kubectl describe` will always use "default" when describing such objects, even if you
+# ran it with `kubectl -n ... describe`.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: '{{ template "name" . }}:{{ .Release.Namespace }}:events'
+  namespace: default
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: '{{ template "name" . }}:{{ .Release.Namespace }}:events'
+subjects:
+  - kind: ServiceAccount
+    name: '{{ template "name" . }}'
+    namespace: '{{ .Release.Namespace }}'
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: '{{ template "name" . }}:{{ .Release.Namespace }}:events'
+  namespace: default
+rules:
+  - apiGroups:
+      - ""
+    resources:
+      - events
+    verbs:
+      - create
+      - update
+      - patch
+
+---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
