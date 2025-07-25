@@ -196,14 +196,6 @@ spec:
               value: {{ required "A valid external hostname is required" .Values.externalHostname }}
             - name: EXTERNAL_PORT
               value: "{{ if eq .Values.externalPort "" }}{{ if eq .Values.kcpFrontProxy.service.type "LoadBalancer" }}8443{{ else }}443{{- end }}{{ else }}{{ .Values.externalPort }}{{- end }}"
-            - name: GOMEMLIMIT
-              valueFrom:
-                resourceFieldRef:
-                  resource: requests.memory
-            - name: GOMAXPROCS
-              valueFrom:
-                resourceFieldRef:
-                  resource: requests.cpu
           livenessProbe:
             failureThreshold: 6
             httpGet:
