@@ -188,6 +188,9 @@ spec:
             {{- if .Values.kcp.authorization.webhook.secretName }}
             - --authorization-webhook-config-file=/etc/kcp/authorization/webhook/kubeconfig
             {{- end }}
+            {{- if .Values.kcp.leaderElection.enabled }}
+            - --enable-leader-election
+            {{- end }}
             {{- range .Values.kcp.extraFlags }}
             - {{ . }}
             {{- end }}
