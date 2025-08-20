@@ -48,6 +48,9 @@ etcd:
   #    value: "true"
   #    effect: "NoSchedule"
 
+  # When configured, this will set the priority class for etcd pods.
+  priorityClassName: ""
+
   affinity:
     podAntiAffinity:
       preferredDuringSchedulingIgnoredDuringExecution:
@@ -151,6 +154,9 @@ kcp:
   #    operator: "Equal"
   #    value: "true"
   #    effect: "NoSchedule"
+
+  # When configured, this will set the priority class for kcp server pods.
+  priorityClassName: ""
 
   affinity:
     podAntiAffinity:
@@ -287,6 +293,9 @@ kcpFrontProxy:
   #    operator: "Equal"
   #    value: "true"
   #    effect: "NoSchedule"
+
+  # When configured, this will set the priority class for kcp-front-proxy pods.
+  priorityClassName: ""
 
   affinity:
     podAntiAffinity:

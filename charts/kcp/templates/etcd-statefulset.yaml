@@ -52,6 +52,9 @@ spec:
       imagePullSecrets:
         {{- include "kcp.imagePullSecrets" . | trim | nindent 8 }}
       {{- end }}
+      {{- with .Values.etcd.priorityClassName }}
+      priorityClassName: {{ . }}
+      {{- end }}
       containers:
         - name: etcd
           image: {{ .Values.etcd.image }}:{{ .Values.etcd.tag }}
