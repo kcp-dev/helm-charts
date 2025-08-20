@@ -284,6 +284,9 @@ spec:
               mountPath: /etc/kcp/external-logical-cluster-admin/kubeconfig
             - name: external-logical-cluster-admin-kubeconfig-cert
               mountPath: /etc/kcp/external-logical-cluster-admin/kubeconfig-client-cert
+{{- with .Values.kcp.extraVolumeMounts }}
+{{ . | toYaml | indent 12 }}
+{{- end }}
       volumes:
         - name: kcp-etcd-client-cert
           secret:
@@ -355,6 +358,9 @@ spec:
         - name: external-logical-cluster-admin-kubeconfig-cert
           secret:
             secretName: {{ include "kcp.fullname" . }}-external-admin-kubeconfig-cert
+{{- with .Values.kcp.extraVolumes }}
+{{ . | toYaml | indent 8 }}
+{{- end }}
 
 ---
 apiVersion: v1

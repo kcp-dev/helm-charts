@@ -11,7 +11,7 @@ global:
 externalHostname: ""
 # Port under which kcp-front-proxy will be accessible on the external hostname.
 # Defaults to 8443 for .Values.kcpFrontProxy.service.type "LoadBalancer", 443 otherwise.
-externalPort: "" 
+externalPort: ""
 
 etcd:
   enabled: true
@@ -26,7 +26,7 @@ etcd:
       # cpu: 1
       memory: 20Gi
   volumeSize: 8Gi
-  
+
   # StorageClass to use for etcd data volumes.
   storageClassName: ""
 
@@ -171,6 +171,19 @@ kcp:
                     - server
             topologyKey: "kubernetes.io/hostname"
 
+  # Additional volumes to be added to the kcp Deployment.
+  extraVolumes: []
+  # - name: foo
+  #   secret:
+  #     secretName: mysecret
+  #     optional: false
+
+  # Additional volumeMounts to be added to the kcp Deployment.
+  extraVolumeMounts: []
+  # - name: foo
+  #   mountPath: "/etc/foo"
+  #   readOnly: true
+
 kcpFrontProxy:
   replicas: 1
   strategy:
@@ -230,7 +243,7 @@ kcpFrontProxy:
   #   secret: # must be a Secret in the same namespace as KCP, containing the CA cert for the issuer.
   #     name: "" # the name of the Secret
   #     key: "" # the key in the Secret's data that contains the CA cert
- 
+
   profiling:
     enabled: false
     port: 6060

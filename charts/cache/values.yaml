@@ -32,6 +32,17 @@ cache:
   securityContext:
     seccompProfile:
       type: RuntimeDefault
+  # Additional volumes to be added to the kcp Deployment.
+  extraVolumes: []
+  # - name: foo
+  #   secret:
+  #     secretName: mysecret
+  #     optional: false
+  # Additional volumeMounts to be added to the kcp Deployment.
+  extraVolumeMounts: []
+  # - name: foo
+  #   mountPath: "/etc/foo"
+  #   readOnly: true
 
 certificates:
   name: certs
