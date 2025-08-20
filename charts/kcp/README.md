@@ -22,18 +22,24 @@ There is a [helper script](#install-to-kind-cluster-for-development) that you ca
 
 Once Helm has been set up correctly, add the repo as follows:
 
-    helm repo add kcp https://kcp-dev.github.io/helm-charts
+```shell
+helm repo add kcp https://kcp-dev.github.io/helm-charts
+```
 
 If you had already added this repo earlier, run `helm repo update` to retrieve the latest versions
 of the packages. You can then run `helm search repo kcp` to see the charts.
 
 To install the kcp chart:
 
-    helm upgrade --install my-kcp kcp/kcp --values ./myvalues.yaml
+```shell
+helm upgrade --install my-kcp kcp/kcp --values ./myvalues.yaml
+```
 
-To uninstall the chart:
+To uninstall the release:
 
-    helm delete my-kcp
+```shell
+helm delete my-kcp
+```
 
 ## Configuration
 
@@ -57,7 +63,7 @@ export KCP_EXTERNAL_HOSTNAME=my-kcp-instance.example.com
 
 ### Ingress Method
 
-To allow access to kcp from outside the cluster it is running in (which you usally want to set up), you will need to choose from the options below.
+To allow access to kcp from outside the cluster it is running in (which you usually want to set up), you will need to choose from the options below.
 
 #### 1. LoadBalancer Service (recommended)
 
@@ -72,7 +78,7 @@ To do so, use the following snippet in your `values.yaml`:
 kcpFrontProxy:
   service:
     type: LoadBalancer
-``` 
+```
 
 This will create a `Service` called `kcp-front-proxy` with an external IP (or hostname).
 
@@ -126,7 +132,7 @@ etcd:
       enabled: true
 ```
 
-To collect metrics from these targets, a `Prometheus` instance targetting those `ServiceMonitors` is needed. A possible selector in the `Prometheus` spec is:
+To collect metrics from these targets, a `Prometheus` instance targeting those `ServiceMonitors` is needed. A possible selector in the `Prometheus` spec is:
 
 ```yaml
 serviceMonitorSelector:
