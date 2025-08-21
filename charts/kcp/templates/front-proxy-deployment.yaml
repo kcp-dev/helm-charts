@@ -73,6 +73,9 @@ spec:
       imagePullSecrets:
         {{- include "kcp.imagePullSecrets" . | trim | nindent 8 }}
       {{- end }}
+      {{- with .Values.kcpFrontProxy.priorityClassName }}
+      priorityClassName: {{ . }}
+      {{- end }}
       containers:
         - name: kcp-front-proxy
           image: "{{ .Values.kcpFrontProxy.image }}:{{- include "frontproxy.version" . }}"
