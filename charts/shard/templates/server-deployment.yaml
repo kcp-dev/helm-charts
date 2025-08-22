@@ -305,6 +305,9 @@ spec:
             - name: kcp-cache-kubeconfig
               mountPath: /etc/kcp/cache/kubeconfig
             {{- end }}
+{{- with .Values.kcp.extraVolumeMounts }}
+{{ . | toYaml | indent 12 }}
+{{- end }}
       volumes:
         {{- if ne .Values.kcp.etcd.serverAddress "embedded" }}
         - name: kcp-etcd-client-cert
@@ -386,6 +389,9 @@ spec:
           secret:
             secretName: {{ include "cache.fullname" .}}-kubeconfig
         {{- end }}
+{{- with .Values.kcp.extraVolumes }}
+{{ . | toYaml | indent 8 }}
+{{- end }}
 ---
 apiVersion: v1
 kind: ConfigMap

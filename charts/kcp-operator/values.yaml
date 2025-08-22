@@ -100,11 +100,14 @@ volumeMounts: []
 #   mountPath: "/etc/foo"
 #   readOnly: true
 
-# This configures the node selector for scheduling kcp-operator to specifc nodes. For more information see https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#nodeselector.
+# This configures the node selector for scheduling kcp-operator to specific nodes.
+# For more information see https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#nodeselector.
 nodeSelector: {}
 
-# This configures tolerations to allow kcp-operator to be scheduled to Nodes with taints. For more information see https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/.
+# This configures tolerations to allow kcp-operator to be scheduled to Nodes with taints.
+# For more information see https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/.
 tolerations: []
 
-# This configures advanced scheduling affinity settings to fine-tune where kcp-operator runs. For more information see https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#affinity-and-anti-affinity.
+# This configures advanced scheduling affinity settings to fine-tune where kcp-operator runs.
+# For more information see https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#affinity-and-anti-affinity.
 affinity: {}

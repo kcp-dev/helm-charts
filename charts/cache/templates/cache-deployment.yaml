@@ -116,6 +116,9 @@ spec:
               mountPath: /etc/cache/tls/ca
             - name: cache-cert
               mountPath: /etc/cache/tls/server
+{{- with .Values.cache.extraVolumeMounts }}
+{{ . | toYaml | indent 12 }}
+{{- end }}
       volumes:
         - name: kcp-ca
           secret:
@@ -123,4 +126,7 @@ spec:
         - name: cache-cert
           secret:
             secretName: {{ include "cache.fullname" .}}-cert
+{{- with .Values.cache.extraVolumes }}
+{{ . | toYaml | indent 8 }}
+{{- end }}
 {{- end }}
