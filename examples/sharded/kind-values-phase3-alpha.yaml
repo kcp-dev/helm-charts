@@ -8,7 +8,7 @@
 #  alpha ./charts/kcp
 #
 fullnameOverride: alpha
-externalHostname: "kcp.dev.local"
+externalHostname: "kcp.dev.test"
 etcd:
   enabled: true
 kcp:
@@ -22,7 +22,7 @@ kcp:
     - workspace-types
     - metrics-viewer
   extraFlags:
-  - --feature-gates=WorkspaceMounts=true
+    - --feature-gates=WorkspaceMounts=true
   homeWorkspaces:
     enabled: true
 externalCache:
@@ -33,7 +33,7 @@ sharding:
   isRoot: true
 caBundle:
   enabled: false
-  configMapName: kcp.dev.local
+  configMapName: kcp.dev.test
   configMapKey: root-certs.pem
 oidc:
   enabled: true

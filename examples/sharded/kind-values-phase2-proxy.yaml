@@ -10,15 +10,15 @@
 
 fullnameOverride: proxy
 # must be a valid DNS name for front proxy to work
-externalHostname: "kcp.dev.local"
+externalHostname: "kcp.dev.test"
 certificates:
-#  certificateIssuer:
-#     name: "kcp-letsencrypt-prod"
-#     name: "kcp-letsencrypt-staging"
-#     kind: ClusterIssuer
+  #  certificateIssuer:
+  #     name: "kcp-letsencrypt-prod"
+  #     name: "kcp-letsencrypt-staging"
+  #     kind: ClusterIssuer
   dnsNames:
-  - localhost
-  - kcp.dev.local
+    - localhost
+    - kcp.dev.test
   name: certs
   kcp:
     pki: false

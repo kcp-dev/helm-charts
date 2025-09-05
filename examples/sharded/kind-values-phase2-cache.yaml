@@ -10,13 +10,13 @@
 
 fullnameOverride: cache
 # must be a valid DNS name for front proxy to work
-externalHostname: "kcp.dev.local"
+externalHostname: "kcp.dev.test"
 certificates:
   dnsNames:
-  - localhost
-  - cache-cache
-  - cache-cache.kcp-cache.svc
-  - cache-cache.kcp-cache.svc.cluster.local
+    - localhost
+    - cache-cache
+    - cache-cache.kcp-cache.svc
+    - cache-cache.kcp-cache.svc.cluster.local
   name: certs
   kcp:
     pki: false

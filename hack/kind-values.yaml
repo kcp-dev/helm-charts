@@ -1,4 +1,4 @@
-externalHostname: "kcp.dev.local"
+externalHostname: "kcp.dev.test"
 externalPort: "8443"
 etcd:
   resources:
@@ -7,7 +7,7 @@ etcd:
 certificates:
   dnsNames:
     - localhost
-    - kcp.dev.local
+    - kcp.dev.test
 kcp:
   # tag is set via --set flag to make it more dynamic for testing purposes
   volumeClassName: "standard"
@@ -18,7 +18,7 @@ kcp:
     values:
       - ip: "10.96.0.100"
         hostnames:
-          - "kcp.dev.local"
+          - "kcp.dev.test"
 kcpFrontProxy:
   service:
     type: NodePort
