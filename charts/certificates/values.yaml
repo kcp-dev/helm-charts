@@ -1,5 +1,5 @@
 fullnameOverride: alpha
-externalHostname: "kcp.dev.local"
+externalHostname: "kcp.dev.test"
 
 certificates:
   name: certs
@@ -33,7 +33,7 @@ certificates:
   subject: {}
   # add additional dns names that should be embedded into the kcp server certificate.
   dnsNames:
-  - localhost
+    - localhost
 letsEncrypt:
   enabled: false
   staging:

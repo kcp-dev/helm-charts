@@ -10,13 +10,13 @@
 
 fullnameOverride: beta
 # must be a valid DNS name for front proxy to work
-externalHostname: "kcp.dev.local"
+externalHostname: "kcp.dev.test"
 certificates:
   dnsNames:
-  - localhost
-  - beta.kcp-beta
-  - beta.kcp-beta.svc
-  - beta.kcp-beta.svc.cluster.local
+    - localhost
+    - beta.kcp-beta
+    - beta.kcp-beta.svc
+    - beta.kcp-beta.svc.cluster.local
   name: certs
   kcp:
     pki: false

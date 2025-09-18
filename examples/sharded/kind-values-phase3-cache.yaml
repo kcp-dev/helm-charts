@@ -7,7 +7,7 @@
 #  alpha ./charts/kcp
 #
 fullnameOverride: cache
-externalHostname: "kcp.dev.local"
+externalHostname: "kcp.dev.test"
 cache:
   enabled: true
   v: 8

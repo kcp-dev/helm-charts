@@ -8,7 +8,7 @@
 #  alpha ./charts/kcp
 #
 fullnameOverride: proxy
-externalHostname: "kcp.dev.local"
+externalHostname: "kcp.dev.test"
 etcd:
   enabled: false
 kcp:
@@ -37,7 +37,7 @@ sharding:
   rootShardInternalHostname: "alpha.kcp-alpha.svc.cluster.local"
 caBundle:
   enabled: false
-  configMapName: kcp.dev.local
+  configMapName: kcp.dev.test
   configMapKey: root-certs.pem
 oidc:
   enabled: true

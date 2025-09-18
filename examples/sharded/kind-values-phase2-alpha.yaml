@@ -9,13 +9,13 @@
 #
 
 fullnameOverride: alpha
-externalHostname: "kcp.dev.local"
+externalHostname: "kcp.dev.test"
 certificates:
   dnsNames:
-  - localhost
-  - alpha.kcp-alpha
-  - alpha.kcp-alpha.svc
-  - alpha.kcp-alpha.svc.cluster.local
+    - localhost
+    - alpha.kcp-alpha
+    - alpha.kcp-alpha.svc
+    - alpha.kcp-alpha.svc.cluster.local
   name: certs
   kcp:
     pki: false
