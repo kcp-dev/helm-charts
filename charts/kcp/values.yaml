@@ -234,6 +234,8 @@ kcpFrontProxy:
     # Pre-defined IP address of the kcp-front-proxy Service. (only applies if type is "LoadBalancer")
     # Used by cloud providers to connect the resulting load balancer service to a pre-existing static IP.
     loadBalancerIP: ""
+    # The class of the load balancer implementation of the kcp-front-proxy Service.
+    loadBalancerClass: ""
 
   # Set this if you want kcp-front-proxy to use a specific certificate issuer
   # (e.g. the Let's Encrypt ones in this chart).
