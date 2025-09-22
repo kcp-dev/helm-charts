@@ -33,7 +33,13 @@ spec:
           args:
             - --namespace=$(POD_NAMESPACE)
             - --enable-leader-election={{ .Values.enableLeaderElection }}
-            - --apiexport-ref=$(APIEXPORT_REF)
+            {{- with .Values.apiExportEndpointSliceName }}
+            - --apiexportendpointslice-ref={{ . }}
+            {{- else with .Values.apiExportName }}
+            - --apiexport-ref={{ . }}
+            {{- else }}
+            {{- required "Either an APIExportEndpointSliceRef or APIExportRef must be configured." "" }}
+            {{- end }}
             - --agent-name=$(AGENT_NAME)
             - --kcp-kubeconfig=/etc/api-syncagent/kcp/kubeconfig
             {{- with .Values.kubeconfig }}
@@ -60,8 +66,6 @@ spec:
                 fieldRef:
                   apiVersion: v1
                   fieldPath: metadata.namespace
-            - name: APIEXPORT_REF
-              value: '{{ required "APIExport name must be configured" .Values.apiExportName }}'
             - name: AGENT_NAME
               value: '{{ template "agentname" . }}'
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
@@ -90,7 +94,7 @@ spec:
       volumes:
         - name: kcp-kubeconfig
           secret:
-            secretName: '{{ required "Kubernetes Secret for the kcp kubeconfig must be configured" .Values.kcpKubeconfig }}'
+            secretName: '{{ required "Kubernetes Secret for the kcp kubeconfig must be configured." .Values.kcpKubeconfig }}'
         {{- with .Values.kubeconfig }}
         - name: cluster-kubeconfig
           secret:
