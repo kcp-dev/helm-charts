@@ -99,6 +99,7 @@ extraVolumeMounts: []
 #  - name: extra-secret
 #    mountPath: /etc/test
 
+<<<<<<< HEAD
 hostAliases:
   enabled: false
   values:
@@ -129,3 +130,12 @@ securityContext:
     capabilities:
       drop:
         - ALL
+=======
+serviceAccount:
+  create: true
+  # name: custom-serviceaccount-name
+  annotations:
+    # azure.workload.identity/client-id: <clientId>
+    # azure.workload.identity/tenant-id: <tenantId>
+  labels: {}
+>>>>>>> b564796 (feat: allow custom service account name)
