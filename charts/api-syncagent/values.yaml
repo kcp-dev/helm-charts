@@ -7,15 +7,25 @@ global:
   # or
   # - "image-pull-secret"
 
-# Required: the name of the APIExport in kcp that this Sync Agent is supposed to serve.
-apiExportName: ""
+# Required: You need to configure a reference to an APIExportEndpointSlice so the
+# agent knows which API to serve and where to connect to. For kcp 0.27, you can
+# also instead configure an APIExport, but this is not recommended and could cause
+# issues when upgrading kcp.
+apiExportEndpointSliceName: ""
+
+# Alternatively: the name of the APIExport in kcp that this Sync Agent is supposed
+# to serve. Configuring an APIExportEndpointSlice instead is recommended and
+# futureproof.
+# apiExportName: ""
 
 # This Agent's public name, purely for informational purposes. If not set, defaults
 # to the Helm release name.
 agentName: ""
 
 # Required: Name of the Kubernetes Secret that contains a "kubeconfig" key,
-# with the kubeconfig provided by kcp to access it.
+# with the kubeconfig provided by kcp to access it. This kubeconfig must point
+# directly to the kcp cluster where the referenced object above
+# (APIExportEndpointSlice or APIExport) exist.
 kcpKubeconfig: ""
 
 # Optional: Name of a Kubernetes Secret that contains a "kubeconfig" key,
