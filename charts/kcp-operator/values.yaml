@@ -28,6 +28,14 @@ image:
   # This sets the pull policy for images.
   pullPolicy: IfNotPresent
 
+logging:
+  # one of 'debug', 'info', 'error', or any integer value > 0 which corresponds to custom debug levels of increasing verbosity
+  level: info
+  # one of 'json' or 'console'
+  encoder: json
+  # one of 'epoch', 'millis', 'nano', 'iso8601', 'rfc3339' or 'rfc3339nano'
+  timeEncoding: iso8601
+
 # This is for the secretes for pulling an image from a private repository. More information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/.
 imagePullSecrets: []
 

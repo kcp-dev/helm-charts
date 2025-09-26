@@ -4,7 +4,7 @@ metadata:
   name: {{ include "kcp-operator.fullname" . }}
   labels:
     {{- include "kcp-operator.labels" . | nindent 4 }}
-  annotations: 
+  annotations:
     {{- .Values.annotations | toYaml | nindent 4 }}
 spec:
   replicas: {{ .Values.replicaCount }}
@@ -43,6 +43,9 @@ spec:
           args:
             - --metrics-bind-address=:8443
             - --leader-elect={{ .Values.leaderElection.enabled | default true }}
+            - --zap-log-level={{ .Values.logging.level }}
+            - --zap-encoder={{ .Values.logging.encoder }}
+            - --zap-time-encoding={{ .Values.logging.timeEncoding }}
           ports:
             - name: healthz
               containerPort: 8081
