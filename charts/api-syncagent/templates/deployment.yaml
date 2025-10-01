@@ -2,6 +2,14 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: '{{ template "name" . }}'
+  {{- with .Values.additionalLabels }}
+  labels:
+    {{ toYaml . | nindent 4 }}
+  {{- end }}
+  {{- with .Values.additionalAnnotations }}
+  annotations:
+    {{ toYaml . | nindent 4 }}
+  {{- end }}
 spec:
   replicas: {{ .Values.replicas | default 1 }}
   selector:
@@ -14,6 +22,14 @@ spec:
         app.kubernetes.io/name: kcp-api-syncagent
         app.kubernetes.io/instance: '{{ template "agentname" . }}'
         app.kubernetes.io/version: '{{ .Values.image.tag | default .Chart.AppVersion }}'
+      {{- with .Values.additionalLabels }}
+        {{ toYaml . | nindent 8 }}
+      {{- end }}
+      annotations:
+        checksum/values: {{ print .Values | sha256sum }}
+      {{- with .Values.additionalAnnotations }}
+        {{ toYaml . | nindent 8 }}
+      {{- end }}
     spec:
       {{- if .Values.global.imagePullSecrets }}
       imagePullSecrets:
@@ -22,6 +38,10 @@ spec:
       {{- if .Values.hostAliases.enabled }}
       hostAliases:
         {{- toYaml .Values.hostAliases.values | nindent 8 }}
+      {{- end }}
+      {{- with .Values.initContainers }}
+      initContainers:
+        {{ toYaml . | nindent 8 }}
       {{- end }}
       containers:
         - name: agent
