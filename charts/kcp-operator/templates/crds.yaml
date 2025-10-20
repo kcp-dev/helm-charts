@@ -99,6 +99,17 @@ spec:
                       description: Tag is the container image tag to use for KCP containers. Defaults to the latest kcp release that the operator supports.
                       type: string
                   type: object
+                logging:
+                  description: 'Optional: Logging configures the logging settings for the cache server.'
+                  properties:
+                    level:
+                      description: |-
+                        Level sets the verbosity level for the component. Higher values mean more verbose logging.
+                        This corresponds to the -v flag in kcp components.
+                      maximum: 10
+                      minimum: 0
+                      type: integer
+                  type: object
               required:
                 - etcd
               type: object
@@ -265,6 +276,26 @@ spec:
                   x-kubernetes-validations:
                     - message: OIDC requires ServiceAccount auth to be enabled.
                       rule: '!has(self.oidc) || (has(self.serviceAccount) && self.serviceAccount.enabled)'
+                caBundleSecretRef:
+                  description: |-
+                    CABundle references a v1.Secret object that contains the CA bundle
+                    that should be used to validate the API server's TLS certificate.
+                    The secret must contain a key named `tls.crt` that holds the PEM encoded CA certificate.
+                    It will be merged into the "external-logical-cluster-admin-kubeconfig" kubeconfig under the `certificate-authority-data` field.
+                    If not specified, the kubeconfig will use the CA bundle of the root shard or front-proxy referenced in the Target field.
+                    It will NOT be used to configure the API server's own TLS certificate or any other component.
+                  properties:
+                    name:
+                      default: ""
+                      description: |-
+                        Name of the referent.
+                        This field is effectively required, but due to backwards compatibility is
+                        allowed to be empty. Instances of this type with an empty value here are
+                        almost certainly wrong.
+                        More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+                      type: string
+                  type: object
+                  x-kubernetes-map-type: atomic
                 certificateTemplates:
                   additionalProperties:
                     properties:
@@ -287,6 +318,9 @@ spec:
                             description: |-
                               Requested DNS subject alternative names. The values given here will be merged into the
                               DNS names determined automatically by the kcp-operator.
+                              If DNSNames is used together with IssuerRef, DNSNames will be uses as-is and not merged.
+                              If IssuerRef is not set, DNSNames will be merged with the defaults. This is to avoid
+                              trying to guess what DNSNames configued issuer might support.
                             items:
                               type: string
                             type: array
@@ -307,6 +341,21 @@ spec:
                             items:
                               type: string
                             type: array
+                          issuerRef:
+                            description: IssuerRef is a reference to the issuer for this certificate.
+                            properties:
+                              group:
+                                description: Group of the object being referred to.
+                                type: string
+                              kind:
+                                description: Kind of the object being referred to.
+                                type: string
+                              name:
+                                description: Name of the object being referred to.
+                                type: string
+                            required:
+                              - name
+                            type: object
                           privateKey:
                             description: |-
                               Private key options. These include the key algorithm and size, the used
@@ -1473,9 +1522,47 @@ spec:
                           type: object
                       type: object
                   type: object
+                external:
+                  description: 'Optional: External configures how this front-proxy should be exposed to the outside world.  If empty, the RootShard''s external hostname will be used only.'
+                  properties:
+                    hostname:
+                      description: |-
+                        Hostname is the external name of the kcp instance. This should be matched by a DNS
+                        record pointing to the kcp-front-proxy Service's external IP address.
+                      type: string
+                    port:
+                      format: int32
+                      type: integer
+                    privateHostname:
+                      description: |-
+                        Optional: PrivateHostname is an optional hostname that should be used to
+                        access internal front-proxy services, e.g. by other kcp components. This is helpful
+                        if you don't want to use the public hostname for internal communication, e.g.
+                        You have a DNS configuration, where DNS is re-encrypted for external access, but
+                        internal components can access the front-proxy directly. If not set, the value of `hostname` is used.
+                      type: string
+                    privatePort:
+                      description: |-
+                        Optional: PrivatePort is an optional port that should be used to
+                        access internal front-proxy services, e.g. by other kcp components. This is helpful
+                        if you don't want to use the public port for internal communication, e.g.
+                        because it is firewalled. If not set, the value of `port` is used.
+                      format: int32
+                      type: integer
+                  required:
+                    - hostname
+                    - port
+                  type: object
                 externalHostname:
-                  description: 'Optional: ExternalHostname under which the FrontProxy can be reached. If empty, the RootShard''s external hostname will be used only.'
+                  description: |-
+                    Optional: ExternalHostname under which the FrontProxy can be reached. If empty, the RootShard's external hostname will be used only.
+                    Deprecated: use spec.External for configuration of external access instead.
                   type: string
+                extraArgs:
+                  description: 'Optional: ExtraArgs defines additional command line arguments to pass to the front-proxy container.'
+                  items:
+                    type: string
+                  type: array
                 image:
                   description: 'Optional: Image defines the image to use. Defaults to the latest versioned image during the release of kcp-operator.'
                   properties:
@@ -1504,6 +1591,17 @@ spec:
                     tag:
                       description: Tag is the container image tag to use for KCP containers. Defaults to the latest kcp release that the operator supports.
                       type: string
+                  type: object
+                logging:
+                  description: 'Optional: Logging configures the logging settings for the front-proxy.'
+                  properties:
+                    level:
+                      description: |-
+                        Level sets the verbosity level for the component. Higher values mean more verbose logging.
+                        This corresponds to the -v flag in kcp components.
+                      maximum: 10
+                      minimum: 0
+                      type: integer
                   type: object
                 replicas:
                   description: 'Optional: Replicas configures the replica count for the front-proxy Deployment.'
@@ -1617,6 +1715,9 @@ spec:
               required:
                 - rootShard
               type: object
+              x-kubernetes-validations:
+                - message: Cannot set both ExternalHostname (deprecated) and External.hostname. Use External.hostname only.
+                  rule: '!(has(self.externalHostname) && has(self.external.hostname))'
             status:
               description: FrontProxyStatus defines the observed state of FrontProxy
               properties:
@@ -1751,6 +1852,9 @@ spec:
                           description: |-
                             Requested DNS subject alternative names. The values given here will be merged into the
                             DNS names determined automatically by the kcp-operator.
+                            If DNSNames is used together with IssuerRef, DNSNames will be uses as-is and not merged.
+                            If IssuerRef is not set, DNSNames will be merged with the defaults. This is to avoid
+                            trying to guess what DNSNames configued issuer might support.
                           items:
                             type: string
                           type: array
@@ -1771,6 +1875,21 @@ spec:
                           items:
                             type: string
                           type: array
+                        issuerRef:
+                          description: IssuerRef is a reference to the issuer for this certificate.
+                          properties:
+                            group:
+                              description: Group of the object being referred to.
+                              type: string
+                            kind:
+                              description: Kind of the object being referred to.
+                              type: string
+                            name:
+                              description: Name of the object being referred to.
+                              type: string
+                          required:
+                            - name
+                          type: object
                         privateKey:
                           description: |-
                             Private key options. These include the key algorithm and size, the used
@@ -2221,6 +2340,26 @@ spec:
                           type: string
                       type: object
                   type: object
+                caBundleSecretRef:
+                  description: |-
+                    CABundle references a v1.Secret object that contains the CA bundle
+                    that should be used to validate the API server's TLS certificate.
+                    The secret must contain a key named `tls.crt` that holds the PEM encoded CA certificate.
+                    It will be merged into the "external-logical-cluster-admin-kubeconfig" kubeconfig under the `certificate-authority-data` field.
+                    If not specified, the kubeconfig will use the CA bundle of the root shard or front-proxy referenced in the Target field.
+                    It will NOT be used to configure the API server's own TLS certificate or any other component.
+                  properties:
+                    name:
+                      default: ""
+                      description: |-
+                        Name of the referent.
+                        This field is effectively required, but due to backwards compatibility is
+                        allowed to be empty. Instances of this type with an empty value here are
+                        almost certainly wrong.
+                        More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+                      type: string
+                  type: object
+                  x-kubernetes-map-type: atomic
                 cache:
                   description: Cache configures the cache server (with a Kubernetes-like API) used by a sharded kcp instance.
                   properties:
@@ -2256,6 +2395,9 @@ spec:
                             description: |-
                               Requested DNS subject alternative names. The values given here will be merged into the
                               DNS names determined automatically by the kcp-operator.
+                              If DNSNames is used together with IssuerRef, DNSNames will be uses as-is and not merged.
+                              If IssuerRef is not set, DNSNames will be merged with the defaults. This is to avoid
+                              trying to guess what DNSNames configued issuer might support.
                             items:
                               type: string
                             type: array
@@ -2276,6 +2418,21 @@ spec:
                             items:
                               type: string
                             type: array
+                          issuerRef:
+                            description: IssuerRef is a reference to the issuer for this certificate.
+                            properties:
+                              group:
+                                description: Group of the object being referred to.
+                                type: string
+                              kind:
+                                description: Kind of the object being referred to.
+                                type: string
+                              name:
+                                description: Name of the object being referred to.
+                                type: string
+                            required:
+                              - name
+                            type: object
                           privateKey:
                             description: |-
                               Private key options. These include the key algorithm and size, the used
@@ -2464,6 +2621,7 @@ spec:
                       type: object
                   type: object
                 clusterDomain:
+                  description: ClusterDomain is the DNS domain for services in the cluster. Defaults to "cluster.local" if not set.
                   type: string
                 deploymentTemplate:
                   description: 'Optional: DeploymentTemplate configures the Kubernetes Deployment created for this shard.'
@@ -3526,10 +3684,31 @@ spec:
                     port:
                       format: int32
                       type: integer
+                    privateHostname:
+                      description: |-
+                        Optional: PrivateHostname is an optional hostname that should be used to
+                        access internal front-proxy services, e.g. by other kcp components. This is helpful
+                        if you don't want to use the public hostname for internal communication, e.g.
+                        You have a DNS configuration, where DNS is re-encrypted for external access, but
+                        internal components can access the front-proxy directly. If not set, the value of `hostname` is used.
+                      type: string
+                    privatePort:
+                      description: |-
+                        Optional: PrivatePort is an optional port that should be used to
+                        access internal front-proxy services, e.g. by other kcp components. This is helpful
+                        if you don't want to use the public port for internal communication, e.g.
+                        because it is firewalled. If not set, the value of `port` is used.
+                      format: int32
+                      type: integer
                   required:
                     - hostname
                     - port
                   type: object
+                extraArgs:
+                  description: 'Optional: ExtraArgs defines additional command line arguments to pass to the shard container.'
+                  items:
+                    type: string
+                  type: array
                 image:
                   description: ImageSpec defines settings for using a specific image and overwriting the default images used.
                   properties:
@@ -3559,6 +3738,17 @@ spec:
                       description: Tag is the container image tag to use for KCP containers. Defaults to the latest kcp release that the operator supports.
                       type: string
                   type: object
+                logging:
+                  description: 'Optional: Logging configures the logging settings for the shard.'
+                  properties:
+                    level:
+                      description: |-
+                        Level sets the verbosity level for the component. Higher values mean more verbose logging.
+                        This corresponds to the -v flag in kcp components.
+                      maximum: 10
+                      minimum: 0
+                      type: integer
+                  type: object
                 proxy:
                   description: |-
                     Proxy configures the internal front-proxy that is only (supposed to be) used by the kcp-operator
@@ -3587,6 +3777,9 @@ spec:
                                 description: |-
                                   Requested DNS subject alternative names. The values given here will be merged into the
                                   DNS names determined automatically by the kcp-operator.
+                                  If DNSNames is used together with IssuerRef, DNSNames will be uses as-is and not merged.
+                                  If IssuerRef is not set, DNSNames will be merged with the defaults. This is to avoid
+                                  trying to guess what DNSNames configued issuer might support.
                                 items:
                                   type: string
                                 type: array
@@ -3607,6 +3800,21 @@ spec:
                                 items:
                                   type: string
                                 type: array
+                              issuerRef:
+                                description: IssuerRef is a reference to the issuer for this certificate.
+                                properties:
+                                  group:
+                                    description: Group of the object being referred to.
+                                    type: string
+                                  kind:
+                                    description: Kind of the object being referred to.
+                                    type: string
+                                  name:
+                                    description: Name of the object being referred to.
+                                    type: string
+                                required:
+                                  - name
+                                type: object
                               privateKey:
                                 description: |-
                                   Private key options. These include the key algorithm and size, the used
@@ -4773,6 +4981,11 @@ spec:
                               type: object
                           type: object
                       type: object
+                    extraArgs:
+                      description: 'Optional: ExtraArgs defines additional command line arguments to pass to the front-proxy container.'
+                      items:
+                        type: string
+                      type: array
                     image:
                       description: 'Optional: Image allows to override the container image used for this proxy.'
                       properties:
@@ -4801,6 +5014,17 @@ spec:
                         tag:
                           description: Tag is the container image tag to use for KCP containers. Defaults to the latest kcp release that the operator supports.
                           type: string
+                      type: object
+                    logging:
+                      description: 'Optional: Logging configures the logging settings for the root shard.'
+                      properties:
+                        level:
+                          description: |-
+                            Level sets the verbosity level for the component. Higher values mean more verbose logging.
+                            This corresponds to the -v flag in kcp components.
+                          maximum: 10
+                          minimum: 0
+                          type: integer
                       type: object
                     replicas:
                       description: 'Optional: Replicas configures how many instances of this proxy run in parallel. Defaults to 2 if not set.'
@@ -4985,6 +5209,11 @@ spec:
                           type: string
                       type: object
                   type: object
+                shardBaseURL:
+                  description: |-
+                    ShardBaseURL is the base URL under which this shard should be reachable. This is used to configure
+                    the external URL. If not provided, the operator will use kubernetes service address to generate it.
+                  type: string
               required:
                 - cache
                 - certificates
@@ -5291,6 +5520,26 @@ spec:
                           type: string
                       type: object
                   type: object
+                caBundleSecretRef:
+                  description: |-
+                    CABundle references a v1.Secret object that contains the CA bundle
+                    that should be used to validate the API server's TLS certificate.
+                    The secret must contain a key named `tls.crt` that holds the PEM encoded CA certificate.
+                    It will be merged into the "external-logical-cluster-admin-kubeconfig" kubeconfig under the `certificate-authority-data` field.
+                    If not specified, the kubeconfig will use the CA bundle of the root shard or front-proxy referenced in the Target field.
+                    It will NOT be used to configure the API server's own TLS certificate or any other component.
+                  properties:
+                    name:
+                      default: ""
+                      description: |-
+                        Name of the referent.
+                        This field is effectively required, but due to backwards compatibility is
+                        allowed to be empty. Instances of this type with an empty value here are
+                        almost certainly wrong.
+                        More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+                      type: string
+                  type: object
+                  x-kubernetes-map-type: atomic
                 certificateTemplates:
                   additionalProperties:
                     properties:
@@ -5313,6 +5562,9 @@ spec:
                             description: |-
                               Requested DNS subject alternative names. The values given here will be merged into the
                               DNS names determined automatically by the kcp-operator.
+                              If DNSNames is used together with IssuerRef, DNSNames will be uses as-is and not merged.
+                              If IssuerRef is not set, DNSNames will be merged with the defaults. This is to avoid
+                              trying to guess what DNSNames configued issuer might support.
                             items:
                               type: string
                             type: array
@@ -5333,6 +5585,21 @@ spec:
                             items:
                               type: string
                             type: array
+                          issuerRef:
+                            description: IssuerRef is a reference to the issuer for this certificate.
+                            properties:
+                              group:
+                                description: Group of the object being referred to.
+                                type: string
+                              kind:
+                                description: Kind of the object being referred to.
+                                type: string
+                              name:
+                                description: Name of the object being referred to.
+                                type: string
+                            required:
+                              - name
+                            type: object
                           privateKey:
                             description: |-
                               Private key options. These include the key algorithm and size, the used
@@ -5480,6 +5747,7 @@ spec:
                     certificates for this shard.
                   type: object
                 clusterDomain:
+                  description: ClusterDomain is the DNS domain for services in the cluster. Defaults to "cluster.local" if not set.
                   type: string
                 deploymentTemplate:
                   description: 'Optional: DeploymentTemplate configures the Kubernetes Deployment created for this shard.'
@@ -6532,6 +6800,11 @@ spec:
                   required:
                     - endpoints
                   type: object
+                extraArgs:
+                  description: 'Optional: ExtraArgs defines additional command line arguments to pass to the shard container.'
+                  items:
+                    type: string
+                  type: array
                 image:
                   description: ImageSpec defines settings for using a specific image and overwriting the default images used.
                   properties:
@@ -6560,6 +6833,17 @@ spec:
                     tag:
                       description: Tag is the container image tag to use for KCP containers. Defaults to the latest kcp release that the operator supports.
                       type: string
+                  type: object
+                logging:
+                  description: 'Optional: Logging configures the logging settings for the shard.'
+                  properties:
+                    level:
+                      description: |-
+                        Level sets the verbosity level for the component. Higher values mean more verbose logging.
+                        This corresponds to the -v flag in kcp components.
+                      maximum: 10
+                      minimum: 0
+                      type: integer
                   type: object
                 replicas:
                   description: Replicas configures how many instances of this shard run in parallel. Defaults to 2 if not set.
@@ -6669,6 +6953,11 @@ spec:
                           type: string
                       type: object
                   type: object
+                shardBaseURL:
+                  description: |-
+                    ShardBaseURL is the base URL under which this shard should be reachable. This is used to configure
+                    the external URL. If not provided, the operator will use kubernetes service address to generate it.
+                  type: string
               required:
                 - etcd
                 - rootShard
