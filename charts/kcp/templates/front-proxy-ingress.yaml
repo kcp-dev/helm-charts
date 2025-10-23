@@ -15,7 +15,7 @@ spec:
     termination: passthrough
   to:
     kind: Service
-    name: kcp-front-proxy
+    name: {{ include "frontproxy.fullname" . }}
     weight: 100
   wildcardPolicy: None
 {{- end }}
