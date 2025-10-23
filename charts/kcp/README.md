@@ -84,6 +84,12 @@ This will create a `Service` called `kcp-front-proxy` with an external IP (or ho
 
 After installing the chart with this option, make sure to create a DNS record for your external hostname that points to the external IP or hostname assigned to the `kcp-front-proxy` `Service`.
 
+If you choose this method, export `KCP_PORT` as `8443` so you can use it later when creating the initial access kubeconfig:
+
+```bash
+export KCP_PORT=8443
+```
+
 #### 2. Ingress
 
 > [!NOTE]
@@ -100,7 +106,13 @@ kcpFrontProxy:
 
 To facilitate TLS passthrough, the default `values.yaml` includes suitable annotations on the `Ingress` object for nginx-ingress-controller. If you are using another ingress controller, you might have to add additional annotations to enable TLS passthrough.
 
-#### 3. OpenShift Route
+If you choose this method, export `KCP_PORT` as `443` so you can use it later when creating the initial access kubeconfig:
+
+```bash
+export KCP_PORT=443
+```
+
+#### 3. OpenShift Route (deprecated)
 
 > [!CAUTION]
 > This options is in the Helm chart for historical reasons, but it is not actively maintained and might be broken. Use at your own risk and consider using one of the alternatives above.
@@ -247,8 +259,8 @@ First we get the CA cert for the front-proxy, saving it to a file `ca.crt`
 
 Now we create a new kubeconfig which references the `ca.crt`
 
-    kubectl --kubeconfig=admin.kubeconfig config set-cluster base --server https://$KCP_EXTERNAL_HOSTNAME:443 --certificate-authority=ca.crt
-    kubectl --kubeconfig=admin.kubeconfig config set-cluster root --server https://$KCP_EXTERNAL_HOSTNAME:443/clusters/root --certificate-authority=ca.crt
+    kubectl --kubeconfig=admin.kubeconfig config set-cluster base --server https://$KCP_EXTERNAL_HOSTNAME:$KCP_PORT --certificate-authority=ca.crt
+    kubectl --kubeconfig=admin.kubeconfig config set-cluster root --server https://$KCP_EXTERNAL_HOSTNAME:$KCP_PORT/clusters/root --certificate-authority=ca.crt
 
 ### Create client-cert credentials
 
