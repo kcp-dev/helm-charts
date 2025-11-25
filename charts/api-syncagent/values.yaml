@@ -87,3 +87,9 @@ extraVolumes: []
 extraVolumeMounts: []
 #  - name: extra-secret
 #    mountPath: /etc/test
+
+hostAliases:
+  enabled: false
+  values:
+    ip: ""
+    hostnames: []
