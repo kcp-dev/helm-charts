@@ -28,10 +28,10 @@ cache:
       # cpu: 1
       memory: 1Gi
   hostAliases:
-    enabled: true
+    enabled: false
     values:
-      ip: "foo"
-      hostnames: ["kcp.api.portal.dev.local"]
+      ip: ""
+      hostnames: []
   securityContext:
     seccompProfile:
       type: RuntimeDefault
