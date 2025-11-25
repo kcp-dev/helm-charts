@@ -96,7 +96,7 @@ spec:
       {{- end }}
       {{- if .Values.kcp.hostAliases.enabled }}
       hostAliases:
-        {{- toYaml .Values.kcp.hostAliases.values | nindent 6 }}
+        {{- toYaml .Values.kcp.hostAliases.values | nindent 8 }}
       {{- end }}
       {{- with .Values.kcp.affinity}}
       affinity:

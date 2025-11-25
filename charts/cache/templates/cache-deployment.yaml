@@ -45,7 +45,7 @@ spec:
       {{- end }}
       {{- if .Values.cache.hostAliases.enabled }}
       hostAliases:
-        {{- toYaml .Values.cache.hostAliases.values | nindent 6 }}
+        {{- toYaml .Values.cache.hostAliases.values | nindent 8 }}
       {{- end }}
       {{- if .Values.global.imagePullSecrets }}
       imagePullSecrets:

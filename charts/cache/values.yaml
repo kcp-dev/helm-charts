@@ -29,6 +29,9 @@ cache:
       memory: 1Gi
   hostAliases:
     enabled: false
+    values:
+      ip: ""
+      hostnames: []
   securityContext:
     seccompProfile:
       type: RuntimeDefault

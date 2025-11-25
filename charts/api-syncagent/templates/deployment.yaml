@@ -75,6 +75,10 @@ spec:
             capabilities:
               drop:
                 - ALL
+          {{- if .Values.hostAliases.enabled }}
+          hostAliases:
+            {{- toYaml .Values.hostAliases.values | nindent 12 }}
+          {{- end }}
           volumeMounts:
             - name: kcp-kubeconfig
               mountPath: /etc/api-syncagent/kcp
