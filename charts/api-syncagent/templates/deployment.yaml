@@ -28,6 +28,10 @@ spec:
       imagePullSecrets:
         {{- include "imagePullSecrets" . | trim | nindent 8 }}
       {{- end }}
+      {{- if .Values.hostAliases.enabled }}
+      hostAliases:
+        {{- toYaml .Values.hostAliases.values | nindent 8 }}
+      {{- end }}
       containers:
         - name: agent
           args:
@@ -75,10 +79,6 @@ spec:
             capabilities:
               drop:
                 - ALL
-          {{- if .Values.hostAliases.enabled }}
-          hostAliases:
-            {{- toYaml .Values.hostAliases.values | nindent 12 }}
-          {{- end }}
           volumeMounts:
             - name: kcp-kubeconfig
               mountPath: /etc/api-syncagent/kcp
