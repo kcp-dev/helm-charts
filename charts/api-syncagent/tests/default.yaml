@@ -1,0 +1,3 @@
+externalHostname: ci.kcp.io
+apiExportName: my-api
+kcpKubeconfig: kcp-kubeconfig

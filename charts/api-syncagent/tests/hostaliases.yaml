@@ -1,0 +1,10 @@
+externalHostname: ci.kcp.io
+apiExportName: my-api
+kcpKubeconfig: kcp-kubeconfig
+
+hostAliases:
+  enabled: true
+  values:
+    - ip: "1.2.3.5"
+      hostnames:
+      - "mysvc.example.dev.local"

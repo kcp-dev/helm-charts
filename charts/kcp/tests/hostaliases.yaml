@@ -1,0 +1,17 @@
+externalHostname: ci.kcp.io
+
+kcp:
+  hostAliases:
+    enabled: true
+    values:
+      - ip: "1.2.3.5"
+        hostnames:
+        - "kcp.example.dev.local"
+
+kcpFrontProxy:
+  hostAliases:
+    enabled: true
+    values:
+      - ip: "8.7.6.4"
+        hostnames:
+        - "frontproxy.example.dev.local"

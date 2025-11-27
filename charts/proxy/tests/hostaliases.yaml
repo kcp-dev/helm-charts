@@ -1,0 +1,7 @@
+kcpFrontProxy:
+  hostAliases:
+    enabled: true
+    values:
+      - ip: "1.2.3.5"
+        hostnames:
+        - "mysvc.example.dev.local"

@@ -130,6 +130,9 @@ kcp:
 
   hostAliases:
     enabled: false
+    values:
+      - ip: ""
+        hostnames: []
 
   homeWorkspaces:
     enabled: false
@@ -260,6 +263,9 @@ kcpFrontProxy:
 
   hostAliases:
     enabled: false
+    values:
+      - ip: ""
+        hostnames: []
 
   securityContext:
     seccompProfile:
