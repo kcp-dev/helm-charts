@@ -14,29 +14,52 @@ if ! [ -x "$(command -v kubeconform)" ]; then
   exit 1
 fi
 
+repeat() {
+  local end=$1
+  local str="${2:-=}"
+
+  for i in $(seq 1 $end); do
+    echo -n "${str}"
+  done
+}
+
+heading() {
+  local title="$@"
+  echo "$title"
+  repeat ${#title} "="
+  echo
+  echo
+}
+
 for dir in ./charts/*/; do
-  dir=${dir%*/}
-  chart=${dir##*/}
+  dir="${dir%*/}"
+  chart="${dir##*/}"
 
-  helm template \
-    --debug \
-    --set=externalHostname=ci.kcp.io \
-    --set=apiExportName=my-api \
-    --set=kcpKubeconfig=kcp-kubeconfig \
-    kcp ./charts/${chart}/ | tee ${chart}-templated.yaml
+  for testfile in "$dir"/tests/*.yaml; do
+    heading "$chart: $(basename $testfile)"
 
-  echo "---"
+    tmpFile="$chart-templated.yaml"
+    helm template \
+      --debug \
+      --values "$testfile" \
+      "$chart" "$dir" | tee "$tmpFile"
 
-  # run kubeconform on template output to validate Kubernetes resources.
-  # the external schema-location allows us to validate resources for
-  # common CRDs (e.g. cert-manager resources).
-  kubeconform \
-    -schema-location default \
-    -schema-location 'https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/{{.Group}}/{{.ResourceKind}}_{{.ResourceAPIVersion}}.json' \
-    -schema-location "https://raw.githubusercontent.com/yannh/kubernetes-json-schema/master/{{.NormalizedKubernetesVersion}}/{{.ResourceKind}}.json" \
-    -strict \
-    -summary \
-    ${chart}-templated.yaml
+    echo "---"
 
-  rm ${chart}-templated.yaml
+    # run kubeconform on template output to validate Kubernetes resources.
+    # the external schema-location allows us to validate resources for
+    # common CRDs (e.g. cert-manager resources).
+    kubeconform \
+      -schema-location default \
+      -schema-location 'https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/{{.Group}}/{{.ResourceKind}}_{{.ResourceAPIVersion}}.json' \
+      -schema-location "https://raw.githubusercontent.com/yannh/kubernetes-json-schema/master/{{.NormalizedKubernetesVersion}}/{{.ResourceKind}}.json" \
+      -strict \
+      -summary \
+      "$tmpFile"
+
+    echo
+    echo
+
+    rm "$tmpFile"
+  done
 done

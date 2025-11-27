@@ -68,6 +68,9 @@ kcp:
         system-token,system,6666-6666-6666-6666,"system:masters"
   hostAliases:
     enabled: false
+    values:
+      - ip: ""
+        hostnames: []
   homeWorkspaces:
     enabled: false
   securityContext:

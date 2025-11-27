@@ -30,8 +30,8 @@ cache:
   hostAliases:
     enabled: false
     values:
-      ip: ""
-      hostnames: []
+      - ip: ""
+        hostnames: []
   securityContext:
     seccompProfile:
       type: RuntimeDefault
