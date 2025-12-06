@@ -19,8 +19,27 @@ etcd:
       # cpu: 1
      memory: 20Gi
   volumeSize: 8Gi
+  # StorageClass to use for etcd data volumes.
+  storageClassName: ""
   profiling:
     enabled: false
+  podDisruptionBudget:
+    enabled: false
+    maxUnavailable: 1
+  tolerations: []
+  priorityClassName: ""
+  affinity:
+    podAntiAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 1
+          podAffinityTerm:
+            labelSelector:
+              matchExpressions:
+                - key: "app.kubernetes.io/component"
+                  operator: In
+                  values:
+                    - etcd
+            topologyKey: "kubernetes.io/hostname"
 kcp:
   enabled: true
   sharding:
