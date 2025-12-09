@@ -1,9 +1,11 @@
 # See the OWNERS docs: https://git.k8s.io/community/contributors/guide/owners.md#owners
 
 approvers:
-  - clubanderson
-  - scheeles
-  - sttts
-  - mjudeikis
-  - embik
-  - xrstf
+- clubanderson
+- embik
+- mjudeikis
+- ntnn
+- scheeles
+- sttts
+- xmudrii
+- xrstf
