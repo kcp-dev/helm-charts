@@ -1,0 +1,123 @@
+#
+# Welcome to the kcp Init Agent!
+#
+# This Helm chart can be rendered in 3 different variations:
+#
+#   * By default, it will output a Deployment and necessary auxilirary resources
+#     to *run* the init-agent in Kubernetes. Use this to "install" the agent.
+#     For this, configure Helm with a kubeconfig that points to the hosting
+#     Kubernetes cluster.
+#   * By setting "target=configcluster", the chart will output the Init Agent
+#     CRDs, suitable to bootstrap a kcp workspace to create InitTargets and
+#     InitTemplates in kcp, plus the necessary RBAC for it.
+#     For this, Helm needs to be configured with a kubeconfig that points to
+#     the desired config workspace.
+#   * By setting "target=wstcluster", the chart will only output the necessary
+#     RBAC to allow the agent to access WorkspaceTypes and to initialize them
+#     in a single workspace. This variation has to be installed in each workspace
+#     for which InitTargets are configured in the configWorkspace.
+#     For this, Helm needs to be configured with a kubeconfig that points to
+#     the desired workspace.
+#
+# All three modes must be installed for the init-agent to function correctly.
+#
+
+# Leader election happens inside the configWorkspace and must be enabled if
+# replicas is larger than 1.
+leaderElection:
+  enabled: true
+  namespace: kcp-init-agent
+
+# Required: set to "" (default, hosting cluster), "configcluster" or "wstcluster"
+# (see comment above) to output the correct manifests for each Kubernetes endpoint.
+target: ""
+
+# Configuration exclusively for all the clusters (workspaces) in which the
+# init-agent is meant to read and initialize WorkspaceTypes in. The chart needs
+# to be installed into each of them to provision the necessar RBAC.
+# Set target to "wstcluster" for this mode.
+wstCluster:
+  # Required: RBAC Subject defines how the init-agent is authenticated in kcp.
+  # This field entirely depends on the kubeconfig (further down) you provide
+  # to the init-agent. In many cases, you will want to use client certificates
+  # and then configure a user subject here, like demonstrated below.
+  rbacSubject:
+    kind: User
+    name: my-init-agent
+
+  # Optional: Tighten permissions for the init-agent by listing the names of the
+  # workspace types that it is allowed to initialize. If not specified, the
+  # generated RBAC will allow the init-agent to initialize all workspaces in
+  # the cluster where the chart is installed into.
+  workspaceTypes: []
+
+# Configuration for the config workspace, where the InitTargets and related objects
+# live. This is the "home" workspace for the init-agent, where also leader election
+# happens.
+configCluster:
+  # Required: RBAC Subject defines how the init-agent is authenticated in kcp.
+  # This field entirely depends on the kubeconfig (further down) you provide
+  # to the init-agent. In many cases, you will want to use client certificates
+  # and then configure a user subject here, like demonstrated below.
+  rbacSubject:
+    kind: User
+    name: my-init-agent
+
+# Required: The kcp workspace (or cluster name) where the init-agent CRDs, InitTargets
+# and InitTemplates reside.
+configWorkspace: ""
+
+# Required: Name of the Kubernetes Secret that contains a "kubeconfig" key, with the
+# kubeconfig provided by kcp to access it. This kubeconfig should point to base address
+# of kcp.
+kcpKubeconfig: ""
+
+# Optional: If two or more Init Agents are installed to process the same config workspace,
+# each one must have a Kubernetes label selector to scope down which InitTargets they
+# process, as no two agents must process the same.
+# If just one Init Agents is installed in the cluster, this can be left blank.
+initTargetSelector: ""
+
+replicas: 2
+
+# The container image to use for the Sync Agent.
+image:
+  repository: "ghcr.io/kcp-dev/init-agent"
+  # set this to override the image tag used (determined by chart appVersion by default).
+  tag: ""
+
+## Reference to one or more secrets to be used when pulling images
+## ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
+##
+imagePullSecrets: []
+# - name: "image-pull-secret"
+# or
+# - "image-pull-secret"
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 64Mi
+  limits:
+    cpu: 1
+    memory: 512Mi
+
+# Optional: Pass additional flags to the kcp-api-syncagent process started by the container.
+extraFlags: []
+
+# Optional: Configure additional volumes to be added to the syncagent Pod.
+extraVolumes: []
+#  - name: extra-secret
+#    secret:
+#      secretName: extra-secret
+
+# Optional: Configure additional volume mounts to be added to the agent container.
+extraVolumeMounts: []
+#  - name: extra-secret
+#    mountPath: /etc/test
+
+hostAliases:
+  enabled: false
+  values:
+    - ip: ""
+      hostnames: []
