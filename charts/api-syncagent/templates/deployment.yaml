@@ -37,13 +37,7 @@ spec:
           args:
             - --namespace=$(POD_NAMESPACE)
             - --enable-leader-election={{ .Values.enableLeaderElection }}
-            {{- with .Values.apiExportEndpointSliceName }}
-            - --apiexportendpointslice-ref={{ . }}
-            {{- else with .Values.apiExportName }}
-            - --apiexport-ref={{ . }}
-            {{- else }}
-            {{- required "Either an APIExportEndpointSliceRef or APIExportRef must be configured." "" }}
-            {{- end }}
+            - --apiexportendpointslice-ref={{ required "APIExportEndpointSlice name must be configured" .Values.apiExportEndpointSliceName }}
             - --agent-name=$(AGENT_NAME)
             - --kcp-kubeconfig=/etc/api-syncagent/kcp/kubeconfig
             {{- with .Values.kubeconfig }}
