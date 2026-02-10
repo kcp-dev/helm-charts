@@ -63,6 +63,9 @@ configCluster:
     kind: User
     name: my-init-agent
 
+  crds:
+    create: true
+
 # Required: The kcp workspace (or cluster name) where the init-agent CRDs, InitTargets
 # and InitTemplates reside.
 configWorkspace: ""
