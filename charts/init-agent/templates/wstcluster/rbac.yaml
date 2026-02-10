@@ -4,6 +4,13 @@ kind: ClusterRole
 metadata:
   name: 'kcp-init-agent:{{ template "name" . }}'
 rules:
+  # provide access to this workspace
+  - verbs:
+      - access
+    nonResourceURLs:
+      - "/"
+
+  # allow to watch and initialize WorkspaceTypes
   - apiGroups:
       - tenancy.kcp.io
     resources:

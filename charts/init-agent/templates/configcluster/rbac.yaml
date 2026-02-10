@@ -38,56 +38,30 @@ kind: ClusterRole
 metadata:
   name: '{{ template "name" . }}:{{ .Release.Namespace }}'
 rules:
+  # provide access to this workspace
+  - verbs:
+      - access
+    nonResourceURLs:
+      - "/"
+
+  # allow to read the init-agent's own resources
+  - apiGroups:
+      - initialization.kcp.io
+    resources:
+      - inittargets
+      - inittemplates
+    verbs:
+      - get
+      - list
+      - watch
+
+  # allow to issue events on the cluster-scoped init-agent resources
   - apiGroups:
       - ""
     resources:
       - events
     verbs:
       - create
-      - patch
-  - apiGroups:
-      - ""
-    resources:
-      - secrets
-    verbs:
-      - get
-      - list
-      - watch
-      - create
-      - update
-  - apiGroups:
-      - ""
-    resources:
-      - namespaces
-    verbs:
-      - get
-      - list
-      - watch
-      - create
-  - apiGroups:
-      - apiextensions.k8s.io
-    resources:
-      - customresourcedefinitions
-    verbs:
-      - get
-      - list
-      - watch
-  - apiGroups:
-      - syncagent.kcp.io
-    resources:
-      - publishedresources
-    verbs:
-      - get
-      - list
-      - watch
-  - apiGroups:
-      - syncagent.kcp.io
-    resources:
-      - publishedresources/status
-    verbs:
-      - create
-      - get
-      - update
       - patch
 
 ---
