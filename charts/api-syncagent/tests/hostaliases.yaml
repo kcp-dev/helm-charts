@@ -1,5 +1,5 @@
 externalHostname: ci.kcp.io
-apiExportName: my-api
+apiExportEndpointSliceName: my-api
 kcpKubeconfig: kcp-kubeconfig
 
 hostAliases:
