@@ -3,7 +3,7 @@
 #
 # This Helm chart can be rendered in 3 different variations:
 #
-#   * By default, it will output a Deployment and necessary auxilirary resources
+#   * By default, it will output a Deployment and necessary auxiliary resources
 #     to *run* the init-agent in Kubernetes. Use this to "install" the agent.
 #     For this, configure Helm with a kubeconfig that points to the hosting
 #     Kubernetes cluster.
@@ -34,7 +34,7 @@ target: ""
 
 # Configuration exclusively for all the clusters (workspaces) in which the
 # init-agent is meant to read and initialize WorkspaceTypes in. The chart needs
-# to be installed into each of them to provision the necessar RBAC.
+# to be installed into each of them to provision the necessary RBAC.
 # Set target to "wstcluster" for this mode.
 wstCluster:
   # Required: RBAC Subject defines how the init-agent is authenticated in kcp.
