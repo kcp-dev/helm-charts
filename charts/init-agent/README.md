@@ -1,4 +1,4 @@
-# KCP Helm Chart - Init Agent
+# kcp Helm Chart - Init Agent
 
 This Helm chart deploys an instance of the [Init Agent](https://github.com/kcp-dev/init-agent).
 
