@@ -1,0 +1,9 @@
+kcpKubeconfig: kcp-kubeconfig
+configWorkspace: root:init-agent
+
+hostAliases:
+  enabled: true
+  values:
+    - ip: "1.2.3.5"
+      hostnames:
+      - "mysvc.example.dev.local"

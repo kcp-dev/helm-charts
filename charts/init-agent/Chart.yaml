@@ -1,0 +1,20 @@
+apiVersion: v2
+name: init-agent
+description: A Kubernetes agent to initialize newly created workspaces with Kubernetes objects.
+
+# version information
+version: 0.1.0
+appVersion: "v0.1.0"
+
+# optional metadata
+type: application
+home: https://www.kcp.io/
+keywords:
+  - kcp
+  - kubernetes
+  - multitenancy
+  - controlplane
+sources:
+  - https://github.com/kcp-dev/helm-charts
+  - https://github.com/kcp-dev/init-agent
+icon: https://raw.githubusercontent.com/kcp-dev/kcp/main/contrib/logo/blue-green.svg

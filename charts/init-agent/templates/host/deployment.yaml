@@ -1,0 +1,76 @@
+{{- if eq .Values.target "" }}
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: '{{ template "name" . }}'
+  labels:
+    app.kubernetes.io/name: kcp-init-agent
+    app.kubernetes.io/instance: '{{ template "name" . }}'
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: '{{ template "name" . }}'
+spec:
+  replicas: {{ .Values.replicas | default 1 }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: kcp-init-agent
+      app.kubernetes.io/instance: '{{ template "name" . }}'
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: kcp-init-agent
+        app.kubernetes.io/instance: '{{ template "name" . }}'
+        app.kubernetes.io/version: '{{ .Values.image.tag | default .Chart.AppVersion }}'
+    spec:
+      {{- if .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- include "imagePullSecrets" . | trim | nindent 8 }}
+      {{- end }}
+      {{- if .Values.hostAliases.enabled }}
+      hostAliases:
+        {{- toYaml .Values.hostAliases.values | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: agent
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          args:
+            - --config-workspace={{ .Values.configWorkspace }}
+            - --enable-leader-election={{ .Values.leaderElection.enabled }}
+            - --leader-election-namespace={{ .Values.leaderElection.namespace }}
+            - --kubeconfig=/etc/init-agent/kcp/kubeconfig
+            {{- with .Values.initTargetSelector }}
+            - "--init-target-selector={{ . }}"
+            {{- end }}
+            {{- range .Values.extraFlags }}
+            - {{ . | quote }}
+            {{- end }}
+          resources: {{ .Values.resources | toYaml | nindent 12 }}
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+          volumeMounts:
+            - name: kcp-kubeconfig
+              mountPath: /etc/init-agent/kcp
+{{- if .Values.extraVolumeMounts }}
+{{ toYaml .Values.extraVolumeMounts | indent 12 }}
+{{- end }}
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65534
+        seccompProfile:
+          type: RuntimeDefault
+      serviceAccountName: '{{ template "name" . }}'
+      volumes:
+        - name: kcp-kubeconfig
+          secret:
+            secretName: '{{ required "Kubernetes Secret for the kcp kubeconfig must be configured." .Values.kcpKubeconfig }}'
+{{- if .Values.extraVolumes }}
+{{ toYaml .Values.extraVolumes | indent 8 }}
+{{- end }}
+
+{{- end }}
