@@ -381,6 +381,28 @@ entries:
     urls:
     - https://github.com/kcp-dev/helm-charts/releases/download/certificates-0.0.2/certificates-0.0.2.tgz
     version: 0.0.2
+  init-agent:
+  - apiVersion: v2
+    appVersion: v0.1.0
+    created: "2026-02-18T12:59:21.146187084Z"
+    description: A Kubernetes agent to initialize newly created workspaces with Kubernetes
+      objects.
+    digest: b50a05204a90b8e72f01cf73031c9e04200ef5edd05865ff85729a7dc6d2e944
+    home: https://www.kcp.io/
+    icon: https://raw.githubusercontent.com/kcp-dev/kcp/main/contrib/logo/blue-green.svg
+    keywords:
+    - kcp
+    - kubernetes
+    - multitenancy
+    - controlplane
+    name: init-agent
+    sources:
+    - https://github.com/kcp-dev/helm-charts
+    - https://github.com/kcp-dev/init-agent
+    type: application
+    urls:
+    - https://github.com/kcp-dev/helm-charts/releases/download/init-agent-0.1.0/init-agent-0.1.0.tgz
+    version: 0.1.0
   kcp:
   - apiVersion: v2
     appVersion: 0.30.0
@@ -1617,4 +1639,4 @@ entries:
     urls:
     - https://github.com/kcp-dev/helm-charts/releases/download/shard-0.0.2/shard-0.0.2.tgz
     version: 0.0.2
-generated: "2026-02-10T14:06:22.756710791Z"
+generated: "2026-02-18T12:59:21.146373494Z"
