@@ -1,4 +1,4 @@
-{{- if eq .Values.target "" }}
+{{- if or (not .Values.targets) (has "host" .Values.targets) }}
 apiVersion: v1
 kind: ServiceAccount
 metadata:

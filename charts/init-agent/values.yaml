@@ -1,23 +1,28 @@
 #
 # Welcome to the kcp Init Agent!
 #
-# This Helm chart can be rendered in 3 different variations:
+# This Helm chart can be rendered in 3 different variations, controlled by the
+# "targets" list:
 #
-#   * By default, it will output a Deployment and necessary auxiliary resources
-#     to *run* the init-agent in Kubernetes. Use this to "install" the agent.
-#     For this, configure Helm with a kubeconfig that points to the hosting
-#     Kubernetes cluster.
-#   * By setting "target=configcluster", the chart will output the Init Agent
-#     CRDs, suitable to bootstrap a kcp workspace to create InitTargets and
-#     InitTemplates in kcp, plus the necessary RBAC for it.
+#   * By default (targets is empty) or by including "host" in targets, it will
+#     output a Deployment and necessary auxiliary resources to *run* the
+#     init-agent in Kubernetes. Use this to "install" the agent. For this,
+#     configure Helm with a kubeconfig that points to the hosting Kubernetes
+#     cluster.
+#   * By including "configcluster" in targets, the chart will output the Init
+#     Agent CRDs, suitable to bootstrap a kcp workspace to create InitTargets
+#     and InitTemplates in kcp, plus the necessary RBAC for it.
 #     For this, Helm needs to be configured with a kubeconfig that points to
 #     the desired config workspace.
-#   * By setting "target=wstcluster", the chart will only output the necessary
-#     RBAC to allow the agent to access WorkspaceTypes and to initialize them
-#     in a single workspace. This variation has to be installed in each workspace
-#     for which InitTargets are configured in the configWorkspace.
-#     For this, Helm needs to be configured with a kubeconfig that points to
-#     the desired workspace.
+#   * By including "wstcluster" in targets, the chart will only output the
+#     necessary RBAC to allow the agent to access WorkspaceTypes and to
+#     initialize them in a single workspace. This variation has to be installed
+#     in each workspace for which InitTargets are configured in the
+#     configWorkspace. For this, Helm needs to be configured with a kubeconfig
+#     that points to the desired workspace.
+#
+# Multiple targets can be combined (e.g. ["configcluster", "wstcluster"]) to
+# output manifests for several targets at once.
 #
 # All three modes must be installed for the init-agent to function correctly.
 #
@@ -28,9 +33,10 @@ leaderElection:
   enabled: true
   namespace: kcp-init-agent
 
-# Required: set to "" (default, hosting cluster), "configcluster" or "wstcluster"
-# (see comment above) to output the correct manifests for each Kubernetes endpoint.
-target: ""
+# Set to one or more of "host", "configcluster" and "wstcluster" (see comment
+# above) to output the correct manifests for each Kubernetes endpoint. Leave
+# empty (default) to output the hosting cluster manifests (Deployment etc.).
+targets: []
 
 # Configuration exclusively for all the clusters (workspaces) in which the
 # init-agent is meant to read and initialize WorkspaceTypes in. The chart needs

@@ -1,4 +1,4 @@
-{{- if eq .Values.target "configcluster" }}
+{{- if has "configcluster" .Values.targets }}
 {{- if .Values.leaderElection.enabled }}
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
