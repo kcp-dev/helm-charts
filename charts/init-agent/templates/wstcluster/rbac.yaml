@@ -1,0 +1,39 @@
+{{- if has "wstcluster" .Values.targets }}
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: 'kcp-init-agent:{{ template "name" . }}'
+rules:
+  # provide access to this workspace
+  - verbs:
+      - access
+    nonResourceURLs:
+      - "/"
+
+  # allow to watch and initialize WorkspaceTypes
+  - apiGroups:
+      - tenancy.kcp.io
+    resources:
+      - workspacetypes
+{{- with .Values.wstCluster.workspaceTypes }}
+    resourceNames:
+{{ . | toYaml | indent 6 }}
+{{- end}}
+    verbs:
+      - get
+      - list
+      - watch
+      - initialize
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: 'kcp-init-agent:{{ template "name" . }}'
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: 'kcp-init-agent:{{ template "name" . }}'
+subjects:
+{{ list .Values.wstCluster.rbacSubject | toYaml | indent 2 }}
+{{- end }}

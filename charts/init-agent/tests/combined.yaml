@@ -1,0 +1,6 @@
+kcpKubeconfig: kcp-kubeconfig
+configWorkspace: root:init-agent
+targets:
+  - host
+  - configcluster
+  - wstcluster
