@@ -7,12 +7,12 @@ This Helm chart deploys an instance of the [Init Agent](https://github.com/kcp-d
 The Init Agent connects to a variety of workspaces inside kcp. In each of them, the necessary
 RBAC needs to be provisioned for the agent to do its work.
 
-To accomplish this, this Helm chart can be configured to output three different sets of manifests,
-called **targets**:
+To accomplish this, this Helm chart can be configured to output any combination of the following
+three **targets**:
 
-* `""` (default) – By default, the Helm chart will output the Deployment, ServiceAccount and RBAC to
-  run the Init Agent on a Kubernetes cluster. For this to work, you need to provide Helm with a
-  kubeconfig for that cluster.
+* `"host"` (default) – By default, the Helm chart will output the Deployment, ServiceAccount and
+  RBAC to run the Init Agent on a Kubernetes cluster. For this to work, you need to provide Helm
+  with a kubeconfig for that cluster.
 * `configcluster` – In this mode, the Helm chart outputs the RBAC necessary for the agent to read
   and process its `InitTarget` objects. This is meant to be installed into the workspace that is
   configured via `.configWorkspace` when installing the chart in default mode (above). This needs
@@ -23,13 +23,15 @@ called **targets**:
   by an `InitTarget`.For this to work, you need to provide Helm with a kubeconfig that points to
   the effective workspace.
 
-To toggle between these, use the Helm variable `target`:
+To toggle between these, use the Helm variable `targets` and set it to any combination of the targets:
 
 ```bash
 helm install init-agent kcp/init-agent \
-  --set "target=configcluster" \
+  --set "targets=[configcluster, host]" \
   --values myvalues.yaml
 ```
+
+If you do not specify `targets`, the default is `[host]`.
 
 ## Usage
 
