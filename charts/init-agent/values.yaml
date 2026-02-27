@@ -33,6 +33,11 @@ leaderElection:
   enabled: true
   namespace: kcp-init-agent
 
+  # If the namespace above is different than the namespace where the Helm chart
+  # is installed into, set this to true to create the leader election namespace
+  # as well.
+  create: false
+
 # Set to one or more of "host", "configcluster" and "wstcluster" (see comment
 # above) to output the correct manifests for each Kubernetes endpoint. Leave
 # empty (default) to output the hosting cluster manifests (Deployment etc.).
