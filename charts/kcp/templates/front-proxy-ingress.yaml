@@ -68,7 +68,7 @@ spec:
   listeners:
     - name: tls
       protocol: TLS
-      port: 8443
+      port: {{ .Values.externalPort }}
       tls:
         mode: Passthrough
       hostname: {{ .Values.externalHostname }}
@@ -88,7 +88,7 @@ spec:
   rules:
     - backendRefs:
         - name: {{ include "frontproxy.fullname" . }}
-          port: 8443
+          port: {{ .Values.externalPort }}
   hostnames:
     - {{ .Values.externalHostname }}
 {{- end }}
