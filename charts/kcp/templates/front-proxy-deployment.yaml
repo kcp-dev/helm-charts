@@ -23,7 +23,7 @@ spec:
   ports:
     - protocol: TCP
       name: kcp-front-proxy
-      port: 8443
+      port: {{ .Values.kcpFrontProxy.service.port }}
       targetPort: 8443
       {{- with .Values.kcpFrontProxy.service.nodePort }}
       nodePort: {{ . }}
