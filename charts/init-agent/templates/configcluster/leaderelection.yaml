@@ -1,0 +1,6 @@
+{{- if .Values.leaderElection.create }}
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: {{ .Values.leaderElection.namespace }}
+{{- end }}
