@@ -10,7 +10,7 @@ metadata:
 spec:
   host: {{ .Values.externalHostname }}
   port:
-    targetPort: 8443
+    targetPort: {{ .Values.kcpFrontProxy.service.port }}
   tls:
     termination: passthrough
   to:
@@ -51,7 +51,7 @@ spec:
               service:
                 name: {{ include "frontproxy.fullname" . }}
                 port:
-                  number: 8443
+                  number: {{ .Values.kcpFrontProxy.service.port }}
 {{- end }}
 
 {{- if .Values.kcpFrontProxy.gateway.enabled }}
@@ -68,7 +68,7 @@ spec:
   listeners:
     - name: tls
       protocol: TLS
-      port: 8443
+      port: {{ .Values.kcpFrontProxy.service.port }}
       tls:
         mode: Passthrough
       hostname: {{ .Values.externalHostname }}
@@ -88,7 +88,7 @@ spec:
   rules:
     - backendRefs:
         - name: {{ include "frontproxy.fullname" . }}
-          port: 8443
+          port: {{ .Values.kcpFrontProxy.service.port }}
   hostnames:
     - {{ .Values.externalHostname }}
 {{- end }}
