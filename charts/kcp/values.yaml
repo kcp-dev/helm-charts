@@ -239,6 +239,9 @@ kcpFrontProxy:
     loadBalancerIP: ""
     # The class of the load balancer implementation of the kcp-front-proxy Service.
     loadBalancerClass: ""
+    # External service port for kcp-front-proxy.
+    # Defaults to 8443.
+    port: 8443
 
   # Set this if you want kcp-front-proxy to use a specific certificate issuer
   # (e.g. the Let's Encrypt ones in this chart).
