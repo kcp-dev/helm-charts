@@ -2,6 +2,27 @@ apiVersion: v1
 entries:
   api-syncagent:
   - apiVersion: v2
+    appVersion: v0.5.1
+    created: "2026-03-06T16:22:19.710649727Z"
+    description: A Kubernetes agent to synchronize APIs and their objects between
+      Kubernetes clusters and kcp.
+    digest: 4f70fe102c86326c25d4ade2f18e2b8729aeb97d7ba5740954ea343dc6b303ae
+    home: https://www.kcp.io/
+    icon: https://raw.githubusercontent.com/kcp-dev/kcp/main/contrib/logo/blue-green.svg
+    keywords:
+    - kcp
+    - kubernetes
+    - multitenancy
+    - controlplane
+    name: api-syncagent
+    sources:
+    - https://github.com/kcp-dev/helm-charts
+    - https://github.com/kcp-dev/api-syncagent
+    type: application
+    urls:
+    - https://github.com/kcp-dev/helm-charts/releases/download/api-syncagent-0.5.1/api-syncagent-0.5.1.tgz
+    version: 0.5.1
+  - apiVersion: v2
     appVersion: v0.5.0
     created: "2026-02-10T14:06:22.756536135Z"
     description: A Kubernetes agent to synchronize APIs and their objects between
@@ -1681,4 +1702,4 @@ entries:
     urls:
     - https://github.com/kcp-dev/helm-charts/releases/download/shard-0.0.2/shard-0.0.2.tgz
     version: 0.0.2
-generated: "2026-03-04T10:42:19.839848065Z"
+generated: "2026-03-06T16:22:19.710889244Z"
