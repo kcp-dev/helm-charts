@@ -35,6 +35,12 @@ for dir in ./charts/*/; do
   dir="${dir%*/}"
   chart="${dir##*/}"
 
+  heading "$chart: helm lint"
+  helm lint "$dir"
+
+  echo
+  echo
+
   for testfile in "$dir"/tests/*.yaml; do
     heading "$chart: $(basename $testfile)"
 
