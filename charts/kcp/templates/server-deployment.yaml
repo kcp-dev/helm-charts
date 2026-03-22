@@ -98,6 +98,10 @@ spec:
       hostAliases:
         {{- toYaml .Values.kcp.hostAliases.values | nindent 8 }}
       {{- end }}
+      {{- with .Values.kcp.nodeSelector}}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       {{- with .Values.kcp.affinity}}
       affinity:
         {{- toYaml . | nindent 8 }}

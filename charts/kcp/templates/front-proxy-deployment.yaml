@@ -64,6 +64,10 @@ spec:
       hostAliases:
         {{- toYaml .Values.kcpFrontProxy.hostAliases.values | nindent 8 }}
       {{- end }}
+      {{- with .Values.kcpFrontProxy.nodeSelector}}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       {{- with .Values.kcpFrontProxy.affinity}}
       affinity:
         {{- toYaml . | nindent 8 }}

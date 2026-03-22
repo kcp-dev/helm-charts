@@ -49,6 +49,10 @@ spec:
         {{- include "common.labels" . | nindent 8 }}
         app.kubernetes.io/component: "etcd"
     spec:
+      {{- with .Values.etcd.nodeSelector}}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       {{- with .Values.etcd.affinity}}
       affinity:
         {{- toYaml . | nindent 8 }}

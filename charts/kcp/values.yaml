@@ -41,6 +41,10 @@ etcd:
     enabled: false
     maxUnavailable: 1
 
+  # This configures the node selector for scheduling kcp etcd pods to specific nodes.
+  # For more information see https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#nodeselector.
+  nodeSelector: {}
+
   # When configured, this will add tolerations to the pods.
   tolerations: []
   #  - key: "kcp"
@@ -150,6 +154,10 @@ kcp:
   podDisruptionBudget:
     enabled: false
     minAvailable: 1
+
+  # This configures the node selector for scheduling kcp server pods to specific nodes.
+  # For more information see https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#nodeselector.
+  nodeSelector: {}
 
   # When configured, this will add tolerations to the pods.
   tolerations: []
@@ -310,6 +318,10 @@ kcpFrontProxy:
   extraVolumeMounts: []
   # - name: example-vw-serving-cert
   #   mountPath: /etc/example-vw-serving-cert
+
+  # This configures the node selector for scheduling kcp-front-proxy pods to specific nodes.
+  # For more information see https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#nodeselector.
+  nodeSelector: {}
 
   # When configured, this will add tolerations to the pods.
   tolerations: []
