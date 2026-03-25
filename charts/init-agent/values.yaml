@@ -77,6 +77,10 @@ configCluster:
   crds:
     create: true
 
+# This is to override the chart name.
+nameOverride: ""
+fullnameOverride: ""
+
 # Required: The kcp workspace (or cluster name) where the init-agent CRDs, InitTargets
 # and InitTemplates reside.
 configWorkspace: ""
@@ -107,6 +111,18 @@ imagePullSecrets: []
 # - name: "image-pull-secret"
 # or
 # - "image-pull-secret"
+
+# This section builds out the service account. More information can be found here: https://kubernetes.io/docs/concepts/security/service-accounts/.
+serviceAccount:
+  # Specifies whether a service account should be created.
+  create: true
+  # Automatically mount a ServiceAccount's API credentials?
+  automount: true
+  # Annotations to add to the service account.
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template.
+  name: ""
 
 resources:
   requests:

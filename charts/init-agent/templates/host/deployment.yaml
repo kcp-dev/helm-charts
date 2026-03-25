@@ -1,13 +1,4 @@
 {{- if or (not .Values.targets) (has "host" .Values.targets) }}
-apiVersion: v1
-kind: ServiceAccount
-metadata:
-  name: '{{ template "name" . }}'
-  labels:
-    app.kubernetes.io/name: kcp-init-agent
-    app.kubernetes.io/instance: '{{ template "name" . }}'
-
----
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -64,7 +55,7 @@ spec:
         runAsUser: 65534
         seccompProfile:
           type: RuntimeDefault
-      serviceAccountName: '{{ template "name" . }}'
+      serviceAccountName: {{ include "init-agent.serviceAccountName" . }}
       volumes:
         - name: kcp-kubeconfig
           secret:
