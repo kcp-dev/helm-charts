@@ -1,0 +1,31 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended"
+  ],
+  "labels": ["dependencies"],
+  "customManagers": [
+    {
+      "customType": "regex",
+      "description": "Update etcd image tags in Helm values",
+      "fileMatch": ["charts/.+/values\\.yaml$"],
+      "matchStrings": [
+        "image:\\s*(?<depName>quay\\.io/coreos/etcd)\\n\\s*tag:\\s*(?<currentValue>v[\\d.]+)"
+      ],
+      "datasourceTemplate": "docker"
+    }
+  ],
+  "packageRules": [
+    {
+      "description": "Group etcd updates across all charts",
+      "matchPackageNames": ["quay.io/coreos/etcd"],
+      "groupName": "etcd",
+      "versioning": "semver"
+    },
+    {
+      "description": "Group GitHub Actions updates",
+      "matchManagers": ["github-actions"],
+      "groupName": "github-actions"
+    }
+  ]
+}
