@@ -16,7 +16,7 @@ externalPort: ""
 etcd:
   enabled: true
   image: quay.io/coreos/etcd
-  tag: v3.5.15
+  tag: v3.5.28
 
   resources:
     requests:
