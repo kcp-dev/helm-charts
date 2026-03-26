@@ -10,3 +10,11 @@
 {{- end }}
 {{- end }}
 {{- end -}}
+
+{{- define "init-agent.serviceAccountName" -}}
+{{- if .Values.serviceAccount.create }}
+{{- default (include "name" .) .Values.serviceAccount.name }}
+{{- else }}
+{{- default "default" .Values.serviceAccount.name }}
+{{- end }}
+{{- end }}
