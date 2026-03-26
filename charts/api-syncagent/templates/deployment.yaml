@@ -68,11 +68,10 @@ spec:
               value: '{{ template "agentname" . }}'
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           resources: {{ .Values.resources | toYaml | nindent 12 }}
+          {{- if .Values.securityContext.agent }}
           securityContext:
-            allowPrivilegeEscalation: false
-            capabilities:
-              drop:
-                - ALL
+            {{- toYaml .Values.securityContext.agent | nindent 12 }}
+          {{- end }}
           volumeMounts:
             - name: kcp-kubeconfig
               mountPath: /etc/api-syncagent/kcp
@@ -83,11 +82,10 @@ spec:
 {{- if .Values.extraVolumeMounts }}
 {{ toYaml .Values.extraVolumeMounts | indent 12 }}
 {{- end }}
+      {{- if .Values.securityContext.pod }}
       securityContext:
-        runAsNonRoot: true
-        runAsUser: 65534
-        seccompProfile:
-          type: RuntimeDefault
+        {{- toYaml .Values.securityContext.pod | nindent 8 }}
+      {{- end }}
       serviceAccountName: '{{ template "name" . }}'
       volumes:
         - name: kcp-kubeconfig
