@@ -27,14 +27,20 @@ rules:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
-  name: '{{ template "name" . }}:leaderelection'
+  name: {{ include "api-syncagent.fullname" . }}:{{ include "api-syncagent.serviceAccountName" . }}:leaderelection
+  labels:
+    {{- include "api-syncagent.labels" . | nindent 4 }}
+  annotations:
+    {{- .Values.annotations | toYaml | nindent 4 }}
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
-  name: '{{ template "name" . }}:leaderelection'
+  name: {{ include "api-syncagent.fullname" . }}:leaderelection
 subjects:
-  - kind: ServiceAccount
-    name: '{{ template "name" . }}'
+  - apiGroup: ""
+    kind: ServiceAccount
+    name: {{ include "api-syncagent.serviceAccountName" . }}
+    namespace: {{ .Release.Namespace }}
 
 ---
 # A dedicated role and binding just to allow the agent to publish events on PublishedResources,
@@ -52,9 +58,10 @@ roleRef:
   kind: Role
   name: '{{ template "name" . }}:{{ .Release.Namespace }}:events'
 subjects:
-  - kind: ServiceAccount
-    name: '{{ template "name" . }}'
-    namespace: '{{ .Release.Namespace }}'
+  - apiGroup: ""
+    kind: ServiceAccount
+    name: {{ include "api-syncagent.serviceAccountName" . }}
+    namespace: {{ .Release.Namespace }}
 
 ---
 apiVersion: rbac.authorization.k8s.io/v1
@@ -133,6 +140,7 @@ roleRef:
   kind: ClusterRole
   name: '{{ template "name" . }}:{{ .Release.Namespace }}'
 subjects:
-  - kind: ServiceAccount
-    name: '{{ template "name" . }}'
-    namespace: '{{ .Release.Namespace }}'
+  - apiGroup: ""
+    kind: ServiceAccount
+    name: {{ include "api-syncagent.serviceAccountName" . }}
+    namespace: {{ .Release.Namespace }}
