@@ -108,6 +108,22 @@ imagePullSecrets: []
 # or
 # - "image-pull-secret"
 
+podSecurityContext:
+  fsGroup: 65532
+  runAsNonRoot: true
+  runAsUser: 65532
+  seccompProfile:
+    type: RuntimeDefault
+
+securityContext:
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop:
+      - ALL
+  readOnlyRootFilesystem: true
+  runAsNonRoot: true
+  runAsUser: 65532
+
 resources:
   requests:
     cpu: 100m
