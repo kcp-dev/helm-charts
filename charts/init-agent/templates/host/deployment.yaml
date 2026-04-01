@@ -24,6 +24,9 @@ spec:
       hostAliases:
         {{- toYaml .Values.hostAliases.values | nindent 8 }}
       {{- end }}
+
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
       containers:
         - name: agent
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
@@ -40,21 +43,14 @@ spec:
             {{- end }}
           resources: {{ .Values.resources | toYaml | nindent 12 }}
           securityContext:
-            allowPrivilegeEscalation: false
-            capabilities:
-              drop:
-                - ALL
+            {{- toYaml .Values.securityContext | nindent 12 }}
           volumeMounts:
             - name: kcp-kubeconfig
               mountPath: /etc/init-agent/kcp
 {{- if .Values.extraVolumeMounts }}
 {{ toYaml .Values.extraVolumeMounts | indent 12 }}
 {{- end }}
-      securityContext:
-        runAsNonRoot: true
-        runAsUser: 65534
-        seccompProfile:
-          type: RuntimeDefault
+
       serviceAccountName: {{ include "init-agent.serviceAccountName" . }}
       volumes:
         - name: kcp-kubeconfig
