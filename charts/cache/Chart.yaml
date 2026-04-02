@@ -1,6 +1,6 @@
 apiVersion: v2
 name: cache
-description: A cache server for prototype of a multi-tenant Kubernetes control plane for workloads on many clusters
+description: A cache server for a multi-tenant Kubernetes control plane for workloads on many clusters
 
 # version information
 version: 0.0.6
