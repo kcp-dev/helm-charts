@@ -3,8 +3,8 @@ name: init-agent
 description: A Kubernetes agent to initialize newly created workspaces with Kubernetes objects.
 
 # version information
-version: 0.2.0
-appVersion: "v0.2.0"
+version: 0.5.1
+appVersion: "v0.5.1"
 
 # optional metadata
 type: application
