@@ -1,11 +1,9 @@
 apiVersion: v2
 name: kcp-operator
 description: A Helm chart for kcp-operator, a Kubernetes operator to deploy and manage kcp instances.
-
 # version information
-version: 0.4.1
-appVersion: "v0.4.1"
-
+version: 0.6.0
+appVersion: "v0.6.0"
 # optional metadata
 type: application
 home: https://kcp.io
