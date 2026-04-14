@@ -1,9 +1,10 @@
 apiVersion: v2
 name: proxy
-description: A multi-tenant Kubernetes control plane for workloads on many clusters
+description: "[DEPRECATED] A multi-tenant Kubernetes control plane for workloads on many clusters"
+deprecated: true
 
 # version information
-version: 0.0.5
+version: 0.0.6
 appVersion: "0.22.0"
 
 # optional metadata

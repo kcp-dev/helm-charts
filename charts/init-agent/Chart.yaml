@@ -1,11 +1,9 @@
 apiVersion: v2
 name: init-agent
 description: A Kubernetes agent to initialize newly created workspaces with Kubernetes objects.
-
 # version information
-version: 0.2.0
-appVersion: "v0.2.0"
-
+version: 0.3.0
+appVersion: "v0.3.0"
 # optional metadata
 type: application
 home: https://www.kcp.io/
