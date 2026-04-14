@@ -33,6 +33,11 @@ leaderElection:
   enabled: true
   namespace: kcp-init-agent
 
+  # If the namespace above is different than the namespace where the Helm chart
+  # is installed into, set this to true to create the leader election namespace
+  # as well.
+  create: false
+
 # Set to one or more of "host", "configcluster" and "wstcluster" (see comment
 # above) to output the correct manifests for each Kubernetes endpoint. Leave
 # empty (default) to output the hosting cluster manifests (Deployment etc.).
@@ -103,6 +108,22 @@ imagePullSecrets: []
 # or
 # - "image-pull-secret"
 
+podSecurityContext:
+  fsGroup: 65532
+  runAsNonRoot: true
+  runAsUser: 65532
+  seccompProfile:
+    type: RuntimeDefault
+
+securityContext:
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop:
+      - ALL
+  readOnlyRootFilesystem: true
+  runAsNonRoot: true
+  runAsUser: 65532
+
 resources:
   requests:
     cpu: 100m
@@ -130,3 +151,27 @@ hostAliases:
   values:
     - ip: ""
       hostnames: []
+
+# This configures the node selector for scheduling init-agent to specific nodes.
+# For more information see https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#nodeselector.
+nodeSelector: {}
+
+# This configures tolerations to allow init-agent to be scheduled to Nodes with taints.
+# For more information see https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/.
+tolerations: []
+
+# This configures advanced scheduling affinity settings to fine-tune where init-agent runs.
+# For more information see https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#affinity-and-anti-affinity.
+affinity: {}
+
+# This section builds out the service account. More information can be found here: https://kubernetes.io/docs/concepts/security/service-accounts/.
+serviceAccount:
+  # Specifies whether a service account should be created.
+  create: true
+  # Automatically mount a ServiceAccount's API credentials?
+  automount: true
+  # Annotations to add to the service account.
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template.
+  name: ""

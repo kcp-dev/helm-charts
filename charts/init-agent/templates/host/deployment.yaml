@@ -1,13 +1,4 @@
 {{- if or (not .Values.targets) (has "host" .Values.targets) }}
-apiVersion: v1
-kind: ServiceAccount
-metadata:
-  name: '{{ template "name" . }}'
-  labels:
-    app.kubernetes.io/name: kcp-init-agent
-    app.kubernetes.io/instance: '{{ template "name" . }}'
-
----
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -33,6 +24,9 @@ spec:
       hostAliases:
         {{- toYaml .Values.hostAliases.values | nindent 8 }}
       {{- end }}
+
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
       containers:
         - name: agent
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
@@ -49,22 +43,15 @@ spec:
             {{- end }}
           resources: {{ .Values.resources | toYaml | nindent 12 }}
           securityContext:
-            allowPrivilegeEscalation: false
-            capabilities:
-              drop:
-                - ALL
+            {{- toYaml .Values.securityContext | nindent 12 }}
           volumeMounts:
             - name: kcp-kubeconfig
               mountPath: /etc/init-agent/kcp
 {{- if .Values.extraVolumeMounts }}
 {{ toYaml .Values.extraVolumeMounts | indent 12 }}
 {{- end }}
-      securityContext:
-        runAsNonRoot: true
-        runAsUser: 65534
-        seccompProfile:
-          type: RuntimeDefault
-      serviceAccountName: '{{ template "name" . }}'
+
+      serviceAccountName: {{ include "init-agent.serviceAccountName" . }}
       volumes:
         - name: kcp-kubeconfig
           secret:
@@ -72,5 +59,18 @@ spec:
 {{- if .Values.extraVolumes }}
 {{ toYaml .Values.extraVolumes | indent 8 }}
 {{- end }}
+
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
 
 {{- end }}

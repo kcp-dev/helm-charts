@@ -23,7 +23,7 @@ spec:
   ports:
     - protocol: TCP
       name: kcp-front-proxy
-      port: 8443
+      port: {{ .Values.kcpFrontProxy.service.port }}
       targetPort: 8443
       {{- with .Values.kcpFrontProxy.service.nodePort }}
       nodePort: {{ . }}
@@ -63,6 +63,10 @@ spec:
       {{- if .Values.kcpFrontProxy.hostAliases.enabled }}
       hostAliases:
         {{- toYaml .Values.kcpFrontProxy.hostAliases.values | nindent 8 }}
+      {{- end }}
+      {{- with .Values.kcpFrontProxy.nodeSelector}}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
       {{- end }}
       {{- with .Values.kcpFrontProxy.affinity}}
       affinity:

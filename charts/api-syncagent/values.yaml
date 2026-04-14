@@ -6,6 +6,9 @@ global:
   # - name: "image-pull-secret"
   # or
   # - "image-pull-secret"
+# This is to override the chart name.
+nameOverride: ""
+fullnameOverride: ""
 
 # Required: You need to configure a reference to an APIExportEndpointSlice so the
 # agent knows which API to serve and where to connect to.
@@ -67,6 +70,21 @@ crds:
   # Whether to install the PublishedResource CRD.
   enabled: true
 
+# This section builds out the service account. More information can be found here: https://github.com/kcp-dev/helm-charts/issues/206
+serviceAccount:
+  # Specifies whether a service account should be created.
+  create: true
+  # Automatically mount a ServiceAccount's API credentials?
+  automount: true
+  # Annotations to add to the service account.
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template.
+  name: ""
+
+# This is for setting Kubernetes Annotations to the api-syncagent Deployment.
+annotations: {}
+
 # Optional: Pass additional flags to the kcp-api-syncagent process started by the container.
 extraFlags: []
 
@@ -86,3 +104,28 @@ hostAliases:
   values:
     - ip: ""
       hostnames: []
+
+# This configures the node selector for scheduling api-syncagent to specific nodes.
+# For more information see https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#nodeselector.
+nodeSelector: {}
+
+# This configures tolerations to allow api-syncagent to be scheduled to Nodes with taints.
+# For more information see https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/.
+tolerations: []
+
+# This configures advanced scheduling affinity settings to fine-tune where api-syncagent runs.
+# For more information see https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#affinity-and-anti-affinity.
+affinity: {}
+
+# This manages a security context for pod and agent container
+securityContext:
+  pod:
+    runAsNonRoot: true
+    runAsUser: 65534
+    seccompProfile:
+      type: RuntimeDefault
+  agent:
+    allowPrivilegeEscalation: false
+    capabilities:
+      drop:
+        - ALL

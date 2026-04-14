@@ -21,12 +21,24 @@ spec:
     - client auth  # required because etcd uses this cert for calls to itself
   dnsNames:
     - {{ include "etcd.fullname" . }}
+    - {{ include "etcd.fullname" . }}.{{ .Release.Namespace }}
+    - {{ include "etcd.fullname" . }}.{{ .Release.Namespace }}.svc
+    - {{ include "etcd.fullname" . }}.{{ .Release.Namespace }}.svc.cluster.local
     - {{ include "etcd.fullname" . }}-0
-    - {{ include "etcd.fullname" . }}-1
-    - {{ include "etcd.fullname" . }}-2
     - {{ include "etcd.fullname" . }}-0.{{ include "etcd.fullname" . }}
+    - {{ include "etcd.fullname" . }}-0.{{ include "etcd.fullname" . }}.{{ .Release.Namespace }}
+    - {{ include "etcd.fullname" . }}-0.{{ include "etcd.fullname" . }}.{{ .Release.Namespace }}.svc
+    - {{ include "etcd.fullname" . }}-0.{{ include "etcd.fullname" . }}.{{ .Release.Namespace }}.svc.cluster.local
+    - {{ include "etcd.fullname" . }}-1
     - {{ include "etcd.fullname" . }}-1.{{ include "etcd.fullname" . }}
+    - {{ include "etcd.fullname" . }}-1.{{ include "etcd.fullname" . }}.{{ .Release.Namespace }}
+    - {{ include "etcd.fullname" . }}-1.{{ include "etcd.fullname" . }}.{{ .Release.Namespace }}.svc
+    - {{ include "etcd.fullname" . }}-1.{{ include "etcd.fullname" . }}.{{ .Release.Namespace }}.svc.cluster.local
+    - {{ include "etcd.fullname" . }}-2
     - {{ include "etcd.fullname" . }}-2.{{ include "etcd.fullname" . }}
+    - {{ include "etcd.fullname" . }}-2.{{ include "etcd.fullname" . }}.{{ .Release.Namespace }}
+    - {{ include "etcd.fullname" . }}-2.{{ include "etcd.fullname" . }}.{{ .Release.Namespace }}.svc
+    - {{ include "etcd.fullname" . }}-2.{{ include "etcd.fullname" . }}.{{ .Release.Namespace }}.svc.cluster.local
   ipAddresses:
     - 0.0.0.0
     {{- with .Values.certificates.ipAddresses }}
@@ -60,11 +72,20 @@ spec:
     - client auth
   dnsNames:
     - {{ include "etcd.fullname" . }}-0
-    - {{ include "etcd.fullname" . }}-1
-    - {{ include "etcd.fullname" . }}-2
     - {{ include "etcd.fullname" . }}-0.{{ include "etcd.fullname" . }}
+    - {{ include "etcd.fullname" . }}-0.{{ include "etcd.fullname" . }}.{{ .Release.Namespace }}
+    - {{ include "etcd.fullname" . }}-0.{{ include "etcd.fullname" . }}.{{ .Release.Namespace }}.svc
+    - {{ include "etcd.fullname" . }}-0.{{ include "etcd.fullname" . }}.{{ .Release.Namespace }}.svc.cluster.local
+    - {{ include "etcd.fullname" . }}-1
     - {{ include "etcd.fullname" . }}-1.{{ include "etcd.fullname" . }}
+    - {{ include "etcd.fullname" . }}-1.{{ include "etcd.fullname" . }}.{{ .Release.Namespace }}
+    - {{ include "etcd.fullname" . }}-1.{{ include "etcd.fullname" . }}.{{ .Release.Namespace }}.svc
+    - {{ include "etcd.fullname" . }}-1.{{ include "etcd.fullname" . }}.{{ .Release.Namespace }}.svc.cluster.local
+    - {{ include "etcd.fullname" . }}-2
     - {{ include "etcd.fullname" . }}-2.{{ include "etcd.fullname" . }}
+    - {{ include "etcd.fullname" . }}-2.{{ include "etcd.fullname" . }}.{{ .Release.Namespace }}
+    - {{ include "etcd.fullname" . }}-2.{{ include "etcd.fullname" . }}.{{ .Release.Namespace }}.svc
+    - {{ include "etcd.fullname" . }}-2.{{ include "etcd.fullname" . }}.{{ .Release.Namespace }}.svc.cluster.local
   ipAddresses:
     - 0.0.0.0
     {{- with .Values.certificates.ipAddresses }}
