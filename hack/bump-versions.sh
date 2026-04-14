@@ -30,6 +30,7 @@ declare -A CHART_REPOS=(
   ["kcp"]="kcp-dev/kcp"
   ["kcp-operator"]="kcp-dev/kcp-operator"
   ["api-syncagent"]="kcp-dev/api-syncagent"
+  ["init-agent"]="kcp-dev/init-agent"
 )
 
 # kcp uses bare versions (0.30.2), operator and syncagent use v-prefixed (v0.5.1)
@@ -37,6 +38,7 @@ declare -A VERSION_PREFIX=(
   ["kcp"]=""
   ["kcp-operator"]="v"
   ["api-syncagent"]="v"
+  ["init-agent"]="v"
 )
 
 changed=()
