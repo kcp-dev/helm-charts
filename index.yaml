@@ -1533,6 +1533,27 @@ entries:
   kcp-operator:
   - apiVersion: v2
     appVersion: v0.7.2
+    created: "2026-05-08T12:12:03.176145881Z"
+    description: A Helm chart for kcp-operator, a Kubernetes operator to deploy and
+      manage kcp instances.
+    digest: d7dc63a21746e59559372a733b847eaee32831bfc05dd9bf47d6ca30cfcd9f65
+    home: https://kcp.io
+    icon: https://raw.githubusercontent.com/kcp-dev/kcp/main/contrib/logo/blue-green.svg
+    keywords:
+    - kcp
+    - kubernetes
+    - multitenancy
+    - operator
+    name: kcp-operator
+    sources:
+    - https://github.com/kcp-dev/helm-charts
+    - https://github.com/kcp-dev/kcp-operator
+    type: application
+    urls:
+    - https://github.com/kcp-dev/helm-charts/releases/download/kcp-operator-0.7.3/kcp-operator-0.7.3.tgz
+    version: 0.7.3
+  - apiVersion: v2
+    appVersion: v0.7.2
     created: "2026-04-27T09:45:34.221684276Z"
     description: A Helm chart for kcp-operator, a Kubernetes operator to deploy and
       manage kcp instances.
@@ -2018,4 +2039,4 @@ entries:
     urls:
     - https://github.com/kcp-dev/helm-charts/releases/download/shard-0.0.2/shard-0.0.2.tgz
     version: 0.0.2
-generated: "2026-04-27T09:45:34.221984276Z"
+generated: "2026-05-08T12:12:03.176374236Z"
