@@ -2,6 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ include "kcp-operator.fullname" . }}
+  namespace: {{ .Release.Namespace }}
   labels:
     {{- include "kcp-operator.labels" . | nindent 4 }}
   annotations:
