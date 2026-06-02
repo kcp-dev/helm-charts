@@ -198,6 +198,9 @@ spec:
             {{- if .Values.kcp.leaderElection.enabled }}
             - --enable-leader-election
             {{- end }}
+            {{- if .Values.development.rootIdentities.enabled }}
+            - --root-identities-file=/etc/kcp/identities/{{ .Values.development.rootIdentities.fileName }}
+            {{- end }}
             {{- range .Values.kcp.extraFlags }}
             - {{ . }}
             {{- end }}
@@ -288,6 +291,10 @@ spec:
               mountPath: /etc/kcp/external-logical-cluster-admin/kubeconfig
             - name: external-logical-cluster-admin-kubeconfig-cert
               mountPath: /etc/kcp/external-logical-cluster-admin/kubeconfig-client-cert
+            {{- if .Values.development.rootIdentities.enabled }}
+            - name: kcp-root-identities
+              mountPath: /etc/kcp/identities
+            {{- end }}
 {{- with .Values.kcp.extraVolumeMounts }}
 {{ . | toYaml | indent 12 }}
 {{- end }}
@@ -362,6 +369,11 @@ spec:
         - name: external-logical-cluster-admin-kubeconfig-cert
           secret:
             secretName: {{ include "kcp.fullname" . }}-external-admin-kubeconfig-cert
+        {{- if .Values.development.rootIdentities.enabled }}
+        - name: kcp-root-identities
+          secret:
+            secretName: {{ .Values.development.rootIdentities.existingSecret | default (printf "%s-root-identities" (include "kcp.fullname" .)) }}
+        {{- end }}
 {{- with .Values.kcp.extraVolumes }}
 {{ . | toYaml | indent 8 }}
 {{- end }}
@@ -385,3 +397,18 @@ stringData:
   {{ .Values.kcp.tokenAuth.fileName }}: |
     {{- .Values.kcp.tokenAuth.config | nindent 4 }}
 {{- end}}
+
+{{- if and .Values.development.rootIdentities.enabled (not .Values.development.rootIdentities.existingSecret) }}
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ include "kcp.fullname" . }}-root-identities
+stringData:
+  {{ .Values.development.rootIdentities.fileName }}: |
+    identities:
+    {{- range .Values.development.rootIdentities.identities }}
+      - export: {{ .export }}
+        identity: {{ .identity | quote }}
+    {{- end }}
+{{- end }}

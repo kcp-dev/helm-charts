@@ -109,6 +109,24 @@ kcp:
   # - name: foo
   #   mountPath: "/etc/foo"
   #   readOnly: true
+
+development:
+  # rootIdentities pins APIExport identity hashes in the root workspace so they are
+  # deterministic across installs/shards (identityHash = sha256hex(identity)).
+  # Only applied on the root shard (sharding.isRoot).
+  #
+  # NOTE: only effective on a FRESH bootstrap;
+  rootIdentities:
+    enabled: false
+    fileName: root-identities.yaml
+    # reference an existing Secret instead of generating one
+    existingSecret: ""
+    identities: []
+    #  - export: tenancy.kcp.io
+    #    identity: "tenancy-kcp-io-identity-CHANGEME"
+    #  - export: topology.kcp.io
+    #    identity: "topology-kcp-io-identity-CHANGEME"
+
 kcpFrontProxy:
   service:
     annotations: {}
