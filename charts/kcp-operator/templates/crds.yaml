@@ -1919,8 +1919,11 @@ spec:
                           type: string
                         clientSecret:
                           description: |-
-                            Optionally provide the client secret for the OIDC client. This is not used by kcp itself, but is used to generate
-                            a OIDC kubeconfig that can be shared with users to log in via the OIDC provider.
+                            ClientSecret is the OIDC client secret configured on the issuer side for this kcp instance.
+                            This is not used by kcp itself, but is used to generate a OIDC kubeconfig that can be
+                            shared with users to log in via the OIDC provider.
+
+                            Deprecated: kube OIDC is secretless.
                           type: string
                         groupsClaim:
                           description: 'Experimental: Optionally provides a custom claim for fetching groups. The claim must be a string or an array of strings.'
@@ -1960,6 +1963,42 @@ spec:
                           type: boolean
                       required:
                         - enabled
+                      type: object
+                    tokenAuthFile:
+                      description: |-
+                        Optional: TokenAuthFile configures static token file authentication (the kcp
+                        `--token-auth-file` flag). It is supported by shards, the root shard and the front-proxy.
+                      properties:
+                        key:
+                          description: Key in the secret that holds the token CSV file. Defaults to "token.csv".
+                          type: string
+                        secretName:
+                          description: |-
+                            SecretName is the name of a Kubernetes Secret that contains the token authentication
+                            CSV file. Each line of the file has the format: token,user,uid,"group1,group2,group3".
+                          type: string
+                      required:
+                        - secretName
+                      type: object
+                    webhook:
+                      description: 'Optional: Webhook configures Webhook Authentication.'
+                      properties:
+                        cacheAuthenticationTTL:
+                          description: The duration to cache the authentication responses from the webhook authenticator.
+                          type: string
+                        configSecretName:
+                          description: |-
+                            Name of a Kubernetes Secret that contains a kubeconfig formatted file that defines the
+                            authentication webhook configuration.
+                          type: string
+                        version:
+                          description: The API version of the authentication.k8s.io TokenReview to send to and expect from the webhook.
+                          enum:
+                            - v1beta1
+                            - v1
+                          type: string
+                      required:
+                        - configSecretName
                       type: object
                   type: object
                   x-kubernetes-validations:
@@ -2191,6 +2230,26 @@ spec:
                     CertificateTemplates allows to customize the properties on the generated
                     certificates for this front-proxy.
                   type: object
+                clientCABundleRef:
+                  description: |-
+                    ClientCABundleRef references a v1.Secret object that contains an additional client CA bundle
+                    that should be trusted by the front-proxy for client certificate authentication.
+                    The secret must contain a key named `tls.crt` that holds the PEM encoded CA certificate(s).
+                    This CA bundle will be merged with the root shard's client CA, allowing the front-proxy
+                    to accept client certificates signed by either CA. This is useful for backwards compatibility
+                    during upgrades when migrating from a separate front-proxy client CA to the shared root shard client CA.
+                  properties:
+                    name:
+                      default: ""
+                      description: |-
+                        Name of the referent.
+                        This field is effectively required, but due to backwards compatibility is
+                        allowed to be empty. Instances of this type with an empty value here are
+                        almost certainly wrong.
+                        More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+                      type: string
+                  type: object
+                  x-kubernetes-map-type: atomic
                 deploymentTemplate:
                   description: 'Optional: DeploymentTemplate configures the Kubernetes Deployment created for this shard.'
                   properties:
@@ -3424,6 +3483,7 @@ spec:
                 externalHostname:
                   description: |-
                     Optional: ExternalHostname under which the FrontProxy can be reached. If empty, the RootShard's external hostname will be used only.
+
                     Deprecated: use spec.External for configuration of external access instead.
                   type: string
                 extraArgs:
@@ -4258,8 +4318,11 @@ spec:
                           type: string
                         clientSecret:
                           description: |-
-                            Optionally provide the client secret for the OIDC client. This is not used by kcp itself, but is used to generate
-                            a OIDC kubeconfig that can be shared with users to log in via the OIDC provider.
+                            ClientSecret is the OIDC client secret configured on the issuer side for this kcp instance.
+                            This is not used by kcp itself, but is used to generate a OIDC kubeconfig that can be
+                            shared with users to log in via the OIDC provider.
+
+                            Deprecated: kube OIDC is secretless.
                           type: string
                         groupsClaim:
                           description: 'Experimental: Optionally provides a custom claim for fetching groups. The claim must be a string or an array of strings.'
@@ -4299,6 +4362,42 @@ spec:
                           type: boolean
                       required:
                         - enabled
+                      type: object
+                    tokenAuthFile:
+                      description: |-
+                        Optional: TokenAuthFile configures static token file authentication (the kcp
+                        `--token-auth-file` flag). It is supported by shards, the root shard and the front-proxy.
+                      properties:
+                        key:
+                          description: Key in the secret that holds the token CSV file. Defaults to "token.csv".
+                          type: string
+                        secretName:
+                          description: |-
+                            SecretName is the name of a Kubernetes Secret that contains the token authentication
+                            CSV file. Each line of the file has the format: token,user,uid,"group1,group2,group3".
+                          type: string
+                      required:
+                        - secretName
+                      type: object
+                    webhook:
+                      description: 'Optional: Webhook configures Webhook Authentication.'
+                      properties:
+                        cacheAuthenticationTTL:
+                          description: The duration to cache the authentication responses from the webhook authenticator.
+                          type: string
+                        configSecretName:
+                          description: |-
+                            Name of a Kubernetes Secret that contains a kubeconfig formatted file that defines the
+                            authentication webhook configuration.
+                          type: string
+                        version:
+                          description: The API version of the authentication.k8s.io TokenReview to send to and expect from the webhook.
+                          enum:
+                            - v1beta1
+                            - v1
+                          type: string
+                      required:
+                        - configSecretName
                       type: object
                   type: object
                 authorization:
@@ -4629,6 +4728,26 @@ spec:
                         - name
                       type: object
                   type: object
+                clientCABundleRef:
+                  description: |-
+                    ClientCABundleRef references a v1.Secret containing an additional client CA bundle
+                    for client certificate authentication. The secret must contain a key named `tls.crt`.
+                    This CA bundle will be merged with the root shard's client CA.
+                    If configured on a RootShard, this bundle is automatically inherited by all FrontProxies,
+                    Shards, and VirtualWorkspaces connected to it. Each of those components can additionally
+                    specify their own ClientCABundleRef, which will be merged on top.
+                  properties:
+                    name:
+                      default: ""
+                      description: |-
+                        Name of the referent.
+                        This field is effectively required, but due to backwards compatibility is
+                        allowed to be empty. Instances of this type with an empty value here are
+                        almost certainly wrong.
+                        More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+                      type: string
+                  type: object
+                  x-kubernetes-map-type: atomic
                 clusterDomain:
                   description: ClusterDomain is the DNS domain for services in the cluster. Defaults to "cluster.local" if not set.
                   type: string
@@ -7854,8 +7973,11 @@ spec:
                           type: string
                         clientSecret:
                           description: |-
-                            Optionally provide the client secret for the OIDC client. This is not used by kcp itself, but is used to generate
-                            a OIDC kubeconfig that can be shared with users to log in via the OIDC provider.
+                            ClientSecret is the OIDC client secret configured on the issuer side for this kcp instance.
+                            This is not used by kcp itself, but is used to generate a OIDC kubeconfig that can be
+                            shared with users to log in via the OIDC provider.
+
+                            Deprecated: kube OIDC is secretless.
                           type: string
                         groupsClaim:
                           description: 'Experimental: Optionally provides a custom claim for fetching groups. The claim must be a string or an array of strings.'
@@ -7895,6 +8017,42 @@ spec:
                           type: boolean
                       required:
                         - enabled
+                      type: object
+                    tokenAuthFile:
+                      description: |-
+                        Optional: TokenAuthFile configures static token file authentication (the kcp
+                        `--token-auth-file` flag). It is supported by shards, the root shard and the front-proxy.
+                      properties:
+                        key:
+                          description: Key in the secret that holds the token CSV file. Defaults to "token.csv".
+                          type: string
+                        secretName:
+                          description: |-
+                            SecretName is the name of a Kubernetes Secret that contains the token authentication
+                            CSV file. Each line of the file has the format: token,user,uid,"group1,group2,group3".
+                          type: string
+                      required:
+                        - secretName
+                      type: object
+                    webhook:
+                      description: 'Optional: Webhook configures Webhook Authentication.'
+                      properties:
+                        cacheAuthenticationTTL:
+                          description: The duration to cache the authentication responses from the webhook authenticator.
+                          type: string
+                        configSecretName:
+                          description: |-
+                            Name of a Kubernetes Secret that contains a kubeconfig formatted file that defines the
+                            authentication webhook configuration.
+                          type: string
+                        version:
+                          description: The API version of the authentication.k8s.io TokenReview to send to and expect from the webhook.
+                          enum:
+                            - v1beta1
+                            - v1
+                          type: string
+                      required:
+                        - configSecretName
                       type: object
                   type: object
                 authorization:
@@ -8172,6 +8330,26 @@ spec:
                     CertificateTemplates allows to customize the properties on the generated
                     certificates for this shard.
                   type: object
+                clientCABundleRef:
+                  description: |-
+                    ClientCABundleRef references a v1.Secret containing an additional client CA bundle
+                    for client certificate authentication. The secret must contain a key named `tls.crt`.
+                    This CA bundle will be merged with the root shard's client CA.
+                    If configured on a RootShard, this bundle is automatically inherited by all FrontProxies,
+                    Shards, and VirtualWorkspaces connected to it. Each of those components can additionally
+                    specify their own ClientCABundleRef, which will be merged on top.
+                  properties:
+                    name:
+                      default: ""
+                      description: |-
+                        Name of the referent.
+                        This field is effectively required, but due to backwards compatibility is
+                        allowed to be empty. Instances of this type with an empty value here are
+                        almost certainly wrong.
+                        More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+                      type: string
+                  type: object
+                  x-kubernetes-map-type: atomic
                 clusterDomain:
                   description: ClusterDomain is the DNS domain for services in the cluster. Defaults to "cluster.local" if not set.
                   type: string
@@ -9926,6 +10104,24 @@ spec:
                     CertificateTemplates allows to customize the properties on the generated
                     certificates for this server.
                   type: object
+                clientCABundleRef:
+                  description: |-
+                    ClientCABundleRef references a v1.Secret containing an additional client CA bundle
+                    for client certificate authentication. The secret must contain a key named `tls.crt`.
+                    This CA bundle will be merged with the root shard's client CA and its ClientCABundleRef
+                    (if configured).
+                  properties:
+                    name:
+                      default: ""
+                      description: |-
+                        Name of the referent.
+                        This field is effectively required, but due to backwards compatibility is
+                        allowed to be empty. Instances of this type with an empty value here are
+                        almost certainly wrong.
+                        More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+                      type: string
+                  type: object
+                  x-kubernetes-map-type: atomic
                 clusterDomain:
                   description: ClusterDomain is the DNS domain for services in the cluster. Defaults to "cluster.local" if not set.
                   type: string
