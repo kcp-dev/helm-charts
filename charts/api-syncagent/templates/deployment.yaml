@@ -2,11 +2,11 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: '{{ template "name" . }}'
-  {{- with .Values.additionalLabels }}
+  {{- with .Values.extraLabels }}
   labels:
     {{ toYaml . | nindent 4 }}
   {{- end }}
-  {{- with .Values.additionalAnnotations }}
+  {{- with .Values.extraAnnotations }}
   annotations:
     {{ toYaml . | nindent 4 }}
   {{- end }}
@@ -22,12 +22,12 @@ spec:
         app.kubernetes.io/name: kcp-api-syncagent
         app.kubernetes.io/instance: '{{ template "agentname" . }}'
         app.kubernetes.io/version: '{{ .Values.image.tag | default .Chart.AppVersion }}'
-      {{- with .Values.additionalLabels }}
+      {{- with .Values.extraLabels }}
         {{ toYaml . | nindent 8 }}
       {{- end }}
       annotations:
         checksum/values: {{ print .Values | sha256sum }}
-      {{- with .Values.additionalAnnotations }}
+      {{- with .Values.extraAnnotations }}
         {{ toYaml . | nindent 8 }}
       {{- end }}
     spec:

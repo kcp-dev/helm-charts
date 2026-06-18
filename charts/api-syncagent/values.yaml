@@ -130,7 +130,7 @@ securityContext:
       drop:
         - ALL
 
-additionalLabels: {}
+extraLabels: {}
   # key: value
-additionalAnnotations: {}
+extraAnnotations: {}
   # key: value
