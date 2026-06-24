@@ -130,7 +130,13 @@ securityContext:
       drop:
         - ALL
 
+# Additional labels to add to the api-syncagent Deployment and Pods. Use this to
+# attach custom metadata for identification, selection, policy enforcement, or
+# integration with external tooling.
 extraLabels: {}
   # key: value
+
+# Additional annotations to add to the api-syncagent Deployment and Pods to be
+# used for metadata, integration with observability, policy, admission
+# controllers, or other cluster automation tools.
 extraAnnotations: {}
-  # key: value
