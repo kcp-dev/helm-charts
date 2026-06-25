@@ -596,6 +596,26 @@ entries:
     version: 0.1.0
   kcp:
   - apiVersion: v2
+    appVersion: 0.32.2
+    created: "2026-06-25T07:45:22.39438358Z"
+    description: A multi-tenant Kubernetes control plane for workloads on many clusters
+    digest: 9ea6aab42313d55cd94ab03286b1659f1b6cfde6de186c9a5d3da0e920d3f460
+    home: https://www.kcp.io/
+    icon: https://raw.githubusercontent.com/kcp-dev/kcp/main/contrib/logo/blue-green.svg
+    keywords:
+    - kcp
+    - kubernetes
+    - multitenancy
+    - controlplane
+    name: kcp
+    sources:
+    - https://github.com/kcp-dev/helm-charts
+    - https://github.com/kcp-dev/kcp
+    type: application
+    urls:
+    - https://github.com/kcp-dev/helm-charts/releases/download/kcp-0.16.5/kcp-0.16.5.tgz
+    version: 0.16.5
+  - apiVersion: v2
     appVersion: 0.32.1
     created: "2026-06-24T08:24:20.21363683Z"
     description: A multi-tenant Kubernetes control plane for workloads on many clusters
@@ -1634,6 +1654,27 @@ entries:
     version: 0.1.1
   kcp-operator:
   - apiVersion: v2
+    appVersion: v0.8.2
+    created: "2026-06-25T07:45:22.587318024Z"
+    description: A Helm chart for kcp-operator, a Kubernetes operator to deploy and
+      manage kcp instances.
+    digest: 958414d2c39977eff2de84242daf10810d4c22293b661f7e78ed53ad5a04111d
+    home: https://kcp.io
+    icon: https://raw.githubusercontent.com/kcp-dev/kcp/main/contrib/logo/blue-green.svg
+    keywords:
+    - kcp
+    - kubernetes
+    - multitenancy
+    - operator
+    name: kcp-operator
+    sources:
+    - https://github.com/kcp-dev/helm-charts
+    - https://github.com/kcp-dev/kcp-operator
+    type: application
+    urls:
+    - https://github.com/kcp-dev/helm-charts/releases/download/kcp-operator-0.7.6/kcp-operator-0.7.6.tgz
+    version: 0.7.6
+  - apiVersion: v2
     appVersion: v0.8.1
     created: "2026-06-24T08:24:20.429085334Z"
     description: A Helm chart for kcp-operator, a Kubernetes operator to deploy and
@@ -2183,4 +2224,4 @@ entries:
     urls:
     - https://github.com/kcp-dev/helm-charts/releases/download/shard-0.0.2/shard-0.0.2.tgz
     version: 0.0.2
-generated: "2026-06-24T08:24:20.429345286Z"
+generated: "2026-06-25T07:45:22.587586188Z"
