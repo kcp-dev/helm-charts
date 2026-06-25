@@ -2,6 +2,14 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: '{{ template "name" . }}'
+  {{- with .Values.extraLabels }}
+  labels:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  {{- with .Values.extraAnnotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
 spec:
   replicas: {{ .Values.replicas | default 1 }}
   selector:
@@ -14,6 +22,13 @@ spec:
         app.kubernetes.io/name: kcp-api-syncagent
         app.kubernetes.io/instance: '{{ template "agentname" . }}'
         app.kubernetes.io/version: '{{ .Values.image.tag | default .Chart.AppVersion }}'
+      {{- with .Values.extraLabels }}
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.extraAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
     spec:
       {{- if .Values.global.imagePullSecrets }}
       imagePullSecrets:
@@ -23,12 +38,22 @@ spec:
       hostAliases:
         {{- toYaml .Values.hostAliases.values | nindent 8 }}
       {{- end }}
+      {{- with .Values.initContainers }}
+      initContainers:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       containers:
         - name: agent
           args:
             - --namespace=$(POD_NAMESPACE)
             - --enable-leader-election={{ .Values.enableLeaderElection }}
-            - --apiexportendpointslice-ref={{ required "APIExportEndpointSlice name must be configured" .Values.apiExportEndpointSliceName }}
+            {{- if .Values.apiExportEndpointSliceName }}
+            - --apiexportendpointslice-ref={{ .Values.apiExportEndpointSliceName }}
+            {{- else if .Values.apiExportName }}
+            - --apiexport-ref={{ .Values.apiExportName }}
+            {{- else }}
+            {{- required "Either an APIExportEndpointSliceRef or APIExportRef must be configured." "" }}
+            {{- end }}
             - --agent-name=$(AGENT_NAME)
             - --kcp-kubeconfig=/etc/api-syncagent/kcp/kubeconfig
             {{- with .Values.kubeconfig }}
