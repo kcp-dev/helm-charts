@@ -141,3 +141,25 @@ spec:
     name: {{ include "kcp.fullname" . }}-service-account-issuer
     kind: Issuer
     group: cert-manager.io
+
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: {{ include "kcp.fullname" . }}-mounts-proxy
+  labels:
+    {{- include "common.labels" . | nindent 4 }}
+    app.kubernetes.io/component: "server"
+spec:
+  secretName: {{ include "kcp.fullname" . }}-mounts-proxy-cert
+  duration: 8760h # 365d
+  renewBefore: 360h # 15d
+  commonName: kcp-mounts-proxy
+  privateKey:
+    {{- toYaml .Values.certificates.privateKeys | nindent 4 }}
+  usages:
+    - client auth
+  issuerRef:
+    name: {{ include "kcp.fullname" . }}-requestheader-client-issuer
+    kind: Issuer
+    group: cert-manager.io

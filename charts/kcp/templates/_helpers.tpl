@@ -58,6 +58,17 @@ v{{- .Chart.AppVersion -}}
 {{- end -}}
 {{- end -}}
 
+{{- define "kcp.mountsProxyCompatible" -}}
+{{- $version := trimPrefix "v" . -}}
+{{- if regexMatch "^[0-9]+\\.[0-9]+\\.[0-9]+" $version -}}
+{{- if semverCompare ">=0.31.6 <0.32.0 || >=0.32.3" $version -}}
+true
+{{- end -}}
+{{- else -}}
+true
+{{- end -}}
+{{- end -}}
+
 {{- define "etcd.fullname" -}}
 {{- $trimmedName := printf "%s" (include "kcp.fullname" .) | trunc 58 | trimSuffix "-" -}}
 {{- printf "%s-etcd" $trimmedName | trunc 63 | trimSuffix "-" -}}

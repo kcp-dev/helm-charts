@@ -156,6 +156,10 @@ spec:
             - --requestheader-username-headers=X-Remote-User
             - --requestheader-group-headers=X-Remote-Group
             - --requestheader-extra-headers-prefix=X-Remote-Extra-
+            {{- if include "kcp.mountsProxyCompatible" (include "kcp.version" .) }}
+            - --mount-proxy-client-cert-file=/etc/kcp/tls/mounts-proxy/tls.crt
+            - --mount-proxy-client-key-file=/etc/kcp/tls/mounts-proxy/tls.key
+            {{- end }}
             - --root-directory=
             - --shard-virtual-workspace-ca-file=/etc/kcp/tls/ca/tls.crt
             - --shard-base-url=https://{{ include "kcp.fullname" . }}:6443
@@ -260,6 +264,10 @@ spec:
               mountPath: /etc/kcp/tls/service-account-ca
             - name: kcp-requestheader-client-ca
               mountPath: /etc/kcp/tls/requestheader-client-ca
+            {{- if include "kcp.mountsProxyCompatible" (include "kcp.version" .) }}
+            - name: kcp-mounts-proxy-cert
+              mountPath: /etc/kcp/tls/mounts-proxy
+            {{- end }}
             {{- if .Values.authentication.configMapRef.name }}
             - name: kcp-authentication-config
               mountPath: /etc/kcp/authentication
@@ -328,6 +336,11 @@ spec:
         - name: kcp-requestheader-client-ca
           secret:
             secretName: {{ include "kcp.fullname" . }}-requestheader-client-ca
+        {{- if include "kcp.mountsProxyCompatible" (include "kcp.version" .) }}
+        - name: kcp-mounts-proxy-cert
+          secret:
+            secretName: {{ include "kcp.fullname" . }}-mounts-proxy-cert
+        {{- end }}
         {{- if .Values.authentication.configMapRef.name }}
         - name: kcp-authentication-config
           configMap:
