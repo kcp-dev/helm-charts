@@ -89,7 +89,8 @@ for chart in "${!CHART_REPOS[@]}"; do
   changed+=("$chart")
 done
 
-# Regenerate kcp-operator CRDs if it was bumped
+# Regenerate CRDs if charts with CRDs were bumped
+
 if printf '%s\n' "${changed[@]}" | grep -qx "kcp-operator"; then
   if [[ "$DRY_RUN" == true ]]; then
     echo ""
@@ -98,6 +99,17 @@ if printf '%s\n' "${changed[@]}" | grep -qx "kcp-operator"; then
     echo ""
     echo "Regenerating kcp-operator CRDs..."
     hack/update-kcp-operator-crds.sh
+  fi
+fi
+
+if printf '%s\n' "${changed[@]}" | grep -qx "api-syncagent"; then
+  if [[ "$DRY_RUN" == true ]]; then
+    echo ""
+    echo "Would regenerate api-syncagent CRDs"
+  else
+    echo ""
+    echo "Regenerating api-syncagent CRDs..."
+    hack/update-apisyncagent-crds.sh
   fi
 fi
 
