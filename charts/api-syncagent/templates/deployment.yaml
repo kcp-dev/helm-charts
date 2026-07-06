@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: '{{ template "name" . }}'
+  name: '{{ include "api-syncagent.fullname" . }}'
   {{- with .Values.extraLabels }}
   labels:
     {{- toYaml . | nindent 4 }}
