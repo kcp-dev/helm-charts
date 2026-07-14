@@ -10,6 +10,9 @@ global:
 nameOverride: ""
 fullnameOverride: ""
 
+# Override the namespace for namespaced resources. The namespace must already exist.
+namespaceOverride: ""
+
 # Required: You need to configure a reference to an APIExportEndpointSlice so the
 # agent knows which API to serve and where to connect to.
 apiExportEndpointSliceName: ""
