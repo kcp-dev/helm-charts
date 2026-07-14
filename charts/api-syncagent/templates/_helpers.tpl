@@ -1,6 +1,10 @@
 {{- define "name" -}}{{ .Release.Name }}{{- end }}
 {{- define "agentname" -}}{{ .Values.agentName | default .Release.Name }}{{- end }}
 
+{{- define "api-syncagent.namespace" -}}
+{{- default .Release.Namespace .Values.namespaceOverride | quote -}}
+{{- end }}
+
 {{- define "imagePullSecrets" -}}
 {{- range .Values.global.imagePullSecrets }}
 {{- if eq (typeOf .) "map[string]interface {}" }}
