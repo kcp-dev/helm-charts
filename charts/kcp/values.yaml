@@ -166,6 +166,7 @@ kcp:
     seccompProfile:
       type: RuntimeDefault
   containerSecurityContext:
+    readOnlyRootFilesystem: true
     allowPrivilegeEscalation: false
     capabilities:
       drop:
