@@ -56,7 +56,7 @@ spec:
         {{- include "common.labels" . | nindent 8 }}
         app.kubernetes.io/component: "front-proxy"
     spec:
-      {{- with .Values.kcpFrontProxy.securityContext }}
+      {{- with (.Values.kcpFrontProxy.podSecurityContext | default .Values.kcpFrontProxy.securityContext) }}
       securityContext:
         {{- toYaml . | nindent 8 }}
       {{- end }}
@@ -87,6 +87,10 @@ spec:
         - name: kcp-front-proxy
           image: "{{ .Values.kcpFrontProxy.image }}:{{- include "frontproxy.version" . }}"
           imagePullPolicy: {{ .Values.kcpFrontProxy.pullPolicy }}
+          {{- with .Values.kcpFrontProxy.containerSecurityContext }}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
           command: ["/kcp-front-proxy"]
           args:
             - --secure-port=8443

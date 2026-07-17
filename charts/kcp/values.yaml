@@ -55,6 +55,23 @@ etcd:
   # When configured, this will set the priority class for etcd pods.
   priorityClassName: ""
 
+  # DEPRECATED: use podSecurityContext instead.
+  securityContext: {}
+  podSecurityContext:
+    runAsNonRoot: true
+    runAsUser: 65534
+    runAsGroup: 65534
+    fsGroup: 65534
+    seccompProfile:
+      type: RuntimeDefault
+  containerSecurityContext:
+    allowPrivilegeEscalation: false
+    capabilities:
+      drop:
+        - ALL
+    seccompProfile:
+      type: RuntimeDefault
+
   affinity:
     podAntiAffinity:
       preferredDuringSchedulingIgnoredDuringExecution:
@@ -141,9 +158,20 @@ kcp:
   homeWorkspaces:
     enabled: false
 
-  securityContext:
-    # This matches the group id as set in the kcp Dockerfile.
+  # DEPRECATED: use podSecurityContext instead.
+  securityContext: {}
+  podSecurityContext:
+    runAsNonRoot: true
+    runAsUser: 65532  # This matches the user id as set in the kcp Dockerfile.
+    runAsGroup: 65532
     fsGroup: 65532
+    seccompProfile:
+      type: RuntimeDefault
+  containerSecurityContext:
+    allowPrivilegeEscalation: false
+    capabilities:
+      drop:
+        - ALL
     seccompProfile:
       type: RuntimeDefault
 
@@ -294,7 +322,19 @@ kcpFrontProxy:
       - ip: ""
         hostnames: []
 
-  securityContext:
+  # DEPRECATED: use podSecurityContext instead.
+  securityContext: {}
+  podSecurityContext:
+    runAsNonRoot: true
+    runAsUser: 65532
+    runAsGroup: 65532
+    seccompProfile:
+      type: RuntimeDefault
+  containerSecurityContext:
+    allowPrivilegeEscalation: false
+    capabilities:
+      drop:
+        - ALL
     seccompProfile:
       type: RuntimeDefault
 
