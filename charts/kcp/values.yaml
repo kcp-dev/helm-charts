@@ -55,8 +55,6 @@ etcd:
   # When configured, this will set the priority class for etcd pods.
   priorityClassName: ""
 
-  # DEPRECATED: use podSecurityContext instead.
-  securityContext: {}
   podSecurityContext:
     runAsNonRoot: true
     runAsUser: 65534

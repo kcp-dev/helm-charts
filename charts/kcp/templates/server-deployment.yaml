@@ -90,7 +90,7 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
     spec:
-      {{- with (.Values.kcp.podSecurityContext | default .Values.kcp.securityContext) }}
+      {{- with (merge .Values.kcp.securityContext .Values.kcp.podSecurityContext) }}
       securityContext:
         {{- toYaml . | nindent 8 }}
       {{- end }}

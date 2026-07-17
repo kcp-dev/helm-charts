@@ -56,7 +56,7 @@ spec:
         {{- include "common.labels" . | nindent 8 }}
         app.kubernetes.io/component: "front-proxy"
     spec:
-      {{- with (.Values.kcpFrontProxy.podSecurityContext | default .Values.kcpFrontProxy.securityContext) }}
+      {{- with (merge .Values.kcpFrontProxy.securityContext .Values.kcpFrontProxy.podSecurityContext) }}
       securityContext:
         {{- toYaml . | nindent 8 }}
       {{- end }}
