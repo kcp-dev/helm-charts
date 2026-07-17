@@ -68,9 +68,17 @@ spec:
       {{- with .Values.etcd.priorityClassName }}
       priorityClassName: {{ . }}
       {{- end }}
+      {{- with .Values.etcd.podSecurityContext }}
+      securityContext:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       containers:
         - name: etcd
           image: {{ .Values.etcd.image }}:{{ .Values.etcd.tag }}
+          {{- with .Values.etcd.containerSecurityContext }}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
           command:
           - etcd
           - --name=$(HOSTNAME)
