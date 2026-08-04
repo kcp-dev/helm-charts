@@ -90,7 +90,7 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
     spec:
-      {{- with .Values.kcp.securityContext }}
+      {{- with (merge .Values.kcp.securityContext .Values.kcp.podSecurityContext) }}
       securityContext:
         {{- toYaml . | nindent 8 }}
       {{- end }}
@@ -121,8 +121,10 @@ spec:
         - name: kcp
           image: {{ .Values.kcp.image }}:{{- include "kcp.version" . }}
           imagePullPolicy: {{ .Values.kcp.pullPolicy }}
+          {{- with .Values.kcp.containerSecurityContext }}
           securityContext:
-            readOnlyRootFilesystem: true
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
           ports:
             - containerPort: 6443
             {{- if .Values.kcp.profiling.enabled }}
