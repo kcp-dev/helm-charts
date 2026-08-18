@@ -11,4 +11,6 @@ set -x
 
 echo "{{- if .Values.crds.create }}" > "$crdFile"
 kubectl kustomize "https://github.com/kcp-dev/kcp-operator/config/crd?ref=$version" | yq >> "$crdFile"
+echo "---" >> "$crdFile"
+kubectl kustomize "https://github.com/kcp-dev/kcp-operator/config/crd/deploy?ref=$version" | yq >> "$crdFile"
 echo "{{- end }}" >> "$crdFile"
