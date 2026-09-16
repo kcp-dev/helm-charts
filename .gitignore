@@ -6,3 +6,4 @@
 # remove local development nix configs
 *.nix
 *.lock
+.claude

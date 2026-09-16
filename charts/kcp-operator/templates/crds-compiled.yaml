@@ -3530,6 +3530,14 @@ spec:
                           type: object
                         authorization:
                           properties:
+                            allowPaths:
+                              items:
+                                type: string
+                              type: array
+                            order:
+                              items:
+                                type: string
+                              type: array
                             webhook:
                               properties:
                                 allowPaths:
@@ -3546,6 +3554,9 @@ spec:
                                   type: string
                               type: object
                           type: object
+                          x-kubernetes-validations:
+                            - message: Cannot set both allowPaths and webhook.allowPaths (deprecated). Use allowPaths only.
+                              rule: '!(has(self.allowPaths) && has(self.webhook.allowPaths))'
                         caBundleSecretRef:
                           properties:
                             name:
@@ -7039,6 +7050,14 @@ spec:
                       type: object
                     authorization:
                       properties:
+                        allowPaths:
+                          items:
+                            type: string
+                          type: array
+                        order:
+                          items:
+                            type: string
+                          type: array
                         webhook:
                           properties:
                             allowPaths:
@@ -7055,6 +7074,9 @@ spec:
                               type: string
                           type: object
                       type: object
+                      x-kubernetes-validations:
+                        - message: Cannot set both allowPaths and webhook.allowPaths (deprecated). Use allowPaths only.
+                          rule: '!(has(self.allowPaths) && has(self.webhook.allowPaths))'
                     caBundleSecretRef:
                       properties:
                         name:
@@ -13103,6 +13125,14 @@ spec:
                           type: object
                         authorization:
                           properties:
+                            allowPaths:
+                              items:
+                                type: string
+                              type: array
+                            order:
+                              items:
+                                type: string
+                              type: array
                             webhook:
                               properties:
                                 allowPaths:
@@ -13119,6 +13149,9 @@ spec:
                                   type: string
                               type: object
                           type: object
+                          x-kubernetes-validations:
+                            - message: Cannot set both allowPaths and webhook.allowPaths (deprecated). Use allowPaths only.
+                              rule: '!(has(self.allowPaths) && has(self.webhook.allowPaths))'
                         caBundleSecretRef:
                           properties:
                             name:
@@ -16520,6 +16553,14 @@ spec:
                       type: object
                     authorization:
                       properties:
+                        allowPaths:
+                          items:
+                            type: string
+                          type: array
+                        order:
+                          items:
+                            type: string
+                          type: array
                         webhook:
                           properties:
                             allowPaths:
@@ -16536,6 +16577,9 @@ spec:
                               type: string
                           type: object
                       type: object
+                      x-kubernetes-validations:
+                        - message: Cannot set both allowPaths and webhook.allowPaths (deprecated). Use allowPaths only.
+                          rule: '!(has(self.allowPaths) && has(self.webhook.allowPaths))'
                     caBundleSecretRef:
                       properties:
                         name:
@@ -20953,6 +20997,14 @@ spec:
                           type: object
                         authorization:
                           properties:
+                            allowPaths:
+                              items:
+                                type: string
+                              type: array
+                            order:
+                              items:
+                                type: string
+                              type: array
                             webhook:
                               properties:
                                 allowPaths:
@@ -20969,6 +21021,9 @@ spec:
                                   type: string
                               type: object
                           type: object
+                          x-kubernetes-validations:
+                            - message: Cannot set both allowPaths and webhook.allowPaths (deprecated). Use allowPaths only.
+                              rule: '!(has(self.allowPaths) && has(self.webhook.allowPaths))'
                         caBundleSecretRef:
                           properties:
                             name:
@@ -24374,6 +24429,14 @@ spec:
                           type: object
                         authorization:
                           properties:
+                            allowPaths:
+                              items:
+                                type: string
+                              type: array
+                            order:
+                              items:
+                                type: string
+                              type: array
                             webhook:
                               properties:
                                 allowPaths:
@@ -24390,6 +24453,9 @@ spec:
                                   type: string
                               type: object
                           type: object
+                          x-kubernetes-validations:
+                            - message: Cannot set both allowPaths and webhook.allowPaths (deprecated). Use allowPaths only.
+                              rule: '!(has(self.allowPaths) && has(self.webhook.allowPaths))'
                         caBundleSecretRef:
                           properties:
                             name:
