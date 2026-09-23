@@ -3,7 +3,7 @@ name: kcp
 description: A multi-tenant Kubernetes control plane for workloads on many clusters
 # version information
 version: 0.16.6
-appVersion: "0.32.3"
+appVersion: "0.33.0"
 # optional metadata
 type: application
 home: https://www.kcp.io/
